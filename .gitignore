@@ -42,6 +42,23 @@ testem.log
 /typings
 __screenshots__/
 
+# Backend specific
+backend/node_modules
+backend/dist
+backend/coverage
+backend/.env
+backend/.env.local
+backend/.env.development
+backend/.env.production
+backend/logs
+backend/*.log
+backend/*.tgz
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+
 # System files
 .DS_Store
 Thumbs.db

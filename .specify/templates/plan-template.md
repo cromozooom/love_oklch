@@ -31,7 +31,20 @@
 
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-[Gates determined based on constitution file]
+**Core Principles Compliance:**
+- ✅/❌ Clean Code Excellence: [TypeScript types, meaningful names, single responsibility]
+- ✅/❌ Simple User Experience: [Intuitive UI, minimal clicks, consistent patterns]
+- ✅/❌ Minimal Dependencies: [Angular CDK preferred, essential packages only]
+- ✅/❌ Comprehensive E2E Testing: [Playwright coverage for all scenarios]
+- ✅/❌ Centralized State Store: [Angular Signals + RxJS, no legacy state libraries]
+- ✅/❌ Local Development Containerization: [Docker PostgreSQL with seeded data]
+
+**Technology Stack Alignment:**
+- ✅/❌ Frontend: Angular (latest stable)
+- ✅/❌ Database: PostgreSQL with proper containerization
+- ✅/❌ Testing: Playwright for E2E, multi-browser support
+- ✅/❌ Build Tools: PowerShell 7+ cross-platform scripts
+- ✅/❌ Repository Structure: frontend/, backend/, e2e/, docs/ organization
 
 ## Project Structure
 
