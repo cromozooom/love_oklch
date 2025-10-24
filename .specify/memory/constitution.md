@@ -1,11 +1,11 @@
 <!--
 Sync Impact Report:
-Version change: 1.4.0 → 1.5.0
+Version change: 1.5.0 → 1.6.0
 Modified principles: None
-Added sections: Git Repository Structure requirements
+Added sections: VI. Local Development Environment Containerization
 Removed sections: None
 Templates requiring updates:
-- ⚠ .specify/templates/plan-template.md - pending review for constitution alignment
+- ✅ .specify/templates/plan-template.md - updated with containerization requirements and detailed constitution check
 - ⚠ .specify/templates/spec-template.md - pending review for scope/requirements alignment
 - ⚠ .specify/templates/tasks-template.md - pending review for task categorization alignment
 - ⚠ .specify/templates/commands/*.md - pending review for outdated references
@@ -50,6 +50,14 @@ The project MUST implement a centralized state store using Angular Signals for
 local and global state, with RxJS for asynchronous effects and derived state.
 Legacy state libraries (e.g., NgRx, Akita) MUST NOT be used.
 
+### VI. Local Development Environment Containerization
+
+The project MUST provide containerized database environments for local
+development. This includes Docker containers for PostgreSQL with pre-seeded
+data for 3 user types (designer, developer, admin), easy setup and refresh
+commands, volume persistence for development data, and environment isolation to
+prevent conflicts between local and production databases.
+
 ## Technology Stack and Constraints
 
 - Frontend: Angular (latest stable)
@@ -58,6 +66,9 @@ Legacy state libraries (e.g., NgRx, Akita) MUST NOT be used.
 - Color Operations: colorjs.io
 - Data Visualization: D3.js for SVG drawings
 - Database: PostgreSQL for saving works and user data
+- Database Containerization: Docker containers MUST be provided for local
+  PostgreSQL development with pre-seeded data for 3 user types, easy setup and
+  refresh commands, and environment isolation
 - Development Environment: PowerShell commands for build and deployment scripts
 - All PowerShell scripts MUST be cross-platform compatible (PowerShell 7+)
 - Database schema MUST support user authentication and work persistence
@@ -101,5 +112,5 @@ development guidance.
 - Enforcement: All pull requests MUST be reviewed against these principles. Code
   violating principles will be rejected with guidance.
 
-**Version**: 1.5.0 | **Ratified**: TODO(RATIFICATION_DATE): Set when formally
+**Version**: 1.6.0 | **Ratified**: TODO(RATIFICATION_DATE): Set when formally
 adopted | **Last Amended**: 2025-10-24
