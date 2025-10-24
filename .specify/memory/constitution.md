@@ -1,8 +1,8 @@
 <!--
 Sync Impact Report:
-Version change: 1.2.0 → 1.3.0
-Modified principles: None
-Added sections: Tailwind CSS support in tech stack
+Version change: 1.3.0 → 1.4.0
+Modified principles: Updated "Comprehensive End-to-End Testing" to specify Playwright
+Added sections: Playwright E2E testing specification
 Removed sections: None
 Templates requiring updates:
 - ⚠ .specify/templates/plan-template.md - pending review for constitution alignment
@@ -39,9 +39,10 @@ for security and necessity.
 
 ### IV. Comprehensive End-to-End Testing
 
-Every user scenario MUST be covered by automated end-to-end tests. This includes
-happy paths, error scenarios, edge cases, cross-browser compatibility, and
-accessibility compliance testing.
+Every user scenario MUST be covered by automated end-to-end tests using
+Playwright. This includes happy paths, error scenarios, edge cases,
+cross-browser compatibility, and accessibility compliance testing. Playwright
+MUST be configured for multi-browser testing (Chromium, Firefox, WebKit).
 
 ### V. Centralized State Store (Signals + RxJS)
 
@@ -68,6 +69,9 @@ Legacy state libraries (e.g., NgRx, Akita) MUST NOT be used.
 - Tailwind CSS MUST be used as the utility-first CSS framework for rapid,
   consistent, and maintainable UI styling. Tailwind integration MUST follow
   Angular's official support and best practices.
+- E2E Testing: Playwright MUST be used for all end-to-end testing scenarios
+  with multi-browser support (Chromium, Firefox, WebKit). Tests MUST cover user
+  workflows, accessibility compliance, and cross-browser compatibility.
 
 ## Development Workflow
 
@@ -92,5 +96,5 @@ development guidance.
 - Enforcement: All pull requests MUST be reviewed against these principles. Code
   violating principles will be rejected with guidance.
 
-**Version**: 1.3.0 | **Ratified**: TODO(RATIFICATION_DATE): Set when formally
+**Version**: 1.4.0 | **Ratified**: TODO(RATIFICATION_DATE): Set when formally
 adopted | **Last Amended**: 2025-10-24
