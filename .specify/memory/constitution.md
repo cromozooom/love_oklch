@@ -1,8 +1,8 @@
 <!--
 Sync Impact Report:
-Version change: 1.3.0 → 1.4.0
-Modified principles: Updated "Comprehensive End-to-End Testing" to specify Playwright
-Added sections: Playwright E2E testing specification
+Version change: 1.4.0 → 1.5.0
+Modified principles: None
+Added sections: Git Repository Structure requirements
 Removed sections: None
 Templates requiring updates:
 - ⚠ .specify/templates/plan-template.md - pending review for constitution alignment
@@ -72,6 +72,11 @@ Legacy state libraries (e.g., NgRx, Akita) MUST NOT be used.
 - E2E Testing: Playwright MUST be used for all end-to-end testing scenarios
   with multi-browser support (Chromium, Firefox, WebKit). Tests MUST cover user
   workflows, accessibility compliance, and cross-browser compatibility.
+- Repository Structure: The Git repository MUST be organized into distinct
+  folders: `frontend/` (Angular application), `backend/` (database operations,
+  seed scripts, API services), `e2e/` (Playwright tests), and `docs/`
+  (comprehensive project documentation). This structure ensures clear separation
+  of concerns and easy navigation.
 
 ## Development Workflow
 
@@ -96,5 +101,5 @@ development guidance.
 - Enforcement: All pull requests MUST be reviewed against these principles. Code
   violating principles will be rejected with guidance.
 
-**Version**: 1.4.0 | **Ratified**: TODO(RATIFICATION_DATE): Set when formally
+**Version**: 1.5.0 | **Ratified**: TODO(RATIFICATION_DATE): Set when formally
 adopted | **Last Amended**: 2025-10-24
