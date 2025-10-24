@@ -1,8 +1,8 @@
 <!--
 Sync Impact Report:
-Version change: 1.1.0 → 1.2.0
+Version change: 1.2.0 → 1.3.0
 Modified principles: None
-Added sections: Data seed container constraint
+Added sections: Tailwind CSS support in tech stack
 Removed sections: None
 Templates requiring updates:
 - ⚠ .specify/templates/plan-template.md - pending review for constitution alignment
@@ -65,6 +65,9 @@ Legacy state libraries (e.g., NgRx, Akita) MUST NOT be used.
 - State management MUST use Angular Signals pattern exclusively
 - A container with data seed for 3 user types MUST be provided, and MUST be easy
   to use and refresh for development and testing purposes.
+- Tailwind CSS MUST be used as the utility-first CSS framework for rapid,
+  consistent, and maintainable UI styling. Tailwind integration MUST follow
+  Angular's official support and best practices.
 
 ## Development Workflow
 
@@ -89,5 +92,5 @@ development guidance.
 - Enforcement: All pull requests MUST be reviewed against these principles. Code
   violating principles will be rejected with guidance.
 
-**Version**: 1.2.0 | **Ratified**: TODO(RATIFICATION_DATE): Set when formally
+**Version**: 1.3.0 | **Ratified**: TODO(RATIFICATION_DATE): Set when formally
 adopted | **Last Amended**: 2025-10-24
