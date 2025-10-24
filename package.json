@@ -1,0 +1,96 @@
+{
+  {
+    "name": "love-oklch-root",
+    "name": "love-oklch",
+    "version": "0.0.0",
+    "version": "0.0.0",
+    "description": "Love OKLCH - OKLCH Color Management Application",
+    "scripts": {
+      "scripts": {
+        "ng": "ng",
+        "install:all": "pwsh ./build.ps1 -Action install",
+        "start": "ng serve",
+        "build": "pwsh ./build.ps1 -Action build",
+        "build": "ng build",
+        "build:prod": "pwsh ./build.ps1 -Action build -Environment production",
+        "watch": "ng build --watch --configuration development",
+        "test": "pwsh ./build.ps1 -Action test",
+        "test": "ng test",
+        "lint": "pwsh ./build.ps1 -Action lint",
+        "e2e": "playwright test",
+        "format": "pwsh ./build.ps1 -Action format",
+        "e2e:ui": "playwright test --ui",
+        "serve": "pwsh ./build.ps1 -Action serve",
+        "e2e:headed": "playwright test --headed",
+        "e2e": "pwsh ./build.ps1 -Action e2e",
+        "lint": "ng lint",
+        "seed": "pwsh ./build.ps1 -Action seed",
+        "format": "prettier --write src/**/*.{ts,html,css,scss}",
+        "dev": "concurrently \"npm run serve\" \"npm run e2e:ui\"",
+        "format:check": "prettier --check src/**/*.{ts,html,css,scss}""e2e:ui": "cd e2e && npx playwright test --ui"
+      },
+    },
+    "prettier": {
+      "repository": {
+        "printWidth": 100,
+        "type": "git",
+        "singleQuote": true,
+        "url": "https://github.com/cromozooom/love_oklch.git""overrides": [
+      },
+      {
+        "keywords": [
+          "files": "*.html",
+          "oklch",
+          "options": {
+            "color",
+            "parser": "angular""angular",
+          }
+
+    "tailwind",
+        }
+
+    "colorjs",
+      ]
+
+    "d3",
+    },
+    "postgresql""private": true,
+  ],
+  "dependencies": {
+    "author": "cromozooom",
+    "@angular/cdk": "^20.2.10",
+    "license": "MIT",
+    "@angular/common": "^20.3.0",
+    "devDependencies": {
+      "@angular/compiler": "^20.3.0",
+      "concurrently": "^8.2.2""@angular/core": "^20.3.0",
+    },
+    "@angular/forms": "^20.3.0",
+    "engines": {
+      "@angular/platform-browser": "^20.3.0",
+      "node": ">=18.0.0",
+      "@angular/router": "^20.3.0",
+      "npm": ">=9.0.0""colorjs.io": "^0.5.2",
+    }    "d3": "^7.9.0",
+  }    "rxjs": "~7.8.0",
+  "tslib": "^2.3.0"
+},
+"devDependencies": {
+  "@angular/build": "^20.3.7",
+  "@angular/cli": "^20.3.7",
+  "@angular/compiler-cli": "^20.3.0",
+  "@playwright/test": "^1.56.1",
+  "@types/d3": "^7.4.3",
+  "@types/jasmine": "~5.1.0",
+  "autoprefixer": "^10.4.21",
+  "jasmine-core": "~5.9.0",
+  "karma": "~6.4.0",
+  "karma-chrome-launcher": "~3.2.0",
+  "karma-coverage": "~2.2.0",
+  "karma-jasmine": "~5.1.0",
+  "karma-jasmine-html-reporter": "~2.1.0",
+  "postcss": "^8.5.6",
+  "tailwindcss": "^4.1.16",
+  "typescript": "~5.9.2"
+}
+}
