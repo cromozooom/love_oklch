@@ -1,4 +1,9 @@
 /* You can add global styles to this file, and also import other style files */
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+
+/* Custom OKLCH colors */
+@theme {
+  --color-oklch-primary: oklch(0.7 0.15 180);
+  --color-oklch-secondary: oklch(0.6 0.12 240);
+  --color-oklch-accent: oklch(0.8 0.20 60);
+}

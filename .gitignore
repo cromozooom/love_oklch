@@ -11,7 +11,6 @@ docs/drawings
 
 # Node
 */node_modules
-frontend/node_modules
 npm-debug.log
 yarn-error.log
 
@@ -41,6 +40,20 @@ yarn-error.log
 testem.log
 /typings
 __screenshots__/
+*.tsbuildinfo
+
+# Testing and Reports
+test-results/
+playwright-report/
+.nyc_output/
+mochawesome-report/
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
 
 # Backend specific
 backend/node_modules
@@ -53,7 +66,22 @@ backend/.env.production
 backend/logs
 backend/*.log
 backend/*.tgz
+backend/*.tsbuildinfo
 
+# Prisma generated files (if not using default location)
+backend/prisma/migrations/*.sql.bak
+
+# frontend specific
+frontend/node_modules
+frontend/.angular
+frontend/dist
+frontend/coverage
+frontend/*.tsbuildinfo
+
+# E2E Testing
+e2e/test-results
+e2e/playwright-report
+e2e/coverage
 # Database
 *.db
 *.sqlite
@@ -62,3 +90,11 @@ backend/*.tgz
 # System files
 .DS_Store
 Thumbs.db
+*.swp
+*.swo
+*~
+
+# Temporary files
+*.tmp
+*.temp
+.cache/

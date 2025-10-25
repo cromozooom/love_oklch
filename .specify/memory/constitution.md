@@ -1,14 +1,14 @@
 <!--
 Sync Impact Report:
-Version change: 1.4.0 → 1.5.0
+Version change: 1.6.0 → 1.7.0
 Modified principles: None
-Added sections: Git Repository Structure requirements
+Added sections: VII. Frontend Component File Structure principle
 Removed sections: None
 Templates requiring updates:
-- ⚠ .specify/templates/plan-template.md - pending review for constitution alignment
+- ✅ .specify/templates/plan-template.md - updated with new principle compliance check
 - ⚠ .specify/templates/spec-template.md - pending review for scope/requirements alignment
-- ⚠ .specify/templates/tasks-template.md - pending review for task categorization alignment
-- ⚠ .specify/templates/commands/*.md - pending review for outdated references
+- ✅ .specify/templates/tasks-template.md - no updates needed (principle doesn't affect task organization)
+- N/A .specify/templates/commands/*.md - directory does not exist yet
 Follow-up TODOs: Ratification date needs to be set when formally adopted
 -->
 
@@ -50,6 +50,25 @@ The project MUST implement a centralized state store using Angular Signals for
 local and global state, with RxJS for asynchronous effects and derived state.
 Legacy state libraries (e.g., NgRx, Akita) MUST NOT be used.
 
+### VI. PowerShell Command Execution
+
+All PowerShell commands MUST explicitly specify the target directory to ensure
+proper execution context. The repository structure consists of three main
+folders: `frontend/`, `backend/`, and `e2e/`. Commands executed without proper
+directory specification will fail due to incorrect working directory context.
+This principle ensures reliable script execution and prevents path-related
+errors during development and CI/CD operations.
+
+### VII. Frontend Component File Structure
+
+Frontend components with more than 60 lines of code MUST be organized into
+separate files for maintainability and readability. Each component MUST have at
+least three files: TypeScript (.ts), HTML template (.html), and styles
+(.scss or .css). This separation enforces the principle of separation of
+concerns, improves code organization, and enables better collaboration between
+developers working on different aspects of the same component. Inline templates
+and styles are prohibited for components exceeding the 60-line threshold.
+
 ## Technology Stack and Constraints
 
 - Frontend: Angular (latest stable)
@@ -60,6 +79,8 @@ Legacy state libraries (e.g., NgRx, Akita) MUST NOT be used.
 - Database: PostgreSQL for saving works and user data
 - Development Environment: PowerShell commands for build and deployment scripts
 - All PowerShell scripts MUST be cross-platform compatible (PowerShell 7+)
+- PowerShell commands MUST explicitly specify target directories (`cd frontend && npm start` or `Set-Location frontend; npm start`) due to the three-folder structure: `frontend/`, `backend/`, and `e2e/`
+- Commands executed from the root directory without proper path specification WILL fail
 - Database schema MUST support user authentication and work persistence
 - Color operations MUST leverage OKLCH color space for perceptual uniformity
 - SVG visualizations MUST be responsive and accessible
@@ -101,5 +122,5 @@ development guidance.
 - Enforcement: All pull requests MUST be reviewed against these principles. Code
   violating principles will be rejected with guidance.
 
-**Version**: 1.5.0 | **Ratified**: TODO(RATIFICATION_DATE): Set when formally
-adopted | **Last Amended**: 2025-10-24
+**Version**: 1.7.0 | **Ratified**: TODO(RATIFICATION_DATE): Set when formally
+adopted | **Last Amended**: 2025-10-25
