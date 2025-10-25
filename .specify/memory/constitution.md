@@ -1,14 +1,14 @@
 <!--
 Sync Impact Report:
-Version change: 1.5.0 → 1.6.0
+Version change: 1.7.0 → 1.8.0
 Modified principles: None
-Added sections: VI. Local Development Environment Containerization
+Added sections: VIII. Production Code Cleanliness principle
 Removed sections: None
 Templates requiring updates:
-- ✅ .specify/templates/plan-template.md - updated with containerization requirements and detailed constitution check
-- ⚠ .specify/templates/spec-template.md - pending review for scope/requirements alignment
-- ⚠ .specify/templates/tasks-template.md - pending review for task categorization alignment
-- ⚠ .specify/templates/commands/*.md - pending review for outdated references
+- ✅ .specify/templates/plan-template.md - updated with new principle compliance check
+- ✅ .specify/templates/spec-template.md - no updates needed (principle doesn't affect user scenarios)
+- ✅ .specify/templates/tasks-template.md - no updates needed (principle doesn't affect task organization)
+- N/A .specify/templates/commands/*.md - directory does not exist yet
 Follow-up TODOs: Ratification date needs to be set when formally adopted
 -->
 
@@ -50,13 +50,50 @@ The project MUST implement a centralized state store using Angular Signals for
 local and global state, with RxJS for asynchronous effects and derived state.
 Legacy state libraries (e.g., NgRx, Akita) MUST NOT be used.
 
-### VI. Local Development Environment Containerization
+### VI. PowerShell Command Execution
 
-The project MUST provide containerized database environments for local
-development. This includes Docker containers for PostgreSQL with pre-seeded
-data for 3 user types (designer, developer, admin), easy setup and refresh
-commands, volume persistence for development data, and environment isolation to
-prevent conflicts between local and production databases.
+All PowerShell commands MUST use proper PowerShell syntax and explicitly specify
+the target directory to ensure proper execution context. The repository
+structure consists of three main folders: `frontend/`, `backend/`, and `e2e/`.
+
+**Command Chaining Requirements:**
+
+- MUST use semicolon (`;`) as command separator in PowerShell, NOT double ampersand (`&&`)
+- Double ampersand (`&&`) is bash syntax and will cause parser errors in PowerShell
+- Example CORRECT: `cd frontend; npm run build`
+- Example INCORRECT: `cd frontend && npm run build`
+
+**Directory Context Requirements:**
+
+- Commands executed without proper directory specification will fail due to incorrect working directory context
+- Always specify target directory before running commands: `cd frontend; npm start` or `Set-Location frontend; npm start`
+- Use absolute paths when necessary to avoid navigation issues
+
+This principle ensures reliable script execution, prevents path-related errors
+during development and CI/CD operations, and maintains compatibility with the
+PowerShell environment used in this project.
+
+### VII. Frontend Component File Structure
+
+Frontend components with more than 60 lines of code MUST be organized into
+separate files for maintainability and readability. Each component MUST have at
+least three files: TypeScript (.ts), HTML template (.html), and styles
+(.scss or .css). This separation enforces the principle of separation of
+concerns, improves code organization, and enables better collaboration between
+developers working on different aspects of the same component. Inline templates
+and styles are prohibited for components exceeding the 60-line threshold.
+
+### VIII. Production Code Cleanliness
+
+All debug console statements (console.log, console.warn, console.error,
+console.info) MUST be removed before pushing code to any shared branch.
+Production code MUST NOT contain debugging artifacts, temporary logging, or
+development-only console output. The only exceptions are: (1) intentional
+application logging for production monitoring, (2) critical error handling that
+provides user value, and (3) accessibility announcements. This principle ensures
+clean production deployments, prevents sensitive data leakage through console
+output, maintains professional code quality, and avoids console noise that can
+interfere with legitimate debugging efforts.
 
 ## Technology Stack and Constraints
 
@@ -71,6 +108,8 @@ prevent conflicts between local and production databases.
   refresh commands, and environment isolation
 - Development Environment: PowerShell commands for build and deployment scripts
 - All PowerShell scripts MUST be cross-platform compatible (PowerShell 7+)
+- PowerShell commands MUST explicitly specify target directories (`cd frontend && npm start` or `Set-Location frontend; npm start`) due to the three-folder structure: `frontend/`, `backend/`, and `e2e/`
+- Commands executed from the root directory without proper path specification WILL fail
 - Database schema MUST support user authentication and work persistence
 - Color operations MUST leverage OKLCH color space for perceptual uniformity
 - SVG visualizations MUST be responsive and accessible
@@ -112,5 +151,5 @@ development guidance.
 - Enforcement: All pull requests MUST be reviewed against these principles. Code
   violating principles will be rejected with guidance.
 
-**Version**: 1.6.0 | **Ratified**: TODO(RATIFICATION_DATE): Set when formally
-adopted | **Last Amended**: 2025-10-24
+**Version**: 1.8.0 | **Ratified**: TODO(RATIFICATION_DATE): Set when formally
+adopted | **Last Amended**: 2025-10-25

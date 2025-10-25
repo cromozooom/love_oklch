@@ -1,0 +1,23 @@
+<div>
+  <span>Welcome, {{ userInfo?.name || userInfo?.email }}</span>
+  <span>
+    {{ userInfo?.role | titlecase }}
+  </span>
+  <button (click)="logout()">Logout</button>
+</div>
+<div>
+  <h3>Account Information</h3>
+  <div>
+    <p><span>Email:</span> {{ userInfo?.email }}</p>
+    <p>
+      <span>Name:</span>
+      {{ userInfo?.name || "Not provided" }}
+    </p>
+    <p>
+      <span>Role:</span>
+      {{ userInfo?.role | titlecase }}
+    </p>
+
+    <a href="/admin/plan-management">/admin/plan-management</a>
+  </div>
+</div>

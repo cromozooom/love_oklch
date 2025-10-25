@@ -1,0 +1,506 @@
+{
+  "plans": [
+    {
+      "plan_id": "00000000-0000-0000-0000-000000000001",
+      "name": "Free",
+      "slug": "free",
+      "description": "Free plan with basic features",
+      "price": 0.00,
+      "currency": "USD",
+      "billing_interval": null,
+      "is_active": true,
+      "sort_order": 1,
+      "metadata": {
+        "trial_days": 0,
+        "popular": false
+      }
+    },
+    {
+      "plan_id": "00000000-0000-0000-0000-000000000002",
+      "name": "Basic",
+      "slug": "basic",
+      "description": "Basic plan with expanded features",
+      "price": 9.99,
+      "currency": "USD",
+      "billing_interval": "monthly",
+      "is_active": true,
+      "sort_order": 2,
+      "metadata": {
+        "trial_days": 14,
+        "popular": true
+      }
+    },
+    {
+      "plan_id": "00000000-0000-0000-0000-000000000003",
+      "name": "Pro",
+      "slug": "pro",
+      "description": "Professional plan with all features",
+      "price": 19.99,
+      "currency": "USD",
+      "billing_interval": "monthly",
+      "is_active": true,
+      "sort_order": 3,
+      "metadata": {
+        "trial_days": 14,
+        "popular": false
+      }
+    }
+  ],
+  "features": [
+    {
+      "feature_id": "10000000-0000-0000-0000-000000000001",
+      "key_name": "COLOR_PALETTE_STORAGE",
+      "display_name": "Color Palette Storage",
+      "description": "Number of color palettes that can be stored",
+      "category": "storage",
+      "is_boolean": false,
+      "default_value": {
+        "limit": 5
+      },
+      "validation_schema": {
+        "type": "object",
+        "properties": {
+          "limit": {
+            "type": "integer",
+            "minimum": 0
+          }
+        }
+      },
+      "is_active": true
+    },
+    {
+      "feature_id": "10000000-0000-0000-0000-000000000002",
+      "key_name": "EXPORT_FORMATS",
+      "display_name": "Export Formats",
+      "description": "Available export formats for color palettes",
+      "category": "export",
+      "is_boolean": false,
+      "default_value": {
+        "formats": [
+          "css"
+        ]
+      },
+      "validation_schema": {
+        "type": "object",
+        "properties": {
+          "formats": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "is_active": true
+    },
+    {
+      "feature_id": "10000000-0000-0000-0000-000000000003",
+      "key_name": "ADVANCED_COLOR_TOOLS",
+      "display_name": "Advanced Color Tools",
+      "description": "Access to advanced color manipulation tools",
+      "category": "tools",
+      "is_boolean": true,
+      "default_value": {
+        "enabled": false
+      },
+      "validation_schema": {
+        "type": "object",
+        "properties": {
+          "enabled": {
+            "type": "boolean"
+          }
+        }
+      },
+      "is_active": true
+    },
+    {
+      "feature_id": "10000000-0000-0000-0000-000000000004",
+      "key_name": "API_ACCESS",
+      "display_name": "API Access",
+      "description": "Access to the OKLCH API",
+      "category": "integration",
+      "is_boolean": true,
+      "default_value": {
+        "enabled": false
+      },
+      "validation_schema": {
+        "type": "object",
+        "properties": {
+          "enabled": {
+            "type": "boolean"
+          }
+        }
+      },
+      "is_active": true
+    },
+    {
+      "feature_id": "10000000-0000-0000-0000-000000000005",
+      "key_name": "MONTHLY_EXPORTS",
+      "display_name": "Monthly Exports",
+      "description": "Number of exports allowed per month",
+      "category": "usage",
+      "is_boolean": false,
+      "default_value": {
+        "limit": 10
+      },
+      "validation_schema": {
+        "type": "object",
+        "properties": {
+          "limit": {
+            "type": "integer",
+            "minimum": 0
+          }
+        }
+      },
+      "is_active": true
+    },
+    {
+      "feature_id": "10000000-0000-0000-0000-000000000006",
+      "key_name": "PRIORITY_SUPPORT",
+      "display_name": "Priority Support",
+      "description": "Access to priority customer support",
+      "category": "support",
+      "is_boolean": true,
+      "default_value": {
+        "enabled": false
+      },
+      "validation_schema": {
+        "type": "object",
+        "properties": {
+          "enabled": {
+            "type": "boolean"
+          }
+        }
+      },
+      "is_active": true
+    },
+    {
+      "feature_id": "10000000-0000-0000-0000-000000000007",
+      "key_name": "COLLABORATION",
+      "display_name": "Team Collaboration",
+      "description": "Share palettes and collaborate with team members",
+      "category": "collaboration",
+      "is_boolean": true,
+      "default_value": {
+        "enabled": false
+      },
+      "validation_schema": {
+        "type": "object",
+        "properties": {
+          "enabled": {
+            "type": "boolean"
+          }
+        }
+      },
+      "is_active": true
+    }
+  ],
+  "plan_features": [
+    {
+      "plan_id": "00000000-0000-0000-0000-000000000001",
+      "feature_id": "10000000-0000-0000-0000-000000000001",
+      "value": {
+        "limit": 5
+      },
+      "is_enabled": true,
+      "description": "Free plan: 5 palettes"
+    },
+    {
+      "plan_id": "00000000-0000-0000-0000-000000000001",
+      "feature_id": "10000000-0000-0000-0000-000000000002",
+      "value": {
+        "formats": [
+          "css"
+        ]
+      },
+      "is_enabled": true,
+      "description": "Free plan: CSS export only"
+    },
+    {
+      "plan_id": "00000000-0000-0000-0000-000000000001",
+      "feature_id": "10000000-0000-0000-0000-000000000003",
+      "value": {
+        "enabled": false
+      },
+      "is_enabled": false,
+      "description": "Free plan: No advanced tools"
+    },
+    {
+      "plan_id": "00000000-0000-0000-0000-000000000001",
+      "feature_id": "10000000-0000-0000-0000-000000000004",
+      "value": {
+        "enabled": false
+      },
+      "is_enabled": false,
+      "description": "Free plan: No API access"
+    },
+    {
+      "plan_id": "00000000-0000-0000-0000-000000000001",
+      "feature_id": "10000000-0000-0000-0000-000000000005",
+      "value": {
+        "limit": 10
+      },
+      "is_enabled": true,
+      "description": "Free plan: 10 exports per month"
+    },
+    {
+      "plan_id": "00000000-0000-0000-0000-000000000001",
+      "feature_id": "10000000-0000-0000-0000-000000000006",
+      "value": {
+        "enabled": false
+      },
+      "is_enabled": false,
+      "description": "Free plan: No priority support"
+    },
+    {
+      "plan_id": "00000000-0000-0000-0000-000000000001",
+      "feature_id": "10000000-0000-0000-0000-000000000007",
+      "value": {
+        "enabled": false
+      },
+      "is_enabled": false,
+      "description": "Free plan: No collaboration"
+    },
+    {
+      "plan_id": "00000000-0000-0000-0000-000000000002",
+      "feature_id": "10000000-0000-0000-0000-000000000001",
+      "value": {
+        "limit": 50
+      },
+      "is_enabled": true,
+      "description": "Basic plan: 50 palettes"
+    },
+    {
+      "plan_id": "00000000-0000-0000-0000-000000000002",
+      "feature_id": "10000000-0000-0000-0000-000000000002",
+      "value": {
+        "formats": [
+          "css",
+          "scss",
+          "json",
+          "adobe-ase"
+        ]
+      },
+      "is_enabled": true,
+      "description": "Basic plan: Multiple export formats"
+    },
+    {
+      "plan_id": "00000000-0000-0000-0000-000000000002",
+      "feature_id": "10000000-0000-0000-0000-000000000003",
+      "value": {
+        "enabled": true
+      },
+      "is_enabled": true,
+      "description": "Basic plan: Advanced tools enabled"
+    },
+    {
+      "plan_id": "00000000-0000-0000-0000-000000000002",
+      "feature_id": "10000000-0000-0000-0000-000000000004",
+      "value": {
+        "enabled": false
+      },
+      "is_enabled": false,
+      "description": "Basic plan: No API access"
+    },
+    {
+      "plan_id": "00000000-0000-0000-0000-000000000002",
+      "feature_id": "10000000-0000-0000-0000-000000000005",
+      "value": {
+        "limit": 100
+      },
+      "is_enabled": true,
+      "description": "Basic plan: 100 exports per month"
+    },
+    {
+      "plan_id": "00000000-0000-0000-0000-000000000002",
+      "feature_id": "10000000-0000-0000-0000-000000000006",
+      "value": {
+        "enabled": true
+      },
+      "is_enabled": true,
+      "description": "Basic plan: Priority support"
+    },
+    {
+      "plan_id": "00000000-0000-0000-0000-000000000002",
+      "feature_id": "10000000-0000-0000-0000-000000000007",
+      "value": {
+        "enabled": true
+      },
+      "is_enabled": true,
+      "description": "Basic plan: Collaboration enabled"
+    },
+    {
+      "plan_id": "00000000-0000-0000-0000-000000000003",
+      "feature_id": "10000000-0000-0000-0000-000000000001",
+      "value": {
+        "limit": -1
+      },
+      "is_enabled": true,
+      "description": "Pro plan: Unlimited palettes (-1 means unlimited)"
+    },
+    {
+      "plan_id": "00000000-0000-0000-0000-000000000003",
+      "feature_id": "10000000-0000-0000-0000-000000000002",
+      "value": {
+        "formats": [
+          "css",
+          "scss",
+          "json",
+          "adobe-ase",
+          "sketch",
+          "figma",
+          "pdf"
+        ]
+      },
+      "is_enabled": true,
+      "description": "Pro plan: All export formats"
+    },
+    {
+      "plan_id": "00000000-0000-0000-0000-000000000003",
+      "feature_id": "10000000-0000-0000-0000-000000000003",
+      "value": {
+        "enabled": true
+      },
+      "is_enabled": true,
+      "description": "Pro plan: Advanced tools enabled"
+    },
+    {
+      "plan_id": "00000000-0000-0000-0000-000000000003",
+      "feature_id": "10000000-0000-0000-0000-000000000004",
+      "value": {
+        "enabled": true
+      },
+      "is_enabled": true,
+      "description": "Pro plan: API access enabled"
+    },
+    {
+      "plan_id": "00000000-0000-0000-0000-000000000003",
+      "feature_id": "10000000-0000-0000-0000-000000000005",
+      "value": {
+        "limit": -1
+      },
+      "is_enabled": true,
+      "description": "Pro plan: Unlimited exports"
+    },
+    {
+      "plan_id": "00000000-0000-0000-0000-000000000003",
+      "feature_id": "10000000-0000-0000-0000-000000000006",
+      "value": {
+        "enabled": true
+      },
+      "is_enabled": true,
+      "description": "Pro plan: Priority support"
+    },
+    {
+      "plan_id": "00000000-0000-0000-0000-000000000003",
+      "feature_id": "10000000-0000-0000-0000-000000000007",
+      "value": {
+        "enabled": true
+      },
+      "is_enabled": true,
+      "description": "Pro plan: Collaboration enabled"
+    }
+  ],
+  "users": [
+    {
+      "user_id": "20000000-0000-0000-0000-000000000001",
+      "email": "free.user@example.com",
+      "password_hash": "$2a$12$Z8FqMrkk.WVW84FIbdfy0eKZdbI/W/9oXGs4t9p/E/wOCuT9zl5SW",
+      "name": "Free User",
+      "is_active": true,
+      "description": "Test user for free plan features"
+    },
+    {
+      "user_id": "20000000-0000-0000-0000-000000000002",
+      "email": "basic.user@example.com",
+      "password_hash": "$2a$12$Z8FqMrkk.WVW84FIbdfy0eKZdbI/W/9oXGs4t9p/E/wOCuT9zl5SW",
+      "name": "Basic User",
+      "is_active": true,
+      "description": "Test user for basic plan features"
+    },
+    {
+      "user_id": "20000000-0000-0000-0000-000000000003",
+      "email": "pro.user@example.com",
+      "password_hash": "$2a$12$Z8FqMrkk.WVW84FIbdfy0eKZdbI/W/9oXGs4t9p/E/wOCuT9zl5SW",
+      "name": "Pro User",
+      "is_active": true,
+      "description": "Test user for pro plan features"
+    },
+    {
+      "user_id": "20000000-0000-0000-0000-000000000004",
+      "email": "admin@solopx.com",
+      "password_hash": "$2a$12$Z8FqMrkk.WVW84FIbdfy0eKZdbI/W/9oXGs4t9p/E/wOCuT9zl5SW",
+      "name": "System Administrator",
+      "is_active": true,
+      "description": "Admin user for managing system"
+    },
+    {
+      "user_id": "20000000-0000-0000-0000-000000000005",
+      "email": "default@solopx.com",
+      "password_hash": "$2a$12$Z8FqMrkk.WVW84FIbdfy0eKZdbI/W/9oXGs4t9p/E/wOCuT9zl5SW",
+      "name": "Default User",
+      "is_active": true,
+      "description": "Your requested default user with full features (Pro plan) - password: password123"
+    },
+    {
+      "user_id": "20000000-0000-0000-0000-000000000006",
+      "email": "subscription@solopx.com",
+      "password_hash": "$2a$12$Z8FqMrkk.WVW84FIbdfy0eKZdbI/W/9oXGs4t9p/E/wOCuT9zl5SW",
+      "name": "Subscription User",
+      "is_active": true,
+      "description": "Your requested subscription user with full features (Pro plan) - password: password123"
+    }
+  ],
+  "subscriptions": [
+    {
+      "user_id": "20000000-0000-0000-0000-000000000001",
+      "plan_id": "00000000-0000-0000-0000-000000000001",
+      "status": "active",
+      "payment_type": "one_time",
+      "description": "Free user on Free plan"
+    },
+    {
+      "user_id": "20000000-0000-0000-0000-000000000002",
+      "plan_id": "00000000-0000-0000-0000-000000000002",
+      "status": "active",
+      "payment_type": "recurring",
+      "description": "Basic user on Basic plan with monthly billing"
+    },
+    {
+      "user_id": "20000000-0000-0000-0000-000000000003",
+      "plan_id": "00000000-0000-0000-0000-000000000003",
+      "status": "active",
+      "payment_type": "recurring",
+      "description": "Pro user on Pro plan with monthly billing"
+    },
+    {
+      "user_id": "20000000-0000-0000-0000-000000000005",
+      "plan_id": "00000000-0000-0000-0000-000000000003",
+      "status": "active",
+      "payment_type": "recurring",
+      "description": "Default user on Pro plan - YOUR TEST USER"
+    },
+    {
+      "user_id": "20000000-0000-0000-0000-000000000006",
+      "plan_id": "00000000-0000-0000-0000-000000000003",
+      "status": "active",
+      "payment_type": "recurring",
+      "description": "Subscription user on Pro plan - YOUR TEST USER"
+    }
+  ],
+  "admin_roles": [
+    {
+      "user_id": "20000000-0000-0000-0000-000000000004",
+      "role_name": "super_admin",
+      "permissions": {
+        "can_edit_plans": true,
+        "can_view_billing": true,
+        "can_manage_users": true,
+        "can_edit_features": true,
+        "can_assign_roles": true
+      },
+      "granted_by": null,
+      "description": "Full admin access for system administrator"
+    }
+  ]
+}

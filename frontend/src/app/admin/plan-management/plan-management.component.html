@@ -1,0 +1,280 @@
+<div>
+  <div>
+    <h1>Plan Management</h1>
+    <button (click)="onCreateNewPlan()" [disabled]="isLoading">
+      Create New Plan
+    </button>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="isLoading && plans.length === 0">
+    <p>Loading plans...</p>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="error">
+    {{ error }}
+    <button (click)="retryLoading()">Retry</button>
+  </div>
+
+  <!-- Main Content -->
+  <div *ngIf="!isLoading || plans.length > 0">
+    <!-- Plans List -->
+    <div>
+      <h2>Subscription Plans</h2>
+
+      <div *ngIf="plans.length === 0">
+        <h3>No Plans Created Yet</h3>
+        <p>
+          Create your first subscription plan to get started with the freemium
+          system.
+        </p>
+        <button (click)="onCreateNewPlan()">Create First Plan</button>
+      </div>
+
+      <div *ngIf="plans.length > 0">
+        <div *ngFor="let plan of plans" (click)="onSelectPlan(plan)">
+          <div>
+            <h3>{{ plan.name }}</h3>
+            <div>
+              <span>
+                {{ plan.isActive ? "Active" : "Inactive" }}
+              </span>
+            </div>
+          </div>
+
+          <div>
+            <p>{{ plan.description }}</p>
+            <p>{{ formatPrice(plan.price) }}</p>
+          </div>
+
+          <div>
+            <div>
+              Features:
+              <span *ngFor="let pf of plan.planFeatures; let last = last">
+                {{ pf.feature?.displayName || "Unknown"
+                }}<span *ngIf="!last">, </span>
+              </span>
+              <span
+                *ngIf="!plan.planFeatures || plan.planFeatures.length === 0"
+              >
+                No features configured
+              </span>
+            </div>
+          </div>
+
+          <div>
+            <button
+              (click)="onEditPlan(plan); $event.stopPropagation()"
+              [disabled]="isLoading"
+            >
+              Edit
+            </button>
+            <button
+              (click)="onDeletePlan(plan); $event.stopPropagation()"
+              [disabled]="isLoading"
+            >
+              Delete
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Plan Details -->
+    <div *ngIf="selectedPlan">
+      <h2>Plan Details: {{ selectedPlan.name }}</h2>
+
+      <div>
+        <div>
+          <label>Name:</label>
+          <span>{{ selectedPlan.name }}</span>
+        </div>
+        <div>
+          <label>Price:</label>
+          <span>{{ formatPrice(selectedPlan.price) }}</span>
+        </div>
+        <div>
+          <label>Status:</label>
+          <span>{{ selectedPlan.isActive ? "Active" : "Inactive" }}</span>
+        </div>
+        <div>
+          <label>Created:</label>
+          <span>{{ selectedPlan.createdAt | date : "medium" }}</span>
+        </div>
+      </div>
+
+      <div>
+        <label>Description:</label>
+        <p>{{ selectedPlan.description }}</p>
+      </div>
+
+      <div>
+        <h3>Configured Features</h3>
+
+        <div
+          *ngIf="
+            !selectedPlan.planFeatures || selectedPlan.planFeatures.length === 0
+          "
+        >
+          <p>No features configured for this plan.</p>
+        </div>
+
+        <div
+          *ngIf="
+            selectedPlan.planFeatures && selectedPlan.planFeatures.length > 0
+          "
+        >
+          <div *ngFor="let planFeature of selectedPlan.planFeatures">
+            <div>
+              <h4>
+                {{ planFeature.feature?.displayName || "Unknown Feature" }}
+              </h4>
+              <p>
+                {{
+                  planFeature.feature?.description || "No description available"
+                }}
+              </p>
+            </div>
+            <div>
+              <span>{{ getFeatureDisplayValue(planFeature) }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Create/Edit Plan Modal -->
+  <div *ngIf="showCreateForm" (click)="onCancelEdit()">
+    <div (click)="$event.stopPropagation()">
+      <div>
+        <h2>{{ editingPlan ? "Edit Plan" : "Create New Plan" }}</h2>
+        <button (click)="onCancelEdit()">×</button>
+      </div>
+
+      <form [formGroup]="planForm" (ngSubmit)="onSavePlan()">
+        <div>
+          <!-- Basic Plan Information -->
+          <div>
+            <h3>Plan Information</h3>
+
+            <div>
+              <label for="planName">Plan Name *</label>
+              <input
+                id="planName"
+                type="text"
+                formControlName="name"
+                placeholder="e.g., Basic, Pro, Enterprise"
+              />
+              <div *ngIf="isFieldInvalid('name')">
+                {{ getFieldError("name") }}
+              </div>
+            </div>
+
+            <div>
+              <label for="planDescription">Description *</label>
+              <textarea
+                id="planDescription"
+                formControlName="description"
+                placeholder="Brief description of what this plan offers"
+                rows="3"
+              >
+              </textarea>
+              <div *ngIf="isFieldInvalid('description')">
+                {{ getFieldError("description") }}
+              </div>
+            </div>
+
+            <div>
+              <div>
+                <label for="planPrice">Price (USD) *</label>
+                <input
+                  id="planPrice"
+                  type="number"
+                  formControlName="price"
+                  min="0"
+                  step="0.01"
+                  placeholder="0.00"
+                />
+                <div *ngIf="isFieldInvalid('price')">
+                  {{ getFieldError("price") }}
+                </div>
+              </div>
+
+              <div>
+                <label>
+                  <input type="checkbox" formControlName="isActive" />
+                  Active Plan
+                </label>
+                <small>Active plans are available for new subscriptions</small>
+              </div>
+            </div>
+          </div>
+
+          <!-- Feature Configuration -->
+          <div>
+            <h3>Feature Configuration</h3>
+            <p>
+              Configure which features are available with this plan and their
+              limits.
+            </p>
+
+            <div formArrayName="features">
+              <div
+                *ngFor="
+                  let featureGroup of featuresFormArray.controls;
+                  let i = index
+                "
+                [formGroupName]="i"
+              >
+                <div>
+                  <label>
+                    <input type="checkbox" formControlName="isEnabled" />
+                    <span>{{ featureGroup.get("featureName")?.value }}</span>
+                  </label>
+                </div>
+
+                <div *ngIf="featureGroup.get('isEnabled')?.value">
+                  <div>
+                    <!-- Boolean Feature -->
+                    <div *ngIf="features[i]?.isBoolean">
+                      <span>This feature will be enabled for this plan.</span>
+                    </div>
+
+                    <!-- Limit-based Feature -->
+                    <div *ngIf="!features[i]?.isBoolean">
+                      <label [for]="'limit-' + i">Limit:</label>
+                      <input
+                        [id]="'limit-' + i"
+                        type="number"
+                        [value]="featureGroup.get('value')?.value?.limit || 0"
+                        (input)="
+                          featureGroup
+                            .get('value')
+                            ?.setValue({ limit: +$event.target.value })
+                        "
+                        min="0"
+                        placeholder="0"
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <button type="button" (click)="onCancelEdit()" [disabled]="isLoading">
+            Cancel
+          </button>
+          <button type="submit" [disabled]="!planForm.valid || isLoading">
+            <span *ngIf="isLoading"></span>
+            {{ editingPlan ? "Update Plan" : "Create Plan" }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
