@@ -3,6 +3,8 @@ import { RouterModule, Routes } from '@angular/router';
 
 import { AdminAuthGuard } from '../auth/guards/admin-auth.guard';
 import { PlanManagementComponent } from './plan-management/plan-management.component';
+import { FeatureManagementComponent } from './feature-management/feature-management.component';
+import { EntitlementMatrixComponent } from './entitlement-matrix/entitlement-matrix.component';
 
 const routes: Routes = [
   {
@@ -23,9 +25,23 @@ const routes: Routes = [
           description: 'Manage subscription plans and features',
         },
       },
+      {
+        path: 'features',
+        component: FeatureManagementComponent,
+        data: {
+          title: 'Feature Management',
+          description: 'Create and manage features for subscription plans',
+        },
+      },
+      {
+        path: 'entitlements',
+        component: EntitlementMatrixComponent,
+        data: {
+          title: 'Entitlement Matrix',
+          description: 'View feature entitlements across all plans',
+        },
+      },
       // Additional routes will be added as components are implemented:
-      // - features: Feature Management
-      // - entitlements: Entitlement Matrix
       // - analytics: Analytics Dashboard
       // - users: User Management
     ],

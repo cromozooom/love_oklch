@@ -181,6 +181,20 @@ INSERT INTO users (user_id, email, password_hash, name, is_active) VALUES
     '$2b$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewMtJPBOY1VSCVJ.', -- password: 'password123'
     'System Administrator',
     true
+),
+(
+    '20000000-0000-0000-0000-000000000005'::uuid,
+    'default@default.com',
+    '$2b$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewMtJPBOY1VSCVJ.', -- password: 'password123'
+    'Default User',
+    true
+),
+(
+    '20000000-0000-0000-0000-000000000006'::uuid,
+    'subscription@default.com',
+    '$2b$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewMtJPBOY1VSCVJ.', -- password: 'password123'
+    'Subscription User',
+    true
 );
 
 -- Create subscriptions for test users
@@ -211,6 +225,24 @@ INSERT INTO subscriptions (user_id, plan_id, status, payment_type, start_date, e
     CURRENT_TIMESTAMP,
     CURRENT_TIMESTAMP + INTERVAL '1 month',
     CURRENT_TIMESTAMP + INTERVAL '1 month' + INTERVAL '7 days'
+),
+(
+    '20000000-0000-0000-0000-000000000005'::uuid,
+    '00000000-0000-0000-0000-000000000003'::uuid, -- Pro plan for default user
+    'active',
+    'recurring',
+    CURRENT_TIMESTAMP,
+    CURRENT_TIMESTAMP + INTERVAL '1 month',
+    CURRENT_TIMESTAMP + INTERVAL '1 month' + INTERVAL '7 days'
+),
+(
+    '20000000-0000-0000-0000-000000000006'::uuid,
+    '00000000-0000-0000-0000-000000000003'::uuid, -- Pro plan for subscription user
+    'active',
+    'recurring',
+    CURRENT_TIMESTAMP,
+    CURRENT_TIMESTAMP + INTERVAL '1 month',
+    CURRENT_TIMESTAMP + INTERVAL '1 month' + INTERVAL '7 days'
 );
 
 -- Create admin roles
@@ -225,4 +257,4 @@ INSERT INTO admin_roles (user_id, role_name, permissions, granted_by) VALUES
 COMMIT;
 
 -- Log successful seeding
-SELECT 'Database seeded successfully with 3 plans, 7 features, 4 users, 3 subscriptions, and 1 admin role' AS result;
+SELECT 'Database seeded successfully with 3 plans, 7 features, 6 users, 5 subscriptions, and 1 admin role' AS result;

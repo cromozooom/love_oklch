@@ -35,6 +35,23 @@
 
 ---
 
+### 🎯 **Admin Feature Testing**
+
+**File**: [`TODOS/admin-feature-testing.md`](./TODOS/admin-feature-testing.md)  
+**Priority**: LOW  
+**Status**: Future implementation
+
+**Quick Summary**:
+
+- ⚠️ Create sample features for testing admin components
+- ⚠️ Test Feature Management component with real data
+- ⚠️ Test Entitlement Matrix with plan-feature relationships
+- ⚠️ E2E tests for feature creation and assignment workflows
+
+**Note**: Skip for now until we have real features implemented in backend
+
+---
+
 ## 🚨 Current High Priority Items
 
 ### **Immediate Actions Required**
