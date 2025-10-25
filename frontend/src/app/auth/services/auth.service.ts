@@ -68,29 +68,86 @@ export class AuthService {
     const user = this.getStoredUser();
 
     if (token && user) {
-      this.setAuthState({
-        isAuthenticated: true,
-        user,
-        token,
-      });
+      // Check if token looks valid before making HTTP request
+      if (this.isTokenLikelyValid(token)) {
+        // Set auth state first
+        this.setAuthState({
+          isAuthenticated: true,
+          user,
+          token,
+        });
 
-      // Verify token is still valid, but only if we have both token and user
-      this.verifyToken().subscribe({
-        error: () => {
-          // Only logout if token verification fails, not on initialization
-          if (this.isAuthenticated()) {
-            this.logout();
-          }
-        },
-      });
+        // Verify token in the background only if it looks potentially valid
+        this.verifyTokenSilently().subscribe({
+          next: (isValid) => {
+            if (!isValid) {
+              // Token is invalid, clear auth state
+              this.setAuthState({
+                isAuthenticated: false,
+                user: null,
+                token: null,
+              });
+              this.clearStoredData();
+            }
+          },
+          error: () => {
+            // Token verification failed, clear auth state silently
+            this.setAuthState({
+              isAuthenticated: false,
+              user: null,
+              token: null,
+            });
+            this.clearStoredData();
+          },
+        });
+      } else {
+        // Token format is clearly invalid, clear immediately without HTTP call
+        console.info(
+          'Invalid token format detected, clearing stored authentication'
+        );
+        this.clearStoredData();
+        this.setAuthState({
+          isAuthenticated: false,
+          user: null,
+          token: null,
+        });
+      }
     } else {
       // No stored credentials, ensure clean state
+      console.log(
+        '🔄 AuthService: No stored credentials found, setting unauthenticated state'
+      );
       this.setAuthState({
         isAuthenticated: false,
         user: null,
         token: null,
       });
     }
+  }
+
+  /**
+   * Check if a token has a valid format without making HTTP request
+   */
+  private isTokenLikelyValid(token: string): boolean {
+    if (!token || token.trim() === '') {
+      return false;
+    }
+
+    // Check for JWT format (three parts separated by dots)
+    const parts = token.split('.');
+    if (parts.length !== 3) {
+      return false;
+    }
+
+    // Check if all parts exist and are not empty
+    // Server will validate the actual token content
+    const allPartsNonEmpty = parts.every((part) => part.length > 0);
+
+    if (!allPartsNonEmpty) {
+      return false;
+    }
+
+    return true;
   }
 
   /**
@@ -145,10 +202,31 @@ export class AuthService {
   }
 
   /**
-   * Get current user
+   * Get current user with full details
+   * SECURITY: Gets user details from JWT token instead of localStorage
    */
   getCurrentUser(): User | null {
-    return this.authStateSubject.value.user;
+    const storedUser = this.authStateSubject.value.user;
+    if (!storedUser) return null;
+
+    // If we have minimal stored data, try to get full data from JWT
+    const token = this.getToken();
+    if (token && (!storedUser.email || !storedUser.name)) {
+      try {
+        const payload = JSON.parse(atob(token.split('.')[1]));
+        return {
+          id: storedUser.id,
+          role: storedUser.role,
+          email: payload.email || '',
+          name: payload.name || '',
+        };
+      } catch {
+        // If token parsing fails, return what we have
+        return storedUser;
+      }
+    }
+
+    return storedUser;
   }
 
   /**
@@ -159,7 +237,38 @@ export class AuthService {
   }
 
   /**
-   * Verify if current token is valid
+   * Verify if current token is valid (for initialization - doesn't auto-logout)
+   */
+  private verifyTokenSilently(): Observable<boolean> {
+    const token = this.getStoredToken(); // Get directly from storage to avoid circular dependency
+    if (!token) {
+      return throwError(() => new Error('No token available'));
+    }
+
+    // Manually add Authorization header to avoid circular dependency with interceptor
+    const headers = {
+      Authorization: `Bearer ${token}`,
+      'Content-Type': 'application/json',
+    };
+
+    return this.http
+      .get<{ success: boolean; data?: { user: User } }>(
+        `${this.API_URL}/auth/verify`,
+        { headers }
+      )
+      .pipe(
+        map((response) => {
+          return response.success;
+        }),
+        catchError(() => {
+          // Don't logout during silent verification
+          return throwError(() => new Error('Token verification failed'));
+        })
+      );
+  }
+
+  /**
+   * Verify if current token is valid (for user actions - auto-logout on failure)
    */
   verifyToken(): Observable<boolean> {
     const token = this.getToken();
@@ -168,9 +277,11 @@ export class AuthService {
     }
 
     return this.http
-      .get<{ valid: boolean }>(`${this.API_URL}/auth/verify`)
+      .get<{ success: boolean; data?: { user: User } }>(
+        `${this.API_URL}/auth/verify`
+      )
       .pipe(
-        map((response) => response.valid),
+        map((response) => response.success),
         catchError(() => {
           this.logout();
           return throwError(() => new Error('Token verification failed'));
@@ -250,7 +361,8 @@ export class AuthService {
   }
 
   /**
-   * Store authentication data in local/session storage
+   * Store authentication data in local storage for persistence
+   * SECURITY: Store minimal user data to reduce exposure risk
    */
   private storeAuthData(
     data: LoginResponse['data'],
@@ -258,42 +370,46 @@ export class AuthService {
   ): void {
     if (!data) return;
 
-    const storage = rememberMe ? localStorage : sessionStorage;
+    // Always use localStorage for persistence across page refreshes
+    // rememberMe controls session duration, not storage type
+    localStorage.setItem(this.TOKEN_KEY, data.token);
 
-    storage.setItem(this.TOKEN_KEY, data.token);
-    storage.setItem(this.USER_KEY, JSON.stringify(data.user));
+    // SECURITY: Store minimal user data - only what's needed for UI
+    const minimalUser = {
+      id: data.user.id,
+      role: data.user.role,
+      // Don't store email or name in localStorage for security
+    };
+    localStorage.setItem(this.USER_KEY, JSON.stringify(minimalUser));
 
     if (rememberMe) {
       localStorage.setItem(this.REMEMBER_KEY, 'true');
+    } else {
+      // Store that this is a session-only login for future reference
+      localStorage.setItem(this.REMEMBER_KEY, 'false');
     }
   }
 
   /**
-   * Store token in appropriate storage
+   * Store token in localStorage for persistence
    */
   private storeToken(token: string): void {
-    const rememberMe = localStorage.getItem(this.REMEMBER_KEY) === 'true';
-    const storage = rememberMe ? localStorage : sessionStorage;
-    storage.setItem(this.TOKEN_KEY, token);
+    // Always use localStorage for token persistence
+    localStorage.setItem(this.TOKEN_KEY, token);
   }
 
   /**
-   * Get stored token from storage
+   * Get stored token from localStorage
    */
   private getStoredToken(): string | null {
-    return (
-      localStorage.getItem(this.TOKEN_KEY) ||
-      sessionStorage.getItem(this.TOKEN_KEY)
-    );
+    return localStorage.getItem(this.TOKEN_KEY);
   }
 
   /**
-   * Get stored user from storage
+   * Get stored user from localStorage
    */
   private getStoredUser(): User | null {
-    const userStr =
-      localStorage.getItem(this.USER_KEY) ||
-      sessionStorage.getItem(this.USER_KEY);
+    const userStr = localStorage.getItem(this.USER_KEY);
 
     if (userStr) {
       try {
@@ -373,7 +489,7 @@ export class AuthService {
     // For now, admin has all permissions
     if (user.role === 'admin') return true;
 
-    // TODO: Implement granular permissions system
+    // Future: Implement granular permissions system
     return false;
   }
 

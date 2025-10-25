@@ -5,8 +5,15 @@
   <div class="max-w-md w-full space-y-8">
     <!-- Header -->
     <div class="text-center">
-      <div class="mx-auto h-12 w-12 flex items-center justify-center rounded-full bg-indigo-600">
-        <svg class="h-6 w-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <div
+        class="mx-auto h-12 w-12 flex items-center justify-center rounded-full bg-indigo-600"
+      >
+        <svg
+          class="h-6 w-6 text-white"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
           <path
             stroke-linecap="round"
             stroke-linejoin="round"
@@ -15,18 +22,31 @@
           ></path>
         </svg>
       </div>
-      <h2 class="mt-6 text-3xl font-extrabold text-gray-900">Sign in to your account</h2>
-      <p class="mt-2 text-sm text-gray-600">Access your admin dashboard or user portal</p>
+      <h2 class="mt-6 text-3xl font-extrabold text-gray-900">
+        Sign in to your account
+      </h2>
+      <p class="mt-2 text-sm text-gray-600">
+        Access your admin dashboard or user portal
+      </p>
     </div>
 
     <!-- Login Form -->
-    <form class="mt-8 space-y-6" [formGroup]="loginForm" (ngSubmit)="onSubmit()" novalidate>
+    <form
+      class="mt-8 space-y-6"
+      [formGroup]="loginForm"
+      (ngSubmit)="onSubmit()"
+      novalidate
+    >
       <div class="bg-white py-8 px-6 shadow-lg rounded-lg space-y-6">
         <!-- Error Message -->
         <div *ngIf="errorMessage" class="rounded-md bg-red-50 p-4">
           <div class="flex">
             <div class="flex-shrink-0">
-              <svg class="h-5 w-5 text-red-400" fill="currentColor" viewBox="0 0 20 20">
+              <svg
+                class="h-5 w-5 text-red-400"
+                fill="currentColor"
+                viewBox="0 0 20 20"
+              >
                 <path
                   fill-rule="evenodd"
                   d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
@@ -42,7 +62,10 @@
 
         <!-- Email Field -->
         <div>
-          <label for="email" class="block text-sm font-medium text-gray-700 mb-2">
+          <label
+            for="email"
+            class="block text-sm font-medium text-gray-700 mb-2"
+          >
             Email address
           </label>
           <div class="relative">
@@ -64,7 +87,11 @@
               *ngIf="isFieldInvalid('email')"
               class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none"
             >
-              <svg class="h-5 w-5 text-red-500" fill="currentColor" viewBox="0 0 20 20">
+              <svg
+                class="h-5 w-5 text-red-500"
+                fill="currentColor"
+                viewBox="0 0 20 20"
+              >
                 <path
                   fill-rule="evenodd"
                   d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
@@ -74,13 +101,16 @@
             </div>
           </div>
           <p *ngIf="isFieldInvalid('email')" class="mt-1 text-sm text-red-600">
-            {{ getFieldError('email') }}
+            {{ getFieldError("email") }}
           </p>
         </div>
 
         <!-- Password Field -->
         <div>
-          <label for="password" class="block text-sm font-medium text-gray-700 mb-2">
+          <label
+            for="password"
+            class="block text-sm font-medium text-gray-700 mb-2"
+          >
             Password
           </label>
           <div class="relative">
@@ -104,7 +134,10 @@
               (click)="togglePasswordVisibility()"
             >
               <svg
-                [class]="'h-5 w-5 ' + (showPassword ? 'text-indigo-600' : 'text-gray-400')"
+                [class]="
+                  'h-5 w-5 ' +
+                  (showPassword ? 'text-indigo-600' : 'text-gray-400')
+                "
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -133,8 +166,11 @@
               </svg>
             </button>
           </div>
-          <p *ngIf="isFieldInvalid('password')" class="mt-1 text-sm text-red-600">
-            {{ getFieldError('password') }}
+          <p
+            *ngIf="isFieldInvalid('password')"
+            class="mt-1 text-sm text-red-600"
+          >
+            {{ getFieldError("password") }}
           </p>
         </div>
 
@@ -147,7 +183,9 @@
             formControlName="rememberMe"
             class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
           />
-          <label for="remember-me" class="ml-2 block text-sm text-gray-900"> Remember me </label>
+          <label for="remember-me" class="ml-2 block text-sm text-gray-900">
+            Remember me
+          </label>
         </div>
 
         <!-- Submit Button -->
@@ -193,7 +231,7 @@
               ></path>
             </svg>
 
-            {{ isLoading ? 'Signing in...' : 'Sign in' }}
+            {{ isLoading ? "Signing in..." : "Sign in" }}
           </button>
         </div>
 
@@ -209,7 +247,7 @@
     <!-- Footer -->
     <div class="text-center">
       <p class="text-xs text-gray-500">
-        By signing in, you agree to our Terms of Service and Privacy Policy
+        Email: admin@example.com Password: password123
       </p>
     </div>
   </div>

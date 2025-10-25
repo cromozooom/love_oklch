@@ -1,8 +1,35 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
+import {
+  FormBuilder,
+  FormGroup,
+  Validators,
+  ReactiveFormsModule,
+} from '@angular/forms';
 import { Router } from '@angular/router';
-import { AuthService, LoginRequest, LoginResponse } from '../services/auth.service';
+import { AuthService } from '../services/auth.service';
+
+// Define interfaces locally to avoid import issues
+interface LoginRequest {
+  email: string;
+  password: string;
+  rememberMe?: boolean;
+}
+
+interface LoginResponse {
+  success: boolean;
+  message: string;
+  data?: {
+    token: string;
+    user: {
+      id: string;
+      email: string;
+      role: 'admin' | 'user';
+      name?: string;
+    };
+  };
+  error?: string;
+}
 
 @Component({
   selector: 'app-login',
@@ -12,16 +39,16 @@ import { AuthService, LoginRequest, LoginResponse } from '../services/auth.servi
   styleUrls: ['./login.component.css'],
 })
 export class LoginComponent implements OnInit {
-  private fb = inject(FormBuilder);
-  private router = inject(Router);
-  private authService = inject(AuthService);
-
   loginForm: FormGroup;
   isLoading = false;
   errorMessage = '';
   showPassword = false;
 
-  constructor() {
+  constructor(
+    private fb: FormBuilder,
+    private router: Router,
+    private authService: AuthService
+  ) {
     this.loginForm = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
       password: ['', [Validators.required, Validators.minLength(6)]],
@@ -62,16 +89,16 @@ export class LoginComponent implements OnInit {
       };
 
       this.authService.login(loginRequest).subscribe({
-        next: (response) => {
+        next: (response: LoginResponse) => {
           this.isLoading = false;
           if (response.success) {
-            // Login successful - AuthService handles redirection
-            console.log('Login successful');
+            // Login successful - redirect user
+            this.redirectAfterLogin();
           } else {
             this.errorMessage = response.message || 'Login failed';
           }
         },
-        error: (error) => {
+        error: (error: any) => {
           this.isLoading = false;
           this.handleLoginError(error);
         },
@@ -82,23 +109,18 @@ export class LoginComponent implements OnInit {
   }
 
   private redirectAfterLogin(): void {
-    // Check if user is admin and redirect accordingly
-    if (this.authService.isAdmin()) {
-      this.router.navigate(['/admin/dashboard']);
-    } else {
-      this.router.navigate(['/dashboard']);
-    }
+    // Redirect all authenticated users to home page
+    this.router.navigate(['/home']);
   }
 
   private handleLoginError(error: any): void {
-    console.error('Login error:', error);
-
     if (error.status === 401) {
       this.errorMessage = 'Invalid email or password. Please try again.';
     } else if (error.status === 429) {
       this.errorMessage = 'Too many login attempts. Please try again later.';
     } else if (error.status === 0) {
-      this.errorMessage = 'Unable to connect to the server. Please check your internet connection.';
+      this.errorMessage =
+        'Unable to connect to the server. Please check your internet connection.';
     } else if (error.error?.message) {
       this.errorMessage = error.error.message;
     } else {

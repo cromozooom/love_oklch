@@ -13,11 +13,19 @@ import { AuthService } from './auth.service';
 @Injectable()
 export class AuthInterceptor implements HttpInterceptor {
   private isRefreshing = false;
-  private refreshTokenSubject: BehaviorSubject<any> = new BehaviorSubject<any>(null);
+  private refreshTokenSubject: BehaviorSubject<any> = new BehaviorSubject<any>(
+    null
+  );
+
+  // Token key constant (must match AuthService)
+  private readonly TOKEN_KEY = 'auth_token';
 
   constructor(private authService: AuthService) {}
 
-  intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
+  intercept(
+    req: HttpRequest<any>,
+    next: HttpHandler
+  ): Observable<HttpEvent<any>> {
     // Skip auth header for login and refresh requests
     if (this.shouldSkipAuth(req.url)) {
       return next.handle(req);
@@ -54,9 +62,11 @@ export class AuthInterceptor implements HttpInterceptor {
 
   /**
    * Add authentication header to request
+   * Gets token directly from localStorage to avoid circular dependency
    */
   private addAuthHeader(req: HttpRequest<any>): HttpRequest<any> {
-    const token = this.authService.getToken();
+    // Get token directly from localStorage to avoid circular dependency with AuthService
+    const token = localStorage.getItem(this.TOKEN_KEY);
 
     if (token) {
       return req.clone({
@@ -77,7 +87,10 @@ export class AuthInterceptor implements HttpInterceptor {
   /**
    * Handle 401 unauthorized errors with token refresh
    */
-  private handle401Error(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
+  private handle401Error(
+    req: HttpRequest<any>,
+    next: HttpHandler
+  ): Observable<HttpEvent<any>> {
     if (!this.isRefreshing) {
       this.isRefreshing = true;
       this.refreshTokenSubject.next(null);
