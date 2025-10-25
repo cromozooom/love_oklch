@@ -61,10 +61,10 @@
 - [x] T022 [US1] Create PlanService with CRUD operations in backend/src/services/plan.service.ts
 - [x] T023 [US1] Create FeatureService with catalog management in backend/src/services/feature.service.ts
 - [x] T024 [US1] Create PlanFeatureService for entitlement matrix in backend/src/services/plan-feature.service.ts
-- [ ] T025 [US1] Implement admin role middleware in backend/src/middleware/admin.middleware.ts
-- [ ] T026 [US1] Create admin plan management endpoints in backend/src/controllers/admin/plan.controller.ts
-- [ ] T027 [US1] Create admin feature management endpoints in backend/src/controllers/admin/feature.controller.ts
-- [ ] T028 [US1] Add JSON schema validation for feature configurations in backend/src/validators/feature-config.validator.ts
+- [x] T025 [US1] Implement admin role middleware in backend/src/middleware/admin.middleware.ts
+- [x] T026 [US1] Create admin plan management endpoints in backend/src/controllers/admin/plan.controller.ts
+- [x] T027 [US1] Create admin feature management endpoints in backend/src/controllers/admin/feature.controller.ts
+- [x] T028 [US1] Add JSON schema validation for feature configurations in backend/src/validators/feature-config.validator.ts
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
