@@ -21,10 +21,12 @@ export const routes: Routes = [
     component: HomeComponent, // For now, redirect to home
     canActivate: [AuthGuard],
   },
+
+  // Admin routes (lazy-loaded)
   {
-    path: 'admin/dashboard',
-    component: HomeComponent, // For now, redirect to home
-    canActivate: [AuthGuard],
+    path: 'admin',
+    loadChildren: () =>
+      import('./admin/admin-routing.module').then((m) => m.AdminRoutingModule),
   },
 
   // Default redirects

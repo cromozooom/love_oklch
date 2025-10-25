@@ -1,32 +1,23 @@
-<div class="flex items-center space-x-4">
-  <span class="text-sm text-gray-600"
-    >Welcome, {{ userInfo?.name || userInfo?.email }}</span
-  >
-  <span class="ml-2 px-2 py-1 text-xs bg-blue-100 text-blue-800 rounded-full">
+<div>
+  <span>Welcome, {{ userInfo?.name || userInfo?.email }}</span>
+  <span>
     {{ userInfo?.role | titlecase }}
   </span>
-  <button
-    (click)="logout()"
-    class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
-  >
-    Logout
-  </button>
+  <button (click)="logout()">Logout</button>
 </div>
-<div class="bg-white rounded-lg shadow-md p-6">
-  <h3 class="text-lg font-semibold text-gray-900 mb-4">Account Information</h3>
-  <div class="text-left space-y-2">
-    <p><span class="font-medium">Email:</span> {{ userInfo?.email }}</p>
+<div>
+  <h3>Account Information</h3>
+  <div>
+    <p><span>Email:</span> {{ userInfo?.email }}</p>
     <p>
-      <span class="font-medium">Name:</span>
+      <span>Name:</span>
       {{ userInfo?.name || "Not provided" }}
     </p>
     <p>
-      <span class="font-medium">Role:</span>
+      <span>Role:</span>
       {{ userInfo?.role | titlecase }}
     </p>
-    <p>
-      <span class="font-medium">Status:</span>
-      <span class="text-green-600">Active</span>
-    </p>
+
+    <a href="/admin/plan-management">/admin/plan-management</a>
   </div>
 </div>

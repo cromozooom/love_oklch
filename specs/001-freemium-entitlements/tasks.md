@@ -70,14 +70,14 @@
 
 ### Frontend for User Story 1
 
-- [ ] T029 [P] [US1] Create login page component in frontend/src/app/auth/login/login.component.ts
-- [ ] T030 [P] [US1] Create authentication service in frontend/src/app/auth/services/auth.service.ts
-- [ ] T031 [P] [US1] Create admin authentication guard in frontend/src/app/admin/guards/admin.guard.ts
-- [ ] T032 [P] [US1] Create admin plan management component in frontend/src/app/admin/plan-management/plan-management.component.ts
+- [x] T029 [P] [US1] Create login page component in frontend/src/app/auth/login/login.component.ts
+- [x] T030 [P] [US1] Create authentication service in frontend/src/app/auth/services/auth.service.ts
+- [x] T031 [P] [US1] Create admin authentication guard in frontend/src/app/admin/guards/admin.guard.ts
+- [x] T032 [P] [US1] Create admin plan management component in frontend/src/app/admin/plan-management/plan-management.component.ts
 - [ ] T033 [P] [US1] Create feature configuration component in frontend/src/app/admin/feature-management/feature-management.component.ts
 - [ ] T034 [P] [US1] Create plan-feature matrix component in frontend/src/app/admin/entitlement-matrix/entitlement-matrix.component.ts
-- [ ] T035 [US1] Implement admin service for API communication in frontend/src/app/admin/services/admin.service.ts
-- [ ] T036 [US1] Create admin routing module in frontend/src/app/admin/admin-routing.module.ts
+- [x] T035 [US1] Implement admin service for API communication in frontend/src/app/admin/services/admin.service.ts
+- [x] T036 [US1] Create admin routing module in frontend/src/app/admin/admin-routing.module.ts
 
 ### E2E Testing for User Story 1
 

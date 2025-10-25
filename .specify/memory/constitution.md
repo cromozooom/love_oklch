@@ -52,12 +52,26 @@ Legacy state libraries (e.g., NgRx, Akita) MUST NOT be used.
 
 ### VI. PowerShell Command Execution
 
-All PowerShell commands MUST explicitly specify the target directory to ensure
-proper execution context. The repository structure consists of three main
-folders: `frontend/`, `backend/`, and `e2e/`. Commands executed without proper
-directory specification will fail due to incorrect working directory context.
-This principle ensures reliable script execution and prevents path-related
-errors during development and CI/CD operations.
+All PowerShell commands MUST use proper PowerShell syntax and explicitly specify
+the target directory to ensure proper execution context. The repository
+structure consists of three main folders: `frontend/`, `backend/`, and `e2e/`.
+
+**Command Chaining Requirements:**
+
+- MUST use semicolon (`;`) as command separator in PowerShell, NOT double ampersand (`&&`)
+- Double ampersand (`&&`) is bash syntax and will cause parser errors in PowerShell
+- Example CORRECT: `cd frontend; npm run build`
+- Example INCORRECT: `cd frontend && npm run build`
+
+**Directory Context Requirements:**
+
+- Commands executed without proper directory specification will fail due to incorrect working directory context
+- Always specify target directory before running commands: `cd frontend; npm start` or `Set-Location frontend; npm start`
+- Use absolute paths when necessary to avoid navigation issues
+
+This principle ensures reliable script execution, prevents path-related errors
+during development and CI/CD operations, and maintains compatibility with the
+PowerShell environment used in this project.
 
 ### VII. Frontend Component File Structure
 
