@@ -103,6 +103,9 @@ interfere with legitimate debugging efforts.
 - Color Operations: colorjs.io
 - Data Visualization: D3.js for SVG drawings
 - Database: PostgreSQL for saving works and user data
+- Database Containerization: Docker containers MUST be provided for local
+  PostgreSQL development with pre-seeded data for 3 user types, easy setup and
+  refresh commands, and environment isolation
 - Development Environment: PowerShell commands for build and deployment scripts
 - All PowerShell scripts MUST be cross-platform compatible (PowerShell 7+)
 - PowerShell commands MUST explicitly specify target directories (`cd frontend && npm start` or `Set-Location frontend; npm start`) due to the three-folder structure: `frontend/`, `backend/`, and `e2e/`
