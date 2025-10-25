@@ -40,6 +40,7 @@ _GATE: Must pass before Phase 0 research. Re-check after Phase 1 design._
 - ✅/❌ Centralized State Store: [Angular Signals + RxJS, no legacy state libraries]
 - ✅/❌ PowerShell Command Execution: [Commands specify target directory, account for frontend/backend/e2e structure]
 - ✅/❌ Frontend Component File Structure: [Components >60 lines use separate .ts/.html/.scss files]
+- ✅/❌ Production Code Cleanliness: [No debug console statements in production code, clean deployments]
 
 **Technology Stack Alignment:**
 

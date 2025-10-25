@@ -1,12 +1,12 @@
 <!--
 Sync Impact Report:
-Version change: 1.6.0 → 1.7.0
+Version change: 1.7.0 → 1.8.0
 Modified principles: None
-Added sections: VII. Frontend Component File Structure principle
+Added sections: VIII. Production Code Cleanliness principle
 Removed sections: None
 Templates requiring updates:
 - ✅ .specify/templates/plan-template.md - updated with new principle compliance check
-- ⚠ .specify/templates/spec-template.md - pending review for scope/requirements alignment
+- ✅ .specify/templates/spec-template.md - no updates needed (principle doesn't affect user scenarios)
 - ✅ .specify/templates/tasks-template.md - no updates needed (principle doesn't affect task organization)
 - N/A .specify/templates/commands/*.md - directory does not exist yet
 Follow-up TODOs: Ratification date needs to be set when formally adopted
@@ -69,6 +69,18 @@ concerns, improves code organization, and enables better collaboration between
 developers working on different aspects of the same component. Inline templates
 and styles are prohibited for components exceeding the 60-line threshold.
 
+### VIII. Production Code Cleanliness
+
+All debug console statements (console.log, console.warn, console.error,
+console.info) MUST be removed before pushing code to any shared branch.
+Production code MUST NOT contain debugging artifacts, temporary logging, or
+development-only console output. The only exceptions are: (1) intentional
+application logging for production monitoring, (2) critical error handling that
+provides user value, and (3) accessibility announcements. This principle ensures
+clean production deployments, prevents sensitive data leakage through console
+output, maintains professional code quality, and avoids console noise that can
+interfere with legitimate debugging efforts.
+
 ## Technology Stack and Constraints
 
 - Frontend: Angular (latest stable)
@@ -122,5 +134,5 @@ development guidance.
 - Enforcement: All pull requests MUST be reviewed against these principles. Code
   violating principles will be rejected with guidance.
 
-**Version**: 1.7.0 | **Ratified**: TODO(RATIFICATION_DATE): Set when formally
+**Version**: 1.8.0 | **Ratified**: TODO(RATIFICATION_DATE): Set when formally
 adopted | **Last Amended**: 2025-10-25
