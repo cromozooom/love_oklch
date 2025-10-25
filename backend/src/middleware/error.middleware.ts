@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
-import { Logger } from '@/utils/logger';
-import { config } from '@/config/environment';
+import { Logger } from '../utils/logger';
+import { config } from '../config/environment';
 
 /**
  * Custom error classes for the application
@@ -8,9 +8,14 @@ import { config } from '@/config/environment';
 export class AppError extends Error {
   public readonly statusCode: number;
   public readonly isOperational: boolean;
-  public readonly code?: string;
+  public readonly code: string | undefined;
 
-  constructor(message: string, statusCode: number, code?: string, isOperational = true) {
+  constructor(
+    message: string,
+    statusCode: number,
+    code?: string,
+    isOperational = true,
+  ) {
     super(message);
     this.name = this.constructor.name;
     this.statusCode = statusCode;
@@ -34,7 +39,10 @@ export class AuthenticationError extends AppError {
 }
 
 export class AuthorizationError extends AppError {
-  constructor(message = 'Insufficient permissions', code = 'INSUFFICIENT_PERMISSIONS') {
+  constructor(
+    message = 'Insufficient permissions',
+    code = 'INSUFFICIENT_PERMISSIONS',
+  ) {
     super(message, 403, code);
   }
 }
@@ -85,10 +93,10 @@ export function errorHandler(
   error: Error | AppError,
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ): void {
   const logger = new Logger('ErrorHandler');
-  
+
   // Default error properties
   let statusCode = 500;
   let message = 'Internal Server Error';
@@ -101,7 +109,7 @@ export function errorHandler(
     message = error.message;
     code = error.code || 'APP_ERROR';
     isOperational = error.isOperational;
-  } 
+  }
   // Handle Prisma errors
   else if (error.name === 'PrismaClientKnownRequestError') {
     const prismaError = handlePrismaError(error as any);
@@ -123,8 +131,7 @@ export function errorHandler(
     message = 'Invalid token';
     code = 'INVALID_TOKEN';
     isOperational = true;
-  }
-  else if (error.name === 'TokenExpiredError') {
+  } else if (error.name === 'TokenExpiredError') {
     statusCode = 401;
     message = 'Token expired';
     code = 'TOKEN_EXPIRED';
@@ -156,7 +163,7 @@ export function errorHandler(
   };
 
   // Add stack trace in development
-  if (config.app.environment === 'development') {
+  if (config.app.environment === 'development' && error.stack) {
     errorResponse.error.stack = error.stack;
   }
 
@@ -172,7 +179,11 @@ export function errorHandler(
 /**
  * Handle Prisma-specific errors
  */
-function handlePrismaError(error: any): { statusCode: number; message: string; code: string } {
+function handlePrismaError(error: any): {
+  statusCode: number;
+  message: string;
+  code: string;
+} {
   switch (error.code) {
     case 'P2002':
       return {
@@ -225,7 +236,11 @@ export function asyncHandler(fn: Function) {
 /**
  * 404 Not Found handler for undefined routes
  */
-export function notFoundHandler(req: Request, res: Response, next: NextFunction): void {
+export function notFoundHandler(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): void {
   const error = new NotFoundError(`Route ${req.originalUrl} not found`);
   next(error);
 }
@@ -260,9 +275,9 @@ export function timeoutHandler(timeoutMs: number = 30000) {
 export function validateRequest(schema: any) {
   return (req: Request, res: Response, next: NextFunction): void => {
     try {
-      const { error, value } = schema.validate(req.body, { 
-        abortEarly: false, 
-        stripUnknown: true 
+      const { error, value } = schema.validate(req.body, {
+        abortEarly: false,
+        stripUnknown: true,
       });
 
       if (error) {
@@ -272,9 +287,11 @@ export function validateRequest(schema: any) {
           value: detail.context?.value,
         }));
 
-        const validationError = new ValidationError('Request validation failed');
+        const validationError = new ValidationError(
+          'Request validation failed',
+        );
         (validationError as any).details = details;
-        
+
         return next(validationError);
       }
 
@@ -289,17 +306,27 @@ export function validateRequest(schema: any) {
 /**
  * CORS error handler
  */
-export function corsErrorHandler(req: Request, res: Response, next: NextFunction): void {
+export function corsErrorHandler(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): void {
   if (req.method === 'OPTIONS') {
     // Handle preflight requests
     res.header('Access-Control-Allow-Origin', req.headers.origin || '*');
-    res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS');
-    res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With');
+    res.header(
+      'Access-Control-Allow-Methods',
+      'GET, POST, PUT, DELETE, PATCH, OPTIONS',
+    );
+    res.header(
+      'Access-Control-Allow-Headers',
+      'Content-Type, Authorization, X-Requested-With',
+    );
     res.header('Access-Control-Allow-Credentials', 'true');
     res.status(200).end();
     return;
   }
-  
+
   next();
 }
 

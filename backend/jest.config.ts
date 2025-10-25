@@ -14,7 +14,7 @@ const config: Config = {
     '**/tests/**/*.test.ts',
     '**/src/**/*.test.ts',
     '**/tests/**/*.spec.ts',
-    '**/src/**/*.spec.ts'
+    '**/src/**/*.spec.ts',
   ],
 
   // File extensions to consider
@@ -26,7 +26,7 @@ const config: Config = {
   },
 
   // Module name mapping for path aliases
-  moduleNameMapping: {
+  moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/src/$1',
   },
 
@@ -44,13 +44,7 @@ const config: Config = {
   ],
 
   coverageDirectory: 'coverage',
-  coverageReporters: [
-    'text',
-    'text-summary',
-    'html',
-    'lcov',
-    'clover'
-  ],
+  coverageReporters: ['text', 'text-summary', 'html', 'lcov', 'clover'],
 
   // Coverage thresholds
   coverageThreshold: {
@@ -63,16 +57,10 @@ const config: Config = {
   },
 
   // Ignore patterns
-  testPathIgnorePatterns: [
-    '/node_modules/',
-    '/dist/',
-    '/coverage/',
-  ],
+  testPathIgnorePatterns: ['/node_modules/', '/dist/', '/coverage/'],
 
   // Module paths to ignore for transformation
-  transformIgnorePatterns: [
-    '/node_modules/(?!(@prisma/client)/)',
-  ],
+  transformIgnorePatterns: ['/node_modules/(?!(@prisma/client)/)'],
 
   // Global test timeout
   testTimeout: 10000,

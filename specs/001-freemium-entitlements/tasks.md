@@ -51,16 +51,16 @@
 
 ### Implementation for User Story 1
 
-- [ ] T015 [P] [US1] Create Plan model in backend/src/models/plan.model.ts
-- [ ] T016 [P] [US1] Create Feature model in backend/src/models/feature.model.ts
-- [ ] T017 [P] [US1] Create PlanFeature model in backend/src/models/plan-feature.model.ts
-- [ ] T018 [P] [US1] Create AdminRole model in backend/src/models/admin-role.model.ts
-- [ ] T019 [US1] Implement PlanRepository in backend/src/repositories/plan.repository.ts
-- [ ] T020 [US1] Implement FeatureRepository in backend/src/repositories/feature.repository.ts
-- [ ] T021 [US1] Implement PlanFeatureRepository in backend/src/repositories/plan-feature.repository.ts
-- [ ] T022 [US1] Create PlanService with CRUD operations in backend/src/services/plan.service.ts
-- [ ] T023 [US1] Create FeatureService with catalog management in backend/src/services/feature.service.ts
-- [ ] T024 [US1] Create PlanFeatureService for entitlement matrix in backend/src/services/plan-feature.service.ts
+- [x] T015 [P] [US1] Create Plan model in backend/src/models/plan.model.ts
+- [x] T016 [P] [US1] Create Feature model in backend/src/models/feature.model.ts
+- [x] T017 [P] [US1] Create PlanFeature model in backend/src/models/plan-feature.model.ts
+- [x] T018 [P] [US1] Create AdminRole model in backend/src/models/admin-role.model.ts
+- [x] T019 [US1] Implement PlanRepository in backend/src/repositories/plan.repository.ts
+- [x] T020 [US1] Implement FeatureRepository in backend/src/repositories/feature.repository.ts
+- [x] T021 [US1] Implement PlanFeatureRepository in backend/src/repositories/plan-feature.repository.ts
+- [x] T022 [US1] Create PlanService with CRUD operations in backend/src/services/plan.service.ts
+- [x] T023 [US1] Create FeatureService with catalog management in backend/src/services/feature.service.ts
+- [x] T024 [US1] Create PlanFeatureService for entitlement matrix in backend/src/services/plan-feature.service.ts
 - [ ] T025 [US1] Implement admin role middleware in backend/src/middleware/admin.middleware.ts
 - [ ] T026 [US1] Create admin plan management endpoints in backend/src/controllers/admin/plan.controller.ts
 - [ ] T027 [US1] Create admin feature management endpoints in backend/src/controllers/admin/feature.controller.ts
@@ -157,7 +157,7 @@
 **Purpose**: Improvements that affect multiple user stories and production readiness
 
 - [ ] T067 [P] Create database indexes for performance in backend/database/migrations/002_performance_indexes.sql
-- [ ] T068 [P] Add comprehensive API documentation in backend/docs/api/
+- [ ] T068 [P] Add comprehensive API documentation in docs/backend/api/
 - [ ] T069 [P] Setup integration tests in backend/tests/integration/
 - [ ] T070 [P] Create admin dashboard layout in frontend/src/app/admin/layout/admin-layout.component.ts
 - [ ] T071 [P] Add monitoring and metrics in backend/src/services/monitoring.service.ts

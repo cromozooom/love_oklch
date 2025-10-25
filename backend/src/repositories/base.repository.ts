@@ -1,4 +1,4 @@
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient, Prisma } from '@prisma/client';
 import { Logger } from '@/utils/logger';
 
 /**
@@ -63,12 +63,14 @@ export abstract class BaseRepository<T> {
    * Execute a transaction with multiple operations
    */
   protected async executeTransaction<R>(
-    operations: (tx: PrismaClient) => Promise<R>
+    operations: (tx: Prisma.TransactionClient) => Promise<R>,
   ): Promise<R> {
     try {
-      return await this.prisma.$transaction(async (tx) => {
-        return await operations(tx);
-      });
+      return await this.prisma.$transaction(
+        async (tx: Prisma.TransactionClient) => {
+          return await operations(tx);
+        },
+      );
     } catch (error) {
       this.logger.error('Transaction failed:', error);
       throw error;
@@ -83,7 +85,11 @@ export abstract class BaseRepository<T> {
 
     // Handle Prisma-specific errors
     if (error.code === 'P2002') {
-      throw new DatabaseError('Unique constraint violation', 'DUPLICATE_KEY', error);
+      throw new DatabaseError(
+        'Unique constraint violation',
+        'DUPLICATE_KEY',
+        error,
+      );
     }
 
     if (error.code === 'P2025') {
@@ -91,7 +97,11 @@ export abstract class BaseRepository<T> {
     }
 
     if (error.code === 'P2003') {
-      throw new DatabaseError('Foreign key constraint violation', 'FOREIGN_KEY', error);
+      throw new DatabaseError(
+        'Foreign key constraint violation',
+        'FOREIGN_KEY',
+        error,
+      );
     }
 
     if (error.code === 'P2014') {
@@ -100,21 +110,28 @@ export abstract class BaseRepository<T> {
 
     // Handle connection errors
     if (error.code === 'P1001') {
-      throw new DatabaseError('Database connection failed', 'CONNECTION_ERROR', error);
+      throw new DatabaseError(
+        'Database connection failed',
+        'CONNECTION_ERROR',
+        error,
+      );
     }
 
     // Generic database error
     throw new DatabaseError(
       error.message || 'Unknown database error',
       'DATABASE_ERROR',
-      error
+      error,
     );
   }
 
   /**
    * Build pagination parameters
    */
-  protected buildPagination(options?: FindOptions): { skip?: number; take?: number } {
+  protected buildPagination(options?: FindOptions): {
+    skip?: number;
+    take?: number;
+  } {
     if (!options?.pagination) {
       return {};
     }
@@ -146,10 +163,14 @@ export abstract class BaseRepository<T> {
    * Validate UUID format
    */
   protected validateUUID(id: string, fieldName: string = 'id'): void {
-    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-    
+    const uuidRegex =
+      /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
     if (!uuidRegex.test(id)) {
-      throw new ValidationError(`Invalid ${fieldName} format: ${id}`, 'INVALID_UUID');
+      throw new ValidationError(
+        `Invalid ${fieldName} format: ${id}`,
+        'INVALID_UUID',
+      );
     }
   }
 
@@ -158,21 +179,23 @@ export abstract class BaseRepository<T> {
    */
   protected async withPerformanceLogging<R>(
     operation: string,
-    queryFn: () => Promise<R>
+    queryFn: () => Promise<R>,
   ): Promise<R> {
     const startTime = Date.now();
-    
+
     try {
       const result = await queryFn();
       const duration = Date.now() - startTime;
-      
+
       this.logger.debug(`${operation} completed in ${duration}ms`);
-      
+
       // Log slow queries (>100ms)
       if (duration > 100) {
-        this.logger.warn(`Slow query detected: ${operation} took ${duration}ms`);
+        this.logger.warn(
+          `Slow query detected: ${operation} took ${duration}ms`,
+        );
       }
-      
+
       return result;
     } catch (error) {
       const duration = Date.now() - startTime;

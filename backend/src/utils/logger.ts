@@ -1,5 +1,5 @@
 import winston, { Logger as WinstonLogger } from 'winston';
-import { config } from '@/config/environment';
+import { config } from '../config/environment';
 import { join } from 'path';
 
 /**
@@ -22,8 +22,10 @@ export class Logger {
     const logFormat = winston.format.combine(
       winston.format.timestamp({ format: 'YYYY-MM-DD HH:mm:ss.SSS' }),
       winston.format.errors({ stack: true }),
-      winston.format.metadata({ fillExcept: ['timestamp', 'level', 'message'] }),
-      this.getLogFormat()
+      winston.format.metadata({
+        fillExcept: ['timestamp', 'level', 'message'],
+      }),
+      this.getLogFormat(),
     );
 
     const transports = this.createTransports();
@@ -33,7 +35,9 @@ export class Logger {
       format: logFormat,
       transports,
       exitOnError: false,
-      silent: config.app.environment === 'test' && process.env.SUPPRESS_CONSOLE === 'true',
+      silent:
+        config.app.environment === 'test' &&
+        process.env.SUPPRESS_CONSOLE === 'true',
     });
   }
 
@@ -47,14 +51,17 @@ export class Logger {
 
     return winston.format.combine(
       winston.format.colorize({ all: true }),
-      winston.format.printf(({ timestamp, level, message, context, metadata }) => {
-        const contextStr = context || this.context;
-        const metaStr = metadata && Object.keys(metadata).length > 0 
-          ? `\n${JSON.stringify(metadata, null, 2)}`
-          : '';
-        
-        return `${timestamp} [${level}] [${contextStr}] ${message}${metaStr}`;
-      })
+      winston.format.printf(
+        ({ timestamp, level, message, context, metadata }) => {
+          const contextStr = context || this.context;
+          const metaStr =
+            metadata && Object.keys(metadata).length > 0
+              ? `\n${JSON.stringify(metadata, null, 2)}`
+              : '';
+
+          return `${timestamp} [${level}] [${contextStr}] ${message}${metaStr}`;
+        },
+      ),
     );
   }
 
@@ -69,7 +76,7 @@ export class Logger {
       new winston.transports.Console({
         handleExceptions: true,
         handleRejections: true,
-      })
+      }),
     );
 
     // File transports for non-test environments
@@ -84,7 +91,7 @@ export class Logger {
           handleRejections: true,
           maxsize: 5242880, // 5MB
           maxFiles: 5,
-        })
+        }),
       );
 
       // Error logs
@@ -96,7 +103,7 @@ export class Logger {
           handleRejections: true,
           maxsize: 5242880, // 5MB
           maxFiles: 5,
-        })
+        }),
       );
 
       // Performance logs for slow operations
@@ -106,7 +113,7 @@ export class Logger {
           level: 'warn',
           maxsize: 5242880, // 5MB
           maxFiles: 3,
-        })
+        }),
       );
     }
 
@@ -156,7 +163,11 @@ export class Logger {
   /**
    * Log performance metrics
    */
-  public performance(operation: string, duration: number, metadata?: any): void {
+  public performance(
+    operation: string,
+    duration: number,
+    metadata?: any,
+  ): void {
     const message = `Performance: ${operation} completed in ${duration}ms`;
     const perfMetadata = {
       operation,
@@ -209,7 +220,12 @@ export class Logger {
   /**
    * Log entitlement checks
    */
-  public entitlement(userId: string, featureKey: string, allowed: boolean, metadata?: any): void {
+  public entitlement(
+    userId: string,
+    featureKey: string,
+    allowed: boolean,
+    metadata?: any,
+  ): void {
     const message = `Entitlement: ${featureKey} for user ${userId} - ${allowed ? 'ALLOWED' : 'DENIED'}`;
     const entitlementMetadata = {
       userId,
@@ -240,7 +256,10 @@ export class Logger {
   /**
    * Format log data consistently
    */
-  private formatLogData(message: string, metadata?: any): { message: string; metadata: any } {
+  private formatLogData(
+    message: string,
+    metadata?: any,
+  ): { message: string; metadata: any } {
     const formattedMetadata = {
       context: this.context,
       timestamp: new Date().toISOString(),
@@ -328,7 +347,7 @@ export interface RequestLogData {
 export function logRequest(data: RequestLogData, logger: Logger): void {
   const { method, url, statusCode, duration } = data;
   const message = `${method} ${url} - ${statusCode} (${duration}ms)`;
-  
+
   const metadata = {
     method,
     url,
@@ -367,7 +386,10 @@ export class LoggerFactory {
     return this.loggers.get(context)!;
   }
 
-  public static createPerformanceTimer(operation: string, context = 'Performance'): PerformanceTimer {
+  public static createPerformanceTimer(
+    operation: string,
+    context = 'Performance',
+  ): PerformanceTimer {
     const logger = this.getLogger(context);
     return new PerformanceTimer(operation, logger);
   }
