@@ -5,7 +5,7 @@ import { config } from '@/config/environment';
 import { Logger } from '@/utils/logger';
 import { errorHandler } from '@/middleware/error.middleware';
 import { DatabaseConnection } from '@/database/connection';
-import { authRoutes } from '@/routes/auth.routes';
+import { createMainRouter } from '@/routes/index';
 
 /**
  * Express.js server configuration for Love OKLCH Backend
@@ -135,26 +135,13 @@ export class Server {
       });
     });
 
-    // API routes with version prefix
+    // API routes with version prefix using main router
     const apiPrefix = config.app.apiPrefix; // /api/v1
+    this.app.use(apiPrefix, createMainRouter());
 
-    // Authentication routes
-    this.app.use(`${apiPrefix}/auth`, authRoutes);
-
-    // API info endpoint
-    this.app.get(apiPrefix, (req: Request, res: Response) => {
-      res.status(200).json({
-        name: 'Love OKLCH API',
-        version: '1.0.0',
-        description: 'Freemium Entitlement System API',
-        endpoints: {
-          auth: `${apiPrefix}/auth`,
-          health: '/health',
-        },
-      });
-    });
-
-    this.logger.info('Routes setup completed with authentication endpoints');
+    this.logger.info(
+      'Routes setup completed with main router including authentication and project management endpoints',
+    );
   }
 
   /**

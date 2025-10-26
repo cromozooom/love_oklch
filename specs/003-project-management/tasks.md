@@ -21,14 +21,14 @@ Based on plan.md structure: `frontend/src/`, `backend/src/`, `e2e/tests/`
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Create project structure per implementation plan in frontend/, backend/, e2e/ directories
-- [ ] T002 Initialize Angular project with dependencies in frontend/package.json
-- [ ] T003 [P] Initialize backend Node.js/TypeScript project with dependencies in backend/package.json
-- [ ] T004 [P] Configure PostgreSQL database schema in backend/src/migrations/001_create_projects_table.sql
-- [ ] T005 [P] Create project modifications table migration in backend/src/migrations/002_create_project_modifications_table.sql
-- [ ] T006 [P] Setup Playwright E2E testing framework in e2e/playwright.config.ts
-- [ ] T007 [P] Configure TypeScript and ESLint for frontend in frontend/tsconfig.json
-- [ ] T008 [P] Configure TypeScript and ESLint for backend in backend/tsconfig.json
+- [x] T001 Create project structure per implementation plan in frontend/, backend/, e2e/ directories
+- [x] T002 Initialize Angular project with dependencies in frontend/package.json
+- [x] T003 [P] Initialize backend Node.js/TypeScript project with dependencies in backend/package.json
+- [x] T004 [P] Configure PostgreSQL database schema with Project and ProjectModification models in backend/src/database/schema.prisma (compliant with freemium entitlements spec)
+- [x] T005 [P] Database schema applied successfully with all tables created including projects and project_modifications
+- [x] T006 [P] Setup Playwright E2E testing framework in e2e/playwright.config.ts
+- [x] T007 [P] Configure TypeScript and ESLint for frontend in frontend/tsconfig.json
+- [x] T008 [P] Configure TypeScript and ESLint for backend in backend/tsconfig.json
 
 ---
 
@@ -38,14 +38,14 @@ Based on plan.md structure: `frontend/src/`, `backend/src/`, `e2e/tests/`
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T009 Setup database connection and migration runner in backend/src/database/connection.ts
-- [ ] T010 [P] Implement authentication middleware in backend/src/middleware/auth.ts
-- [ ] T011 [P] Create base API routing structure in backend/src/routes/index.ts
-- [ ] T012 [P] Setup Angular routing configuration in frontend/src/app/app.routes.ts
-- [ ] T013 [P] Create base error handling service in frontend/src/app/services/error-handler.service.ts
-- [ ] T014 [P] Setup HTTP interceptor for authentication in frontend/src/app/interceptors/auth.interceptor.ts
-- [ ] T015 [P] Create User model for subscription support in backend/src/models/user.model.ts
-- [ ] T016 [P] Setup Angular Signals store configuration in frontend/src/app/store/app.store.ts
+- [x] T009 Setup database connection and migration runner in backend/src/database/connection.ts
+- [x] T010 [P] Create JWT authentication middleware for project endpoints (user identification, subscription checking, project ownership validation) in backend/src/middleware/auth.ts
+- [x] T011 [P] extends existing Express server rather than recreating, base API routing structure in backend/src/routes/index.ts
+- [x] T012 [P] Setup Angular routing configuration in frontend/src/app/app.routes.ts
+- [x] T013 [P] Create base error handling service in frontend/src/app/services/error-handler.service.ts
+- [x] T014 [P] Setup HTTP interceptor for authentication in frontend/src/app/interceptors/auth.interceptor.ts
+- [x] T015 [P] Create User model for subscription support in backend/src/models/user.model.ts
+- [x] T016 [P] Setup Angular Signals store configuration in frontend/src/app/store/app.store.ts
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -59,17 +59,17 @@ Based on plan.md structure: `frontend/src/`, `backend/src/`, `e2e/tests/`
 
 ### Implementation for User Story 1
 
-- [ ] T016 [P] [US1] Create Project model in backend/src/models/project.model.ts
-- [ ] T017 [P] [US1] Create Project entity interfaces in frontend/src/app/models/project.interface.ts
-- [ ] T018 [P] [US1] Create color enums (ColorGamut, ColorSpace) in frontend/src/app/models/color-enums.ts
-- [ ] T019 [US1] Implement ProjectService CRUD operations in backend/src/services/project.service.ts
-- [ ] T020 [US1] Create projects API controller in backend/src/controllers/projects.controller.ts
-- [ ] T021 [US1] Add projects routes in backend/src/routes/projects.routes.ts
-- [ ] T022 [US1] Implement Angular ProjectService in frontend/src/app/services/project.service.ts
-- [ ] T023 [US1] Create ProjectFormComponent in frontend/src/app/components/project-form/
-- [ ] T024 [US1] Create ProjectListComponent in frontend/src/app/components/project-list/
-- [ ] T025 [US1] Add project creation form validation in frontend/src/app/validators/project.validators.ts
-- [ ] T026 [US1] Integrate project creation with backend API in ProjectService
+- [ ] T017 [P] [US1] Create Project model in backend/src/models/project.model.ts
+- [ ] T018 [P] [US1] Create Project entity interfaces in frontend/src/app/models/project.interface.ts
+- [ ] T019 [P] [US1] Create color enums (ColorGamut, ColorSpace) in frontend/src/app/models/color-enums.ts
+- [ ] T020 [US1] Implement ProjectService CRUD operations in backend/src/services/project.service.ts
+- [ ] T021 [US1] Create projects API controller in backend/src/controllers/projects.controller.ts
+- [ ] T022 [US1] Add projects routes in backend/src/routes/projects.routes.ts
+- [ ] T023 [US1] Implement Angular ProjectService in frontend/src/app/services/project.service.ts
+- [ ] T024 [US1] Create ProjectFormComponent in frontend/src/app/components/project-form/
+- [ ] T025 [US1] Create ProjectListComponent in frontend/src/app/components/project-list/
+- [ ] T026 [US1] Add project creation form validation in frontend/src/app/validators/project.validators.ts
+- [ ] T027 [US1] Integrate project creation with backend API in ProjectService
 
 **Checkpoint**: User Story 1 complete - users can create and configure projects independently
 
@@ -83,14 +83,14 @@ Based on plan.md structure: `frontend/src/`, `backend/src/`, `e2e/tests/`
 
 ### Implementation for User Story 5
 
-- [ ] T027 [P] [US5] Create DashboardComponent in frontend/src/app/components/dashboard/
-- [ ] T028 [P] [US5] Setup dashboard routing in frontend/src/app/app.routes.ts
-- [ ] T029 [P] [US5] Create project navigation guard in frontend/src/app/guards/project-exists.guard.ts
-- [ ] T030 [US5] Implement dashboard project list display in DashboardComponent
-- [ ] T031 [US5] Add SPA navigation from dashboard to project editor
-- [ ] T032 [US5] Create breadcrumb navigation component in frontend/src/app/components/breadcrumb/
-- [ ] T033 [US5] Add project selection state management in ProjectService
-- [ ] T034 [US5] Implement dashboard loading states and error handling
+- [ ] T028 [P] [US5] Create DashboardComponent in frontend/src/app/components/dashboard/
+- [ ] T029 [P] [US5] Setup dashboard routing in frontend/src/app/app.routes.ts
+- [ ] T030 [P] [US5] Create project navigation guard in frontend/src/app/guards/project-exists.guard.ts
+- [ ] T031 [US5] Implement dashboard project list display in DashboardComponent
+- [ ] T032 [US5] Add SPA navigation from dashboard to project editor
+- [ ] T033 [US5] Create breadcrumb navigation component in frontend/src/app/components/breadcrumb/
+- [ ] T034 [US5] Add project selection state management in ProjectService
+- [ ] T035 [US5] Implement dashboard loading states and error handling
 
 **Checkpoint**: User Story 5 complete - dashboard navigation works independently
 
@@ -104,14 +104,14 @@ Based on plan.md structure: `frontend/src/`, `backend/src/`, `e2e/tests/`
 
 ### Implementation for User Story 2
 
-- [ ] T035 [P] [US2] Create ProjectModification interface in frontend/src/app/models/project-modification.interface.ts
-- [ ] T036 [P] [US2] Create Command pattern interfaces in frontend/src/app/models/command.interface.ts
-- [ ] T037 [P] [US2] Implement UndoRedoService base structure in frontend/src/app/services/undo-redo.service.ts
-- [ ] T038 [US2] Create UpdateProjectPropertyCommand in frontend/src/app/commands/update-project-property.command.ts
-- [ ] T039 [US2] Add modification tracking to ProjectService
-- [ ] T040 [US2] Create project modifications API endpoints in backend/src/controllers/project-modifications.controller.ts
-- [ ] T041 [US2] Implement server-side modification persistence in backend/src/services/project-modifications.service.ts
-- [ ] T042 [US2] Add modification history display component in frontend/src/app/components/modification-history/
+- [ ] T036 [P] [US2] Create ProjectModification interface in frontend/src/app/models/project-modification.interface.ts
+- [ ] T037 [P] [US2] Create Command pattern interfaces in frontend/src/app/models/command.interface.ts
+- [ ] T038 [P] [US2] Implement UndoRedoService base structure in frontend/src/app/services/undo-redo.service.ts
+- [ ] T039 [US2] Create UpdateProjectPropertyCommand in frontend/src/app/commands/update-project-property.command.ts
+- [ ] T040 [US2] Add modification tracking to ProjectService
+- [ ] T041 [US2] Create project modifications API endpoints in backend/src/controllers/project-modifications.controller.ts
+- [ ] T042 [US2] Implement server-side modification persistence in backend/src/services/project-modifications.service.ts
+- [ ] T043 [US2] Add modification history display component in frontend/src/app/components/modification-history/
 
 **Checkpoint**: User Story 2 complete - all project changes are tracked independently
 
@@ -125,14 +125,14 @@ Based on plan.md structure: `frontend/src/`, `backend/src/`, `e2e/tests/`
 
 ### Implementation for User Story 3
 
-- [ ] T043 [P] [US3] Create SubscriptionService in frontend/src/app/services/subscription.service.ts
-- [ ] T044 [P] [US3] Add subscription limit checking to UndoRedoService
-- [ ] T045 [P] [US3] Create subscription endpoints in backend/src/controllers/subscription.controller.ts
-- [ ] T046 [P] [US3] Create UndoRedoControlsComponent in frontend/src/app/components/undo-redo-controls/
-- [ ] T047 [US3] Implement undo operation with subscription limits and server-side history retrieval
-- [ ] T048 [US3] Add limit-reached UI feedback and upgrade prompts
-- [ ] T049 [US3] Create subscription limit guard in frontend/src/app/guards/subscription-limit.guard.ts
-- [ ] T050 [US3] Add server-side undo operation history pruning based on subscription limits
+- [ ] T044 [P] [US3] Create SubscriptionService in frontend/src/app/services/subscription.service.ts
+- [ ] T045 [P] [US3] Add subscription limit checking to UndoRedoService
+- [ ] T046 [P] [US3] Create subscription endpoints in backend/src/controllers/subscription.controller.ts
+- [ ] T047 [P] [US3] Create UndoRedoControlsComponent in frontend/src/app/components/undo-redo-controls/
+- [ ] T048 [US3] Implement undo operation with subscription limits and server-side history retrieval
+- [ ] T049 [US3] Add limit-reached UI feedback and upgrade prompts
+- [ ] T050 [US3] Create subscription limit guard in frontend/src/app/guards/subscription-limit.guard.ts
+- [ ] T051 [US3] Add server-side undo operation history pruning based on subscription limits
 
 **Checkpoint**: User Story 3 complete - subscription-based undo works independently
 
@@ -146,12 +146,12 @@ Based on plan.md structure: `frontend/src/`, `backend/src/`, `e2e/tests/`
 
 ### Implementation for User Story 4
 
-- [ ] T051 [P] [US4] Add redo functionality to UndoRedoService
-- [ ] T052 [P] [US4] Implement redo command execution in command pattern
-- [ ] T053 [US4] Add redo controls to UndoRedoControlsComponent
-- [ ] T054 [US4] Implement redo history management and limits
-- [ ] T055 [US4] Add redo UI state management (enabled/disabled)
-- [ ] T056 [US4] Handle redo history clearing on new modifications
+- [ ] T052 [P] [US4] Add redo functionality to UndoRedoService
+- [ ] T053 [P] [US4] Implement redo command execution in command pattern
+- [ ] T054 [US4] Add redo controls to UndoRedoControlsComponent
+- [ ] T055 [US4] Implement redo history management and limits
+- [ ] T056 [US4] Add redo UI state management (enabled/disabled)
+- [ ] T057 [US4] Handle redo history clearing on new modifications
 
 **Checkpoint**: User Story 4 complete - full undo/redo cycle works independently
 
@@ -161,14 +161,14 @@ Based on plan.md structure: `frontend/src/`, `backend/src/`, `e2e/tests/`
 
 **Purpose**: Verify all user stories work together and handle edge cases
 
-- [ ] T057 [P] Create E2E test for project creation workflow in e2e/tests/project-creation.spec.ts
-- [ ] T058 [P] Create E2E test for dashboard navigation in e2e/tests/dashboard-navigation.spec.ts
-- [ ] T059 [P] Create E2E test for modification tracking in e2e/tests/modification-tracking.spec.ts
-- [ ] T060 [P] Create E2E test for undo/redo operations in e2e/tests/undo-redo-operations.spec.ts
-- [ ] T061 [P] Create E2E test for subscription limits in e2e/tests/subscription-limits.spec.ts
-- [ ] T062 Add error handling for edge cases (invalid names, rapid modifications)
-- [ ] T063 Add loading states and user feedback across all components
-- [ ] T064 Verify subscription limit enforcement across all features
+- [ ] T058 [P] Create E2E test for project creation workflow in e2e/tests/project-creation.spec.ts
+- [ ] T059 [P] Create E2E test for dashboard navigation in e2e/tests/dashboard-navigation.spec.ts
+- [ ] T060 [P] Create E2E test for modification tracking in e2e/tests/modification-tracking.spec.ts
+- [ ] T061 [P] Create E2E test for undo/redo operations in e2e/tests/undo-redo-operations.spec.ts
+- [ ] T062 [P] Create E2E test for subscription limits in e2e/tests/subscription-limits.spec.ts
+- [ ] T063 Add error handling for edge cases (invalid names, rapid modifications)
+- [ ] T064 Add loading states and user feedback across all components
+- [ ] T065 Verify subscription limit enforcement across all features
 
 ---
 
@@ -176,13 +176,13 @@ Based on plan.md structure: `frontend/src/`, `backend/src/`, `e2e/tests/`
 
 **Purpose**: Final improvements and production readiness
 
-- [ ] T065 [P] Add user guidance tooltips and help text
-- [ ] T066 [P] Implement upgrade prompts for subscription limits
-- [ ] T067 [P] Add accessibility attributes and keyboard navigation
-- [ ] T068 [P] Optimize bundle size and lazy loading
-- [ ] T069 Add performance monitoring for key operations
-- [ ] T070 Create user documentation in docs/features/project-management.md
-- [ ] T071 Final testing and deployment verification
+- [ ] T066 [P] Add user guidance tooltips and help text
+- [ ] T067 [P] Implement upgrade prompts for subscription limits
+- [ ] T068 [P] Add accessibility attributes and keyboard navigation
+- [ ] T069 [P] Optimize bundle size and lazy loading
+- [ ] T070 Add performance monitoring for key operations
+- [ ] T071 Create user documentation in docs/features/project-management.md
+- [ ] T072 Final testing and deployment verification
 
 ---
 
