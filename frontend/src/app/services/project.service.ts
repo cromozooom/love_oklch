@@ -13,6 +13,7 @@ import {
 } from '../models/project.interface';
 import { ColorGamut, ColorSpace } from '../models/color-enums';
 import { ErrorHandlerService } from './error-handler.service';
+import { environment } from '../../environments/environment';
 
 interface ProjectLimitsResponse {
   success: boolean;
@@ -57,7 +58,7 @@ export class ProjectService {
   private readonly http = inject(HttpClient);
   private readonly errorHandler = inject(ErrorHandlerService);
 
-  private readonly baseUrl = '/api/v1/projects';
+  private readonly baseUrl = `${environment.apiUrl}/projects`;
 
   // Project state management using BehaviorSubject
   private projectsSubject = new BehaviorSubject<Project[]>([]);

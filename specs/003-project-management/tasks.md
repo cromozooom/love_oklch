@@ -83,14 +83,14 @@ Based on plan.md structure: `frontend/src/`, `backend/src/`, `e2e/tests/`
 
 ### Implementation for User Story 5
 
-- [ ] T028 [P] [US5] Create DashboardComponent in frontend/src/app/components/dashboard/
-- [ ] T029 [P] [US5] Setup dashboard routing in frontend/src/app/app.routes.ts
-- [ ] T030 [P] [US5] Create project navigation guard in frontend/src/app/guards/project-exists.guard.ts
-- [ ] T031 [US5] Implement dashboard project list display in DashboardComponent
-- [ ] T032 [US5] Add SPA navigation from dashboard to project editor
-- [ ] T033 [US5] Create breadcrumb navigation component in frontend/src/app/components/breadcrumb/
-- [ ] T034 [US5] Add project selection state management in ProjectService
-- [ ] T035 [US5] Implement dashboard loading states and error handling
+- [x] T028 [P] [US5] Create DashboardComponent in frontend/src/app/components/dashboard/
+- [x] T029 [P] [US5] Setup dashboard routing in frontend/src/app/app.routes.ts
+- [x] T030 [P] [US5] Create project navigation guard in frontend/src/app/guards/project-exists.guard.ts
+- [x] T031 [US5] Implement dashboard project list display in DashboardComponent
+- [x] T032 [US5] Add SPA navigation from dashboard to project editor
+- [x] T033 [US5] Create breadcrumb navigation component in frontend/src/app/components/breadcrumb/
+- [x] T034 [US5] Add project selection state management in ProjectService
+- [x] T035 [US5] Implement dashboard loading states and error handling
 
 **Checkpoint**: User Story 5 complete - dashboard navigation works independently
 

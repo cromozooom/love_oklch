@@ -1,6 +1,6 @@
 import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
+import { RouterModule, Router } from '@angular/router';
 
 import { ProjectService } from '../../services/project.service';
 import { ErrorHandlerService } from '../../services/error-handler.service';
@@ -32,6 +32,7 @@ export class ProjectListComponent implements OnInit {
   // Services
   private readonly projectService = inject(ProjectService);
   private readonly errorHandler = inject(ErrorHandlerService);
+  private readonly router = inject(Router);
 
   // State signals
   public readonly projects = signal<Project[]>([]);
@@ -93,8 +94,12 @@ export class ProjectListComponent implements OnInit {
    * @param projectId - The ID of the project to edit
    */
   public editProject(projectId: string): void {
-    // TODO: Implement navigation to project editor when routing is complete
-    console.log('Navigate to project editor:', projectId);
+    // Find the project and set it as selected
+    const project = this.projects().find((p) => p.id === projectId);
+    if (project) {
+      this.projectService.setSelectedProject(project);
+    }
+    this.router.navigate(['/dashboard', 'projects', projectId]);
   }
 
   /**

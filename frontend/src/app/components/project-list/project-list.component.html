@@ -1,134 +1,98 @@
-<div class="project-list-container">
-  <!-- Header section -->
-  <div class="project-list-header">
-    <h2>My Projects</h2>
-    <div class="header-actions">
-      <button
-        type="button"
-        class="btn btn-secondary"
-        (click)="refreshProjects()"
-        [disabled]="isLoading()"
-        title="Refresh project list"
-      >
-        🔄 Refresh
-      </button>
-      <button
-        type="button"
-        class="btn btn-primary"
-        routerLink="/projects/new"
-        title="Create new project"
-      >
-        ➕ New Project
-      </button>
-    </div>
-  </div>
+<h2>My Projects</h2>
+<button
+  type="button"
+  (click)="refreshProjects()"
+  [disabled]="isLoading()"
+  title="Refresh project list"
+>
+  🔄 Refresh
+</button>
+<button type="button" routerLink="/projects/new" title="Create new project">
+  ➕ New Project
+</button>
 
-  <!-- Loading state -->
-  <div *ngIf="isLoading()" class="loading-container">
-    <div class="loading-spinner"></div>
-    <p>Loading projects...</p>
-  </div>
+<!-- Loading state -->
+<div *ngIf="isLoading()">
+  <p>Loading projects...</p>
+</div>
 
-  <!-- Error state -->
-  <div *ngIf="error() && !isLoading()" class="error-container">
-    <div class="error-message">
-      <span class="error-icon">⚠️</span>
-      <span>{{ error() }}</span>
-    </div>
-    <button type="button" class="btn btn-secondary" (click)="refreshProjects()">
-      Try Again
-    </button>
-  </div>
+<!-- Error state -->
+<div *ngIf="error() && !isLoading()">
+  <div>⚠️</div>
+  <h3>Error Loading Projects</h3>
+  <p>{{ error() }}</p>
+  <button type="button" (click)="refreshProjects()">Try Again</button>
+</div>
 
-  <!-- Empty state -->
-  <div *ngIf="!hasProjects() && !isLoading() && !error()" class="empty-state">
-    <div class="empty-illustration">🎨</div>
-    <h3>No projects yet</h3>
-    <p>Create your first project to start working with colors.</p>
-    <button type="button" class="btn btn-primary" routerLink="/projects/new">
-      Create Your First Project
-    </button>
-  </div>
+<!-- Empty state -->
+<div *ngIf="!hasProjects() && !isLoading() && !error()">
+  <div>🎨</div>
+  <h3>No projects yet</h3>
+  <p>Create your first project to start working with colors.</p>
+  <button type="button" routerLink="/projects/new">
+    Create Your First Project
+  </button>
+</div>
 
-  <!-- Projects grid -->
-  <div *ngIf="hasProjects() && !isLoading()" class="projects-grid">
-    <div
-      *ngFor="let project of displayProjects(); trackBy: trackByProject"
-      class="project-card"
-      [class.recent]="getCardElevation(project) > 2"
-    >
-      <!-- Project header -->
-      <div class="project-header">
-        <h3 class="project-name" [title]="project.name">
-          {{ project.name }}
-        </h3>
-        <div class="project-actions">
-          <button
-            type="button"
-            class="btn-icon"
-            (click)="editProject(project.id)"
-            title="Edit project"
-          >
-            ✏️
-          </button>
-          <button
-            type="button"
-            class="btn-icon btn-danger"
-            (click)="deleteProject(project)"
-            title="Delete project"
-          >
-            🗑️
-          </button>
-        </div>
-      </div>
-
-      <!-- Project metadata -->
-      <div class="project-metadata">
-        <div class="metadata-row">
-          <span class="metadata-label">Color Gamut:</span>
-          <span
-            class="metadata-value"
-            [title]="COLOR_GAMUT_INFO[project.colorGamut].description"
-          >
-            {{ project.colorGamutDisplay }}
-          </span>
-        </div>
-        <div class="metadata-row">
-          <span class="metadata-label">Color Space:</span>
-          <span
-            class="metadata-value"
-            [title]="COLOR_SPACE_INFO[project.colorSpace].description"
-          >
-            {{ project.colorSpaceDisplay }}
-          </span>
-        </div>
-      </div>
-
-      <!-- Project dates -->
-      <div class="project-dates">
-        <div class="date-info">
-          <span class="date-label">Created:</span>
-          <span class="date-value">{{ project.formattedCreatedAt }}</span>
-        </div>
-        <div
-          class="date-info"
-          *ngIf="project.formattedUpdatedAt !== project.formattedCreatedAt"
-        >
-          <span class="date-label">Updated:</span>
-          <span class="date-value">{{ project.formattedUpdatedAt }}</span>
-        </div>
-      </div>
-
-      <!-- Project footer -->
-      <div class="project-footer">
+<!-- Projects grid -->
+<div *ngIf="hasProjects() && !isLoading()">
+  <div *ngFor="let project of displayProjects(); trackBy: trackByProject">
+    <!-- Project header -->
+    <div>
+      <h3 [title]="project.name">
+        {{ project.name }}
+      </h3>
+      <div>
         <button
           type="button"
-          class="btn btn-primary btn-small"
           (click)="editProject(project.id)"
+          title="Edit project"
         >
-          Open Project
+          ✏️
+        </button>
+        <button
+          type="button"
+          (click)="deleteProject(project)"
+          title="Delete project"
+        >
+          🗑️
         </button>
       </div>
+    </div>
+
+    <!-- Project metadata -->
+    <div>
+      <div>
+        <span>Color Gamut:</span>
+        <span [title]="COLOR_GAMUT_INFO[project.colorGamut].description">
+          {{ project.colorGamutDisplay }}
+        </span>
+      </div>
+      <div>
+        <span>Color Space:</span>
+        <span [title]="COLOR_SPACE_INFO[project.colorSpace].description">
+          {{ project.colorSpaceDisplay }}
+        </span>
+      </div>
+    </div>
+
+    <!-- Project dates -->
+    <div>
+      <div>
+        <span>Created:</span>
+        <span>{{ project.formattedCreatedAt }}</span>
+      </div>
+      <div *ngIf="project.formattedUpdatedAt !== project.formattedCreatedAt">
+        <span>Updated:</span>
+        <span>{{ project.formattedUpdatedAt }}</span>
+      </div>
+    </div>
+
+    <!-- Project footer -->
+    <div>
+      <button type="button" (click)="editProject(project.id)">
+        Open Project
+      </button>
     </div>
   </div>
 </div>

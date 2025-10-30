@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import {
   HttpInterceptor,
   HttpRequest,
@@ -6,21 +6,15 @@ import {
   HttpEvent,
   HttpErrorResponse,
 } from '@angular/common/http';
-import { Observable, throwError, BehaviorSubject } from 'rxjs';
-import { catchError, filter, take, switchMap } from 'rxjs/operators';
-import { AuthService } from './auth.service';
+import { Observable, throwError } from 'rxjs';
+import { catchError } from 'rxjs/operators';
+import { Router } from '@angular/router';
 
 @Injectable()
 export class AuthInterceptor implements HttpInterceptor {
-  private isRefreshing = false;
-  private refreshTokenSubject: BehaviorSubject<any> = new BehaviorSubject<any>(
-    null
-  );
-
   // Token key constant (must match AuthService)
   private readonly TOKEN_KEY = 'auth_token';
-
-  constructor(private authService: AuthService) {}
+  private readonly router = inject(Router);
 
   intercept(
     req: HttpRequest<any>,
@@ -36,9 +30,9 @@ export class AuthInterceptor implements HttpInterceptor {
 
     return next.handle(authReq).pipe(
       catchError((error: HttpErrorResponse) => {
-        // Handle 401 errors with token refresh
-        if (error.status === 401 && this.authService.isAuthenticated()) {
-          return this.handle401Error(authReq, next);
+        // Handle 401 errors by redirecting to login
+        if (error.status === 401) {
+          this.handle401Error();
         }
 
         return throwError(() => error);
@@ -85,50 +79,15 @@ export class AuthInterceptor implements HttpInterceptor {
   }
 
   /**
-   * Handle 401 unauthorized errors with token refresh
+   * Handle 401 unauthorized errors by clearing auth and redirecting to login
    */
-  private handle401Error(
-    req: HttpRequest<any>,
-    next: HttpHandler
-  ): Observable<HttpEvent<any>> {
-    if (!this.isRefreshing) {
-      this.isRefreshing = true;
-      this.refreshTokenSubject.next(null);
+  private handle401Error(): void {
+    // Clear stored auth data
+    localStorage.removeItem(this.TOKEN_KEY);
+    localStorage.removeItem('auth_user');
+    localStorage.removeItem('auth_remember');
 
-      return this.authService.refreshToken().pipe(
-        switchMap((newToken: string) => {
-          this.isRefreshing = false;
-          this.refreshTokenSubject.next(newToken);
-
-          // Retry original request with new token
-          const retryReq = req.clone({
-            setHeaders: {
-              Authorization: `Bearer ${newToken}`,
-            },
-          });
-
-          return next.handle(retryReq);
-        }),
-        catchError((error) => {
-          this.isRefreshing = false;
-          this.authService.logout().subscribe();
-          return throwError(() => error);
-        })
-      );
-    } else {
-      // Wait for refresh to complete
-      return this.refreshTokenSubject.pipe(
-        filter((token) => token !== null),
-        take(1),
-        switchMap((token) => {
-          const retryReq = req.clone({
-            setHeaders: {
-              Authorization: `Bearer ${token}`,
-            },
-          });
-          return next.handle(retryReq);
-        })
-      );
-    }
+    // Redirect to login
+    this.router.navigate(['/auth/login']);
   }
 }

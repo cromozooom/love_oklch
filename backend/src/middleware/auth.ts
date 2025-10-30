@@ -123,7 +123,9 @@ export async function authenticateUser(
       subscription: {
         type: subscriptionType,
         status: activeSubscription?.status || 'pending',
-        planId: activeSubscription?.planId || undefined,
+        ...(activeSubscription?.planId
+          ? { planId: activeSubscription.planId }
+          : {}),
       },
       projects: {
         canCreate:

@@ -1,0 +1,30 @@
+<nav class="breadcrumb-nav" aria-label="Breadcrumb navigation">
+  <ol class="flex">
+    <li
+      *ngFor="let item of breadcrumbs; let isLast = last; trackBy: trackByIndex"
+      class="flex gap-2 items-center"
+      [class.active]="item.active || isLast"
+    >
+      <ng-container *ngIf="!isLast && item.route">
+        <a
+          [routerLink]="item.route"
+          class="ps-2"
+          [attr.aria-current]="item.active ? 'page' : null"
+        >
+          {{ item.label }}
+        </a>
+      </ng-container>
+      <ng-container *ngIf="isLast || !item.route">
+        <span
+          class="breadcrumb-current ms-2"
+          [attr.aria-current]="item.active || isLast ? 'page' : null"
+        >
+          {{ item.label }}
+        </span>
+      </ng-container>
+      <span *ngIf="!isLast" class="breadcrumb-separator" aria-hidden="true">
+        /
+      </span>
+    </li>
+  </ol>
+</nav>

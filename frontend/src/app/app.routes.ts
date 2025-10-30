@@ -12,42 +12,71 @@ export const routes: Routes = [
 
   // Protected routes - Project Management
   {
-    path: 'dashboard',
-    component: HomeComponent, // Placeholder until DashboardComponent is implemented
+    path: '',
+    loadComponent: () =>
+      import('./components/dashboard/dashboard.component').then(
+        (m) => m.DashboardComponent
+      ),
     canActivate: [AuthGuard],
     title: 'Dashboard - Love OKLCH',
-  },
-  {
-    path: 'projects',
-    canActivate: [AuthGuard],
     children: [
       {
         path: '',
-        redirectTo: '/dashboard',
+        redirectTo: 'projects',
         pathMatch: 'full',
       },
       {
-        path: 'new',
-        component: HomeComponent, // Placeholder until ProjectFormComponent is implemented
+        path: 'projects',
+        loadComponent: () =>
+          import('./components/project-list/project-list.component').then(
+            (m) => m.ProjectListComponent
+          ),
+        title: 'Projects - Love OKLCH',
+      },
+      {
+        path: 'projects/new',
+        loadComponent: () =>
+          import('./pages/home/home.component').then((m) => m.HomeComponent),
         title: 'New Project - Love OKLCH',
       },
       {
-        path: ':projectId',
-        component: HomeComponent, // Placeholder until ProjectEditorComponent is implemented
+        path: 'projects/:projectId',
+        loadComponent: () =>
+          import('./pages/home/home.component').then((m) => m.HomeComponent),
         title: 'Edit Project - Love OKLCH',
       },
       {
-        path: ':projectId/history',
-        component: HomeComponent, // Placeholder until ModificationHistoryComponent is implemented
+        path: 'projects/:projectId/history',
+        loadComponent: () =>
+          import('./pages/home/home.component').then((m) => m.HomeComponent),
         title: 'Project History - Love OKLCH',
       },
     ],
   },
 
+  // Redirect root to dashboard
+  {
+    path: '',
+    redirectTo: '/',
+    pathMatch: 'full',
+  },
+
+  // Legacy projects routes (redirect to dashboard)
+  {
+    path: 'projects',
+    redirectTo: '/projects',
+    pathMatch: 'full',
+  },
+  {
+    path: 'projects/:projectId',
+    redirectTo: '/projects/:projectId',
+    pathMatch: 'prefix',
+  },
+
   // Legacy home route (redirect to dashboard)
   {
     path: 'home',
-    redirectTo: '/dashboard',
+    redirectTo: '/',
     pathMatch: 'full',
   },
 
@@ -62,13 +91,13 @@ export const routes: Routes = [
   // Default redirects
   {
     path: '',
-    redirectTo: '/dashboard',
+    redirectTo: '/',
     pathMatch: 'full',
   },
 
   // Wildcard route - must be last
   {
     path: '**',
-    redirectTo: '/dashboard',
+    redirectTo: '/',
   },
 ];
