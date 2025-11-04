@@ -163,8 +163,8 @@ Based on plan.md structure: `frontend/src/`, `backend/src/`, `e2e/tests/`
 
 - [x] T058 [P] Create E2E test for project creation workflow in e2e/project-creation.spec.ts ✅
   - Tests: Complete creation flow, form validation, multiple projects, color combinations, data persistence, cancel functionality
-- [ ] T059 [P] Create E2E test for projects list navigation and SPA behavior in e2e/projects-navigation.spec.ts
-  - Tests: Load projects list, navigate to editor, return to list, verify SPA (no page reloads), breadcrumb navigation
+- [x] T059 [P] Create E2E test for projects list navigation and SPA behavior in e2e/projects-navigation.spec.ts ✅
+  - Tests: Load projects list, navigate to editor, return to list, verify SPA (no page reloads), breadcrumb navigation, refresh, empty state, scroll preservation, direct URL navigation
 - [ ] T060 [P] Create E2E test for modification tracking in e2e/modification-tracking.spec.ts
 - [x] T061 [P] Create comprehensive E2E test for undo/redo operations in e2e/undo-redo-functionality.spec.ts ✅
   - Tests: Undo single change, undo multiple changes, redo operations, auto-save persistence, navigation state preservation, redo stack clearing, form state synchronization
