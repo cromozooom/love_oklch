@@ -99,7 +99,7 @@ export class ProjectListComponent implements OnInit {
     if (project) {
       this.projectService.setSelectedProject(project);
     }
-    this.router.navigate(['/dashboard', 'projects', projectId]);
+    this.router.navigate(['/projects', projectId]);
   }
 
   /**

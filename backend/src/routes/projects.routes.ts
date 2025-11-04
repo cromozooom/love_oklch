@@ -2,6 +2,7 @@ import { Router } from 'express';
 import { PrismaClient } from '@prisma/client';
 import { ProjectsController } from '../controllers/projects.controller';
 import { authenticateUser } from '../middleware/auth';
+import { createProjectModificationsRoutes } from './project-modifications.routes';
 
 /**
  * Create projects routes
@@ -23,6 +24,12 @@ export function createProjectsRoutes(prisma: PrismaClient): Router {
   router.get('/:id', projectsController.getProjectById);
   router.put('/:id', projectsController.updateProject);
   router.delete('/:id', projectsController.deleteProject);
+
+  // Project modifications routes (nested under project)
+  router.use(
+    '/:projectId/modifications',
+    createProjectModificationsRoutes(prisma),
+  );
 
   return router;
 }

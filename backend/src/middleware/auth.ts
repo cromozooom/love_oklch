@@ -11,6 +11,7 @@ export interface AuthenticatedRequest extends Request {
   user?: {
     userId: string;
     email: string;
+    isAdmin: boolean;
     subscription: {
       type: 'default' | 'premium';
       status: 'active' | 'expired' | 'canceled' | 'pending' | 'grace_period';
@@ -91,6 +92,10 @@ export async function authenticateUser(
           where: { isActive: true },
           select: { projectId: true },
         },
+        adminRoles: {
+          where: { isActive: true },
+          select: { roleName: true },
+        },
       },
     });
 
@@ -116,10 +121,14 @@ export async function authenticateUser(
     const projectLimits = getProjectLimits(subscriptionType);
     const currentProjectCount = user.projects.length;
 
+    // Check if user has any admin roles
+    const isAdmin = user.adminRoles && user.adminRoles.length > 0;
+
     // Attach user information to request
     req.user = {
       userId: user.userId,
       email: user.email,
+      isAdmin,
       subscription: {
         type: subscriptionType,
         status: activeSubscription?.status || 'pending',

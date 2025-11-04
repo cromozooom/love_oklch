@@ -38,9 +38,9 @@ export class DatabaseConnection {
 
     try {
       this.logger.info('Initializing database connection...');
-      
+
       const dbConfig = getDatabaseConfig();
-      
+
       this.prisma = new PrismaClient({
         datasources: {
           db: {
@@ -53,19 +53,18 @@ export class DatabaseConnection {
 
       // Test the connection
       await this.prisma.$connect();
-      
+
       // Verify database is accessible
       await this.healthCheck();
-      
+
       this.isConnected = true;
       this.logger.info('Database connection established successfully');
-      
+
       // Start health check monitoring
       this.startHealthCheckMonitoring();
-      
+
       // Setup graceful shutdown handlers
       this.setupShutdownHandlers();
-      
     } catch (error) {
       this.logger.error('Failed to connect to database:', error);
       throw new DatabaseConnectionError('Database connection failed', error);
@@ -83,16 +82,16 @@ export class DatabaseConnection {
 
     try {
       this.logger.info('Disconnecting from database...');
-      
+
       // Stop health check monitoring
       this.stopHealthCheckMonitoring();
-      
+
       // Close Prisma connection
       await this.prisma.$disconnect();
-      
+
       this.prisma = null;
       this.isConnected = false;
-      
+
       this.logger.info('Database disconnected successfully');
     } catch (error) {
       this.logger.error('Error during database disconnection:', error);
@@ -131,13 +130,13 @@ export class DatabaseConnection {
     }
 
     const startTime = Date.now();
-    
+
     try {
       // Simple query to test connection
       await this.prisma.$queryRaw`SELECT 1 as health_check`;
-      
+
       const latency = Date.now() - startTime;
-      
+
       return {
         isHealthy: true,
         latency,
@@ -145,9 +144,9 @@ export class DatabaseConnection {
       };
     } catch (error) {
       const latency = Date.now() - startTime;
-      
+
       this.logger.warn('Database health check failed:', error);
-      
+
       return {
         isHealthy: false,
         error: error instanceof Error ? error.message : 'Unknown error',
@@ -167,11 +166,11 @@ export class DatabaseConnection {
 
     try {
       this.logger.info('Running database migrations...');
-      
+
       // Note: In production, migrations should be run separately
       // This is for development convenience
       await this.prisma.$executeRaw`SELECT 'Migration check' as result`;
-      
+
       this.logger.info('Database migrations completed');
     } catch (error) {
       this.logger.error('Database migration failed:', error);
@@ -193,7 +192,7 @@ export class DatabaseConnection {
 
     try {
       this.logger.warn('Resetting database... (development only)');
-      
+
       // This would typically use Prisma migrate reset
       // For now, we'll just log the intention
       this.logger.info('Database reset completed');
@@ -219,20 +218,24 @@ export class DatabaseConnection {
    * Get appropriate log level for Prisma
    */
   private getLogLevel(): any[] {
-    const logLevel = config.logging.level;
-    
-    switch (logLevel) {
-      case 'debug':
-        return ['query', 'info', 'warn', 'error'];
-      case 'info':
-        return ['info', 'warn', 'error'];
-      case 'warn':
-        return ['warn', 'error'];
-      case 'error':
-        return ['error'];
-      default:
-        return ['warn', 'error'];
-    }
+    // Disable Prisma query logging to reduce noise
+    return [];
+
+    // Original implementation (commented out):
+    // const logLevel = config.logging.level;
+    //
+    // switch (logLevel) {
+    //   case 'debug':
+    //     return ['query', 'info', 'warn', 'error'];
+    //   case 'info':
+    //     return ['info', 'warn', 'error'];
+    //   case 'warn':
+    //     return ['warn', 'error'];
+    //   case 'error':
+    //     return ['error'];
+    //   default:
+    //     return ['warn', 'error'];
+    // }
   }
 
   /**
@@ -244,13 +247,15 @@ export class DatabaseConnection {
     }
 
     const intervalMs = 30000; // 30 seconds
-    
+
     this.healthCheckInterval = setInterval(async () => {
       try {
         const health = await this.healthCheck();
-        
+
         if (!health.isHealthy) {
-          this.logger.warn('Database health check failed, attempting reconnection...');
+          this.logger.warn(
+            'Database health check failed, attempting reconnection...',
+          );
           await this.reconnect();
         } else if (health.latency > 1000) {
           this.logger.warn(`Database latency high: ${health.latency}ms`);
@@ -280,10 +285,10 @@ export class DatabaseConnection {
   private async reconnect(): Promise<void> {
     try {
       this.logger.info('Attempting database reconnection...');
-      
+
       await this.disconnect();
       await this.connect();
-      
+
       this.logger.info('Database reconnection successful');
     } catch (error) {
       this.logger.error('Database reconnection failed:', error);
@@ -296,7 +301,7 @@ export class DatabaseConnection {
    */
   private setupShutdownHandlers(): void {
     const signals = ['SIGTERM', 'SIGINT'] as const;
-    
+
     signals.forEach((signal) => {
       process.once(signal, async () => {
         this.logger.info(`Received ${signal}, closing database connection...`);

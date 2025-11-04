@@ -49,6 +49,7 @@ export class ProjectsController {
         description: req.body.description,
         colorGamut: req.body.colorGamut,
         colorSpace: req.body.colorSpace,
+        colorCount: req.body.colorCount, // DEMO field for testing
       };
 
       const project = await this.projectService.createProject(createInput);
@@ -196,6 +197,7 @@ export class ProjectsController {
         description: req.body.description,
         colorGamut: req.body.colorGamut,
         colorSpace: req.body.colorSpace,
+        colorCount: req.body.colorCount, // DEMO field for testing
         isActive: req.body.isActive,
       };
 

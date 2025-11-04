@@ -10,6 +10,7 @@ export interface Project {
   description?: string; // Optional project description
   colorGamut: ColorGamut; // Color gamut (sRGB, Display P3, Unlimited gamut)
   colorSpace: ColorSpace; // Color space (LCH, OKLCH)
+  colorCount?: number; // DEMO: Number of colors (for testing history)
   createdAt: Date; // Creation timestamp
   updatedAt: Date; // Last modification timestamp
   isActive: boolean; // Soft delete flag
@@ -23,6 +24,7 @@ export interface CreateProjectRequest {
   description?: string;
   colorGamut: ColorGamut;
   colorSpace: ColorSpace;
+  colorCount?: number; // DEMO: Number of colors (for testing)
 }
 
 /**
@@ -33,6 +35,7 @@ export interface UpdateProjectRequest {
   description?: string;
   colorGamut?: ColorGamut;
   colorSpace?: ColorSpace;
+  colorCount?: number; // DEMO: Number of colors (for testing)
   isActive?: boolean;
 }
 

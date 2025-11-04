@@ -36,13 +36,17 @@ export const routes: Routes = [
       {
         path: 'projects/new',
         loadComponent: () =>
-          import('./pages/home/home.component').then((m) => m.HomeComponent),
+          import('./components/project-creator/project-creator.component').then(
+            (m) => m.ProjectCreatorComponent
+          ),
         title: 'New Project - Love OKLCH',
       },
       {
         path: 'projects/:projectId',
         loadComponent: () =>
-          import('./pages/home/home.component').then((m) => m.HomeComponent),
+          import('./components/project-editor/project-editor.component').then(
+            (m) => m.ProjectEditorComponent
+          ),
         title: 'Edit Project - Love OKLCH',
       },
       {

@@ -87,6 +87,7 @@ model Project {
   description   String?
   colorGamut    ColorGamut           @map("color_gamut")
   colorSpace    ColorSpace           @map("color_space")
+  colorCount    Int?                 @map("color_count") // DEMO: For testing history tracking
   createdAt     DateTime             @default(now()) @map("created_at") @db.Timestamptz(6)
   updatedAt     DateTime             @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
   isActive      Boolean              @default(true) @map("is_active")

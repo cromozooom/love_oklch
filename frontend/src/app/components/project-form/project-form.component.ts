@@ -5,6 +5,8 @@ import {
   inject,
   input,
   output,
+  signal,
+  computed,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {
@@ -13,7 +15,14 @@ import {
   Validators,
   ReactiveFormsModule,
 } from '@angular/forms';
-import { Subject, takeUntil, combineLatest } from 'rxjs';
+import {
+  Subject,
+  takeUntil,
+  combineLatest,
+  debounceTime,
+  distinctUntilChanged,
+  scan,
+} from 'rxjs';
 import { ProjectService } from '../../services/project.service';
 import {
   CreateProjectRequest,
@@ -26,6 +35,9 @@ import {
   ColorEnumHelpers,
 } from '../../models/color-enums';
 import { ProjectValidators } from '../../validators/project.validators';
+import { UndoRedoService } from '../../services/undo-redo.service';
+import { OptimisticUpdatesService } from '../../services/optimistic-updates.service';
+import { UpdateProjectPropertyCommand } from '../../commands/update-project-property.command';
 
 /**
  * Form component for creating and editing projects
@@ -35,188 +47,29 @@ import { ProjectValidators } from '../../validators/project.validators';
   selector: 'app-project-form',
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule],
-  template: `
-    <div class="project-form-container">
-      <form
-        [formGroup]="projectForm"
-        (ngSubmit)="onSubmit()"
-        class="project-form"
-      >
-        <!-- Form Title -->
-        <div class="form-header">
-          <h2 class="form-title">
-            {{ isEditMode() ? 'Edit Project' : 'Create New Project' }}
-          </h2>
-          @if (projectLimits) {
-          <div class="subscription-info">
-            <span class="current-projects">{{
-              projectLimits.currentProjects
-            }}</span>
-            @if (projectLimits.projectLimit > 0) {
-            <span class="project-limit"
-              >/ {{ projectLimits.projectLimit }}</span
-            >
-            } @else {
-            <span class="unlimited">unlimited</span>
-            }
-            <span class="projects-label">projects</span>
-          </div>
-          }
-        </div>
-
-        <!-- Project Name Field -->
-        <div class="form-field">
-          <label for="name" class="field-label"> Project Name * </label>
-          <input
-            id="name"
-            type="text"
-            formControlName="name"
-            placeholder="Enter project name"
-            class="field-input"
-            [class.error]="isFieldInvalid('name')"
-            maxlength="100"
-          />
-          @if (isFieldInvalid('name')) {
-          <div class="field-error">
-            @if (projectForm.get('name')?.errors?.['required']) { Project name
-            is required } @if (projectForm.get('name')?.errors?.['minlength']) {
-            Project name must be at least 1 character } @if
-            (projectForm.get('name')?.errors?.['maxlength']) { Project name must
-            be 100 characters or less }
-          </div>
-          }
-        </div>
-
-        <!-- Project Description Field -->
-        <div class="form-field">
-          <label for="description" class="field-label"> Description </label>
-          <textarea
-            id="description"
-            formControlName="description"
-            placeholder="Enter project description (optional)"
-            class="field-textarea"
-            [class.error]="isFieldInvalid('description')"
-            maxlength="500"
-            rows="3"
-          ></textarea>
-          @if (isFieldInvalid('description')) {
-          <div class="field-error">
-            @if (projectForm.get('description')?.errors?.['maxlength']) {
-            Description must be 500 characters or less }
-          </div>
-          }
-          <div class="field-hint">
-            {{ getDescriptionCharCount() }}/500 characters
-          </div>
-        </div>
-
-        <!-- Color Gamut Field -->
-        <div class="form-field">
-          <label for="colorGamut" class="field-label"> Color Gamut * </label>
-          <select
-            id="colorGamut"
-            formControlName="colorGamut"
-            class="field-select"
-            [class.error]="isFieldInvalid('colorGamut')"
-          >
-            <option value="" disabled>Select color gamut</option>
-            @for (option of colorGamutOptions; track option.value) {
-            <option [value]="option.value">
-              {{ option.label }}
-            </option>
-            }
-          </select>
-          @if (selectedGamutInfo()) {
-          <div class="field-info">
-            {{ selectedGamutInfo()?.description }}
-            <br />
-            <strong>Coverage:</strong> {{ selectedGamutInfo()?.coverage }}
-            <br />
-            <strong>Best for:</strong> {{ selectedGamutInfo()?.recommendation }}
-          </div>
-          } @if (isFieldInvalid('colorGamut')) {
-          <div class="field-error">Color gamut is required</div>
-          }
-        </div>
-
-        <!-- Color Space Field -->
-        <div class="form-field">
-          <label for="colorSpace" class="field-label"> Color Space * </label>
-          <select
-            id="colorSpace"
-            formControlName="colorSpace"
-            class="field-select"
-            [class.error]="isFieldInvalid('colorSpace')"
-          >
-            <option value="" disabled>Select color space</option>
-            @for (option of colorSpaceOptions; track option.value) {
-            <option [value]="option.value">
-              {{ option.label }}
-            </option>
-            }
-          </select>
-          @if (selectedSpaceInfo()) {
-          <div class="field-info">
-            {{ selectedSpaceInfo()?.description }}
-            <br />
-            <strong>Perceptual Uniformity:</strong>
-            {{ selectedSpaceInfo()?.perceptualUniformity }}
-            <br />
-            <strong>Best for:</strong> {{ selectedSpaceInfo()?.recommendation }}
-          </div>
-          } @if (isFieldInvalid('colorSpace')) {
-          <div class="field-error">Color space is required</div>
-          }
-        </div>
-
-        <!-- Form Actions -->
-        <div class="form-actions">
-          <button
-            type="button"
-            class="btn btn-secondary"
-            (click)="onCancel()"
-            [disabled]="isSubmitting()"
-          >
-            Cancel
-          </button>
-          <button
-            type="submit"
-            class="btn btn-primary"
-            [disabled]="!projectForm.valid || isSubmitting() || !canSubmit()"
-          >
-            @if (isSubmitting()) {
-            <span class="loading-spinner"></span>
-            {{ isEditMode() ? 'Updating...' : 'Creating...' }}
-            } @else {
-            {{ isEditMode() ? 'Update Project' : 'Create Project' }}
-            }
-          </button>
-        </div>
-
-        <!-- Limit Warning -->
-        @if (!isEditMode() && projectLimits && !projectLimits.canCreateMore) {
-        <div class="limit-warning">
-          <p>You've reached your project limit for this subscription.</p>
-          @if (projectLimits.subscriptionType === 'default') {
-          <button type="button" class="btn btn-upgrade">
-            Upgrade to Premium
-          </button>
-          }
-        </div>
-        }
-      </form>
-    </div>
-  `,
+  templateUrl: './project-form.component.html',
   styleUrls: ['./project-form.component.scss'],
 })
 export class ProjectFormComponent implements OnInit, OnDestroy {
   private readonly formBuilder = inject(FormBuilder);
   private readonly projectService = inject(ProjectService);
+  private readonly undoRedoService = inject(UndoRedoService);
+  private readonly optimisticUpdatesService = inject(OptimisticUpdatesService);
   private readonly destroy$ = new Subject<void>();
 
   // Input properties
   readonly project = input<Project | null>(null);
   readonly mode = input<'create' | 'edit'>('create');
+
+  // Internal state for live syncing after creation
+  private currentProject = signal<Project | null>(null);
+  private currentMode = signal<'create' | 'edit'>('create');
+
+  // Computed properties that use internal state when available, otherwise fall back to inputs
+  private effectiveProject = computed(
+    () => this.currentProject() || this.project()
+  );
+  private effectiveMode = computed(() => this.currentMode() || this.mode());
 
   // Output events
   readonly formSubmit = output<CreateProjectRequest | UpdateProjectRequest>();
@@ -235,6 +88,12 @@ export class ProjectFormComponent implements OnInit, OnDestroy {
   // State
   projectLimits: any = null;
 
+  // Optimistic updates state
+  isSaving = computed(() => this.optimisticUpdatesService.isSaving());
+  hasUnsavedChanges = computed(() =>
+    this.optimisticUpdatesService.hasUnsavedChanges()
+  );
+
   ngOnInit(): void {
     this.initializeForm();
     this.loadProjectLimits();
@@ -251,7 +110,7 @@ export class ProjectFormComponent implements OnInit, OnDestroy {
    */
   private initializeForm(): void {
     const defaultConfig = ColorEnumHelpers.getDefaultProjectConfig();
-    const projectData = this.project();
+    const projectData = this.effectiveProject();
 
     this.projectForm = this.formBuilder.group({
       name: [
@@ -272,6 +131,10 @@ export class ProjectFormComponent implements OnInit, OnDestroy {
       colorSpace: [
         projectData?.colorSpace || defaultConfig.colorSpace,
         [ProjectValidators.colorSpace()],
+      ],
+      colorCount: [
+        projectData?.colorCount || 5,
+        [Validators.min(1), Validators.max(100)],
       ],
     });
   }
@@ -299,18 +162,84 @@ export class ProjectFormComponent implements OnInit, OnDestroy {
    * Setup form value watchers for real-time updates
    */
   private setupFormWatchers(): void {
+    // Store initial values for undo/redo tracking
+    const initialValues = { ...this.projectForm.value };
+
     // Auto-suggest color space based on gamut selection
     this.projectForm
       .get('colorGamut')
       ?.valueChanges.pipe(takeUntil(this.destroy$))
       .subscribe((gamut: ColorGamut) => {
-        if (gamut && !this.project()) {
+        if (gamut && !this.effectiveProject()) {
           // Only auto-suggest for new projects
           const recommendedSpace =
             ColorEnumHelpers.getRecommendedColorSpace(gamut);
           this.projectForm.get('colorSpace')?.setValue(recommendedSpace);
         }
       });
+
+    // Track changes for undo/redo in edit mode or live sync mode (exclude name field)
+    const currentProject = this.effectiveProject();
+
+    // Set up form watchers if we have a project (either from input, created, or loaded from route)
+    if (currentProject && currentProject.id) {
+      const projectId = currentProject.id;
+
+      // Track individual field changes (exclude name)
+      const fieldsToTrack = Object.keys(this.projectForm.controls).filter(
+        (fieldName) => fieldName !== 'name'
+      );
+
+      fieldsToTrack.forEach((fieldName) => {
+        const control = this.projectForm.get(fieldName);
+        if (!control) return;
+
+        control.valueChanges
+          .pipe(
+            debounceTime(300), // Wait for user to stop typing
+            distinctUntilChanged(), // Only emit if value actually changed
+            scan(
+              (acc, curr) => ({ prev: acc.curr, curr }),
+              { prev: control.value, curr: control.value } // Initialize with current form value
+            ),
+            takeUntil(this.destroy$)
+          )
+          .subscribe(({ prev: previousValue, curr: newValue }) => {
+            if (newValue !== previousValue) {
+              // Create and execute undo/redo command
+              const command = new UpdateProjectPropertyCommand(
+                this.optimisticUpdatesService,
+                projectId,
+                fieldName,
+                newValue,
+                previousValue,
+                (property: string, value: unknown) => {
+                  // Update form value without triggering change detection loop
+                  this.projectForm
+                    .get(property)
+                    ?.setValue(value, { emitEvent: false });
+                }
+              );
+
+              this.undoRedoService.executeCommand(command);
+            }
+          });
+      });
+    }
+  }
+
+  /**
+   * Check if we're in live sync mode (project created and syncing)
+   */
+  private isLiveSyncMode(): boolean {
+    return !!this.createdProject;
+  }
+
+  /**
+   * Get the current project (either from input or created project)
+   */
+  private getCurrentProject(): Project | null {
+    return this.project() || this.createdProject;
   }
 
   /**
@@ -323,21 +252,23 @@ export class ProjectFormComponent implements OnInit, OnDestroy {
     }
 
     const formValue = this.projectForm.value;
+    const currentProject = this.getCurrentProject();
 
-    if (this.isEditMode()) {
+    if (this.isEditMode() || this.isLiveSyncMode()) {
       const updateData: UpdateProjectRequest = {
         name: formValue.name,
         description: formValue.description || undefined,
         colorGamut: formValue.colorGamut,
         colorSpace: formValue.colorSpace,
+        colorCount: formValue.colorCount || undefined, // Include demo field
       };
 
       this.formSubmit.emit(updateData);
 
-      // Call service if no external handler
-      if (this.project()) {
+      // Call service if we have a project to update
+      if (currentProject) {
         this.projectService
-          .updateProject(this.project()!.id, updateData)
+          .updateProject(currentProject.id, updateData)
           .pipe(takeUntil(this.destroy$))
           .subscribe({
             next: (updatedProject) => {
@@ -354,29 +285,33 @@ export class ProjectFormComponent implements OnInit, OnDestroy {
         description: formValue.description || undefined,
         colorGamut: formValue.colorGamut,
         colorSpace: formValue.colorSpace,
+        colorCount: formValue.colorCount || undefined, // Include demo field
       };
 
       this.formSubmit.emit(createData);
-
-      // Call service if no external handler
-      this.projectService
-        .createProject(createData)
-        .pipe(takeUntil(this.destroy$))
-        .subscribe({
-          next: (newProject) => {
-            this.projectCreated.emit(newProject);
-            this.resetForm();
-          },
-          error: (error) => {
-            console.error('Failed to create project:', error);
-          },
-        });
     }
   }
 
+  // Internal state for live syncing after creation
+  private createdProject: Project | null = null;
+
   /**
-   * Cancel form handler
+   * Handle project creation and enable live syncing
    */
+  onProjectCreated(createdProject: Project): void {
+    // Update internal state to switch to live sync mode
+    this.currentProject.set(createdProject);
+    this.currentMode.set('edit');
+
+    // Reinitialize form with the created project data
+    this.initializeForm();
+
+    // Re-setup watchers to enable live syncing
+    this.setupFormWatchers();
+
+    // Emit the creation event
+    this.projectCreated.emit(createdProject);
+  }
   onCancel(): void {
     this.formCancel.emit();
     if (!this.isEditMode()) {
@@ -388,7 +323,7 @@ export class ProjectFormComponent implements OnInit, OnDestroy {
    * Utility methods
    */
   isEditMode(): boolean {
-    return this.mode() === 'edit' && !!this.project();
+    return this.effectiveMode() === 'edit' && !!this.effectiveProject();
   }
 
   isFieldInvalid(fieldName: string): boolean {

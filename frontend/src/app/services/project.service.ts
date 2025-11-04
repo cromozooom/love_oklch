@@ -13,6 +13,9 @@ import {
 } from '../models/project.interface';
 import { ColorGamut, ColorSpace } from '../models/color-enums';
 import { ErrorHandlerService } from './error-handler.service';
+import { UndoRedoService } from './undo-redo.service';
+import { ProjectModification } from '../models/project-modification.interface';
+import { ModificationType } from '../models/modification-type.enum';
 import { environment } from '../../environments/environment';
 
 interface ProjectLimitsResponse {
@@ -47,6 +50,25 @@ interface ProjectOptionsResponse {
   error?: string;
 }
 
+interface ProjectModificationsResponse {
+  success: boolean;
+  data?: {
+    modifications: ProjectModification[];
+    total: number;
+    subscriptionLimit: number;
+    remainingOperations: number;
+  };
+  error?: string;
+}
+
+interface CreateModificationResponse {
+  success: boolean;
+  data?: {
+    modification: ProjectModification;
+  };
+  error?: string;
+}
+
 /**
  * Angular service for project management
  * Handles HTTP communication with the backend API
@@ -57,6 +79,7 @@ interface ProjectOptionsResponse {
 export class ProjectService {
   private readonly http = inject(HttpClient);
   private readonly errorHandler = inject(ErrorHandlerService);
+  private readonly undoRedoService = inject(UndoRedoService);
 
   private readonly baseUrl = `${environment.apiUrl}/projects`;
 
@@ -184,7 +207,42 @@ export class ProjectService {
   }
 
   /**
-   * Update an existing project
+   * Undo the last operation for a project
+   */
+  undoProjectOperation(projectId: string): boolean {
+    return this.undoRedoService.undo(projectId);
+  }
+
+  /**
+   * Redo the next operation for a project
+   */
+  redoProjectOperation(projectId: string): boolean {
+    return this.undoRedoService.redo(projectId);
+  }
+
+  /**
+   * Get modification history for a project
+   */
+  getProjectModificationHistory(projectId: string) {
+    return this.undoRedoService.getHistoryForProject(projectId);
+  }
+
+  /**
+   * Check if undo is available for a project
+   */
+  canUndoProject(projectId: string): boolean {
+    return this.undoRedoService.canUndoForProject(projectId)();
+  }
+
+  /**
+   * Check if redo is available for a project
+   */
+  canRedoProject(projectId: string): boolean {
+    return this.undoRedoService.canRedoForProject(projectId)();
+  }
+
+  /**
+   * Update an existing project (full update via API)
    */
   updateProject(
     id: string,
@@ -423,8 +481,130 @@ export class ProjectService {
   }
 
   /**
-   * Utility methods for project data
+   * Get modification history for a project
    */
+  getProjectModifications(
+    projectId: string,
+    limit: number = 50,
+    offset: number = 0
+  ): Observable<ProjectModification[]> {
+    const params = new HttpParams()
+      .set('limit', limit.toString())
+      .set('offset', offset.toString());
+
+    return this.http
+      .get<ProjectModificationsResponse>(
+        `${this.baseUrl}/${projectId}/modifications`,
+        { params }
+      )
+      .pipe(
+        map((response) => {
+          if (response.success && response.data) {
+            return response.data.modifications;
+          }
+          throw new Error(response.error || 'Failed to fetch modifications');
+        }),
+        catchError((error) => {
+          this.handleError(error, 'Failed to fetch project modifications');
+          return throwError(() => error);
+        })
+      );
+  }
+
+  /**
+   * Create a new project modification
+   */
+  createProjectModification(
+    projectId: string,
+    modification: {
+      type: ModificationType;
+      propertyName: string;
+      previousValue: unknown;
+      newValue: unknown;
+      commandId: string;
+    }
+  ): Observable<ProjectModification> {
+    return this.http
+      .post<CreateModificationResponse>(
+        `${this.baseUrl}/${projectId}/modifications`,
+        modification
+      )
+      .pipe(
+        map((response) => {
+          if (response.success && response.data) {
+            return response.data.modification;
+          }
+          throw new Error(response.error || 'Failed to create modification');
+        }),
+        catchError((error) => {
+          this.handleError(error, 'Failed to create project modification');
+          return throwError(() => error);
+        })
+      );
+  }
+
+  /**
+   * Update project property with modification tracking (persists to backend)
+   */
+  updateProjectPropertyWithModification(
+    projectId: string,
+    propertyName: string,
+    newValue: unknown,
+    previousValue: unknown
+  ): Observable<ProjectModification> {
+    // Create modification record
+    const modification = {
+      type: ModificationType.PROPERTY_CHANGE,
+      propertyName,
+      previousValue,
+      newValue,
+      commandId: crypto.randomUUID(),
+    };
+
+    return this.createProjectModification(projectId, modification);
+  }
+
+  /**
+   * Batch update multiple project properties with modification tracking
+   */
+  batchUpdateProjectProperties(
+    projectId: string,
+    modifications: Array<{
+      type: ModificationType;
+      propertyName: string;
+      previousValue: unknown;
+      newValue: unknown;
+      commandId: string;
+    }>
+  ): Observable<ProjectModification[]> {
+    const modificationRequests = modifications.map((mod) => ({
+      ...mod,
+      commandId: mod.commandId || crypto.randomUUID(),
+    }));
+
+    return this.http
+      .post<{
+        success: boolean;
+        data?: { modifications: ProjectModification[] };
+        error?: string;
+      }>(`${this.baseUrl}/${projectId}/modifications/batch`, {
+        modifications: modificationRequests,
+      })
+      .pipe(
+        map((response) => {
+          if (response.success && response.data) {
+            return response.data.modifications;
+          }
+          throw new Error(
+            response.error || 'Failed to batch update project properties'
+          );
+        }),
+        catchError((error) => {
+          this.handleError(error, 'Failed to batch update project properties');
+          return throwError(() => error);
+        })
+      );
+  }
   getColorGamutDisplayName(gamut: ColorGamut): string {
     switch (gamut) {
       case ColorGamut.SRGB:

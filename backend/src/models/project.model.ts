@@ -34,6 +34,7 @@ export interface Project {
   createdAt: Date; // Creation timestamp
   updatedAt: Date; // Last modification timestamp
   isActive: boolean; // Soft delete flag
+  colorCount?: number | null; // DEMO: For testing history tracking
 }
 
 /**
@@ -45,6 +46,7 @@ export interface CreateProjectInput {
   description?: string;
   colorGamut: ColorGamut;
   colorSpace: ColorSpace;
+  colorCount?: number; // DEMO: For testing history tracking
 }
 
 /**
@@ -55,6 +57,7 @@ export interface UpdateProjectInput {
   description?: string;
   colorGamut?: ColorGamut;
   colorSpace?: ColorSpace;
+  colorCount?: number; // DEMO: For testing history tracking
   isActive?: boolean;
 }
 
@@ -62,7 +65,7 @@ export interface UpdateProjectInput {
  * Zod schema for project validation
  */
 export const createProjectSchema = z.object({
-  userId: z.string().uuid('User ID must be a valid UUID'),
+  userId: z.string().min(1, 'User ID is required'),
   name: z
     .string()
     .trim()
@@ -78,6 +81,12 @@ export const createProjectSchema = z.object({
   colorSpace: z.nativeEnum(ColorSpace, {
     message: 'Invalid color space',
   }),
+  colorCount: z
+    .number()
+    .int()
+    .min(1, 'Color count must be at least 1')
+    .max(100, 'Color count must be at most 100')
+    .optional(), // DEMO field for testing
 });
 
 /**
@@ -104,6 +113,12 @@ export const updateProjectSchema = z.object({
       message: 'Invalid color space',
     })
     .optional(),
+  colorCount: z
+    .number()
+    .int()
+    .min(1, 'Color count must be at least 1')
+    .max(100, 'Color count must be at most 100')
+    .optional(), // DEMO field for testing
   isActive: z.boolean().optional(),
 });
 

@@ -23,6 +23,7 @@ type PrismaProject = {
   createdAt: Date;
   updatedAt: Date;
   isActive: boolean;
+  colorCount: number | null; // DEMO: For testing history tracking
 };
 
 /**
@@ -49,15 +50,14 @@ export class ProjectService {
       createdAt: prismaProject.createdAt,
       updatedAt: prismaProject.updatedAt,
       isActive: prismaProject.isActive,
+      colorCount: prismaProject.colorCount, // DEMO: For testing history tracking
     };
   }
 
   /**
    * Map Prisma ColorGamut to our enum
    */
-  private mapPrismaColorGamut(
-    prismaGamut: import('@prisma/client').ColorGamut,
-  ): ColorGamut {
+  private mapPrismaColorGamut(prismaGamut: any): ColorGamut {
     switch (prismaGamut) {
       case 'sRGB':
         return ColorGamut.SRGB;
@@ -73,9 +73,7 @@ export class ProjectService {
   /**
    * Map our ColorGamut to Prisma enum
    */
-  private mapToPrismaColorGamut(
-    gamut: ColorGamut,
-  ): import('@prisma/client').ColorGamut {
+  private mapToPrismaColorGamut(gamut: ColorGamut): any {
     switch (gamut) {
       case ColorGamut.SRGB:
         return 'sRGB';
@@ -91,9 +89,7 @@ export class ProjectService {
   /**
    * Map Prisma ColorSpace to our enum
    */
-  private mapPrismaColorSpace(
-    prismaSpace: import('@prisma/client').ColorSpace,
-  ): ColorSpace {
+  private mapPrismaColorSpace(prismaSpace: any): ColorSpace {
     switch (prismaSpace) {
       case 'LCH':
         return ColorSpace.LCH;
@@ -107,9 +103,7 @@ export class ProjectService {
   /**
    * Map our ColorSpace to Prisma enum
    */
-  private mapToPrismaColorSpace(
-    space: ColorSpace,
-  ): import('@prisma/client').ColorSpace {
+  private mapToPrismaColorSpace(space: ColorSpace): any {
     switch (space) {
       case ColorSpace.LCH:
         return 'LCH';
@@ -171,6 +165,7 @@ export class ProjectService {
         description: validatedInput.description || null,
         colorGamut: this.mapToPrismaColorGamut(validatedInput.colorGamut),
         colorSpace: this.mapToPrismaColorSpace(validatedInput.colorSpace),
+        colorCount: validatedInput.colorCount || null, // DEMO: For testing history tracking
       },
     });
 
@@ -279,6 +274,8 @@ export class ProjectService {
       );
     if (validatedInput.isActive !== undefined)
       updateData.isActive = validatedInput.isActive;
+    if (validatedInput.colorCount !== undefined)
+      updateData.colorCount = validatedInput.colorCount; // DEMO: For testing history tracking
 
     // Update project
     const updatedProject = await this.prisma.project.update({
