@@ -75,24 +75,24 @@ Based on plan.md structure: `frontend/src/`, `backend/src/`, `e2e/tests/`
 
 ---
 
-## Phase 4: User Story 5 - Project Dashboard and Navigation (Priority: P1) 🎯 MVP
+## Phase 4: User Story 5 - Projects List Navigation (Priority: P1) 🎯 MVP
 
-**Goal**: Users can access a dashboard showing project list and navigate to project editors in SPA
+**Goal**: Users can access the projects list page showing their projects and navigate to project editors in SPA
 
-**Independent Test**: Load dashboard, see project list, click project, verify navigation to editor without page reload
+**Independent Test**: Load `/projects` page, see project list, click project edit button, verify navigation to editor without page reload
 
 ### Implementation for User Story 5
 
-- [x] T028 [P] [US5] Create DashboardComponent in frontend/src/app/components/dashboard/
-- [x] T029 [P] [US5] Setup dashboard routing in frontend/src/app/app.routes.ts
+- [x] T028 [P] [US5] Create DashboardComponent (layout wrapper) in frontend/src/app/components/dashboard/
+- [x] T029 [P] [US5] Setup projects list routing in frontend/src/app/app.routes.ts
 - [x] T030 [P] [US5] Create project navigation guard in frontend/src/app/guards/project-exists.guard.ts
-- [x] T031 [US5] Implement dashboard project list display in DashboardComponent
-- [x] T032 [US5] Add SPA navigation from dashboard to project editor
+- [x] T031 [US5] Implement project list display in ProjectListComponent
+- [x] T032 [US5] Add SPA navigation from projects list to project editor
 - [x] T033 [US5] Create breadcrumb navigation component in frontend/src/app/components/breadcrumb/
 - [x] T034 [US5] Add project selection state management in ProjectService
-- [x] T035 [US5] Implement dashboard loading states and error handling
+- [x] T035 [US5] Implement loading states and error handling for projects list
 
-**Checkpoint**: User Story 5 complete - dashboard navigation works independently
+**Checkpoint**: User Story 5 complete - projects list navigation works independently
 
 ---
 
@@ -163,8 +163,9 @@ Based on plan.md structure: `frontend/src/`, `backend/src/`, `e2e/tests/`
 
 - [x] T058 [P] Create E2E test for project creation workflow in e2e/project-creation.spec.ts ✅
   - Tests: Complete creation flow, form validation, multiple projects, color combinations, data persistence, cancel functionality
-- [ ] T059 [P] Create E2E test for dashboard navigation in e2e/tests/dashboard-navigation.spec.ts
-- [ ] T060 [P] Create E2E test for modification tracking in e2e/tests/modification-tracking.spec.ts
+- [ ] T059 [P] Create E2E test for projects list navigation and SPA behavior in e2e/projects-navigation.spec.ts
+  - Tests: Load projects list, navigate to editor, return to list, verify SPA (no page reloads), breadcrumb navigation
+- [ ] T060 [P] Create E2E test for modification tracking in e2e/modification-tracking.spec.ts
 - [x] T061 [P] Create comprehensive E2E test for undo/redo operations in e2e/undo-redo-functionality.spec.ts ✅
   - Tests: Undo single change, undo multiple changes, redo operations, auto-save persistence, navigation state preservation, redo stack clearing, form state synchronization
 - [ ] T062 [P] Create E2E test for subscription limits (deferred - unlimited history for MVP)

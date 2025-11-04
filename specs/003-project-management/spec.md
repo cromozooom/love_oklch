@@ -78,19 +78,19 @@ A user can redo previously undone modifications with the same subscription-based
 
 ---
 
-### User Story 5 - Project Dashboard and Navigation (Priority: P1)
+### User Story 5 - Projects List Navigation (Priority: P1)
 
-A user can access a home dashboard that displays their project list and navigate to individual project editors within the same single-page application. The dashboard serves as the central hub for project management activities.
+A user can access the projects list page (at `/projects`) that displays their available projects and navigate to individual project editors within the same single-page application. The projects list serves as the central hub for project management activities.
 
 **Why this priority**: This is foundational for multi-project workflows and essential for subscription users who can have unlimited projects. Even default users need this interface to access their single project.
 
-**Independent Test**: Can be tested by accessing the home dashboard, viewing the project list, clicking on a project, and verifying navigation to the project editor occurs within the same page without full page reload.
+**Independent Test**: Can be tested by accessing `/projects`, viewing the project list, clicking on a project to edit it, and verifying navigation to the project editor occurs within the same page without full page reload.
 
 **Acceptance Scenarios**:
 
-1. **Given** a user accesses the application, **When** they load the home dashboard, **Then** they see a list of their available projects
-2. **Given** a user is on the home dashboard, **When** they click on a project from the list, **Then** the interface switches to the project editor for that project within the same page
-3. **Given** a user is in a project editor, **When** they navigate back to the dashboard, **Then** they return to the project list view without losing their session state
+1. **Given** a user accesses the application, **When** they load the `/projects` page, **Then** they see a list of their available projects
+2. **Given** a user is on the projects list, **When** they click on a project's edit button, **Then** the interface navigates to the project editor for that project within the same SPA
+3. **Given** a user is in a project editor, **When** they navigate back to projects list, **Then** they return to the project list view without losing their session state
 
 ---
 
@@ -132,7 +132,7 @@ A user can access a home dashboard that displays their project list and navigate
 - **Project Modification**: Represents a single change with timestamp, property changed, old value, and new value
 - **Modification History**: Ordered collection of project modifications enabling undo/redo navigation
 - **User Session**: Contains user identity, subscription level, and current operation counts per project
-- **Dashboard**: Home interface displaying user's project list with navigation controls
+- **Projects List**: Main interface displaying user's project list with navigation controls (often referred to as "dashboard" in User Story 5)
 
 ## Success Criteria _(mandatory)_
 
@@ -145,7 +145,7 @@ A user can access a home dashboard that displays their project list and navigate
 - **SC-005**: 100% of project state and modification history persists correctly across user sessions
 - **SC-006**: Users receive immediate visual feedback for operation availability and limits in under 200 milliseconds
 - **SC-007**: Default users are prevented from creating additional projects beyond their 1-project limit with clear feedback
-- **SC-008**: Users can navigate between dashboard and project editor within 500 milliseconds using SPA architecture
+- **SC-008**: Users can navigate between projects list and project editor within 500 milliseconds using SPA architecture
 
 ## Assumptions
 

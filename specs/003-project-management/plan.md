@@ -7,7 +7,7 @@
 
 ## Summary
 
-Create a comprehensive project management system with subscription-based undo/redo functionality using Angular SPA architecture. Users can create and manage projects with configurable color properties (gamut and space), with default users limited to 1 project and subscription users having unlimited projects. The system tracks all modifications with subscription-aware undo/redo limits (5 vs 50 operations) and provides a dashboard-centered navigation experience.
+Create a comprehensive project management system with subscription-based undo/redo functionality using Angular SPA architecture. Users can create and manage projects with configurable color properties (gamut and space), with default users limited to 1 project and subscription users having unlimited projects. The system tracks all modifications with subscription-aware undo/redo limits (5 vs 50 operations) and provides a projects-list-centered navigation experience.
 
 ## Technical Context
 
@@ -18,7 +18,7 @@ Create a comprehensive project management system with subscription-based undo/re
 **Target Platform**: Web application (Angular SPA)
 **Project Type**: Web application with frontend and backend components
 **Performance Goals**: <500ms SPA navigation, <100ms project property changes, <30s project creation
-**Constraints**: SPA architecture, subscription-based limits, dashboard-centered navigation
+**Constraints**: SPA architecture, subscription-based limits, projects-list-centered navigation
 **Scale/Scope**: Multi-project management with unlimited projects for subscription users
 
 ## Constitution Check
@@ -28,12 +28,12 @@ _GATE: Must pass before Phase 0 research. Re-check after Phase 1 design._
 **Core Principles Compliance:**
 
 - ✅ Clean Code Excellence: TypeScript interfaces for project models, meaningful component names, single responsibility
-- ✅ Simple User Experience: Dashboard-centered navigation, minimal clicks for project access, clear subscription limits
+- ✅ Simple User Experience: Projects-list-centered navigation, minimal clicks for project access, clear subscription limits
 - ✅ Minimal Dependencies: Angular CDK for UI components, RxJS signals for state management
 - ✅ Comprehensive E2E Testing: Playwright coverage for project creation, modification tracking, undo/redo scenarios
 - ✅ Centralized State Store: Angular Signals + RxJS for project state and modification history
 - ✅ PowerShell Command Execution: Commands target frontend/backend directory structure explicitly
-- ✅ Frontend Component File Structure: Separate .ts/.html/.scss files for dashboard and project editor components
+- ✅ Frontend Component File Structure: Separate .ts/.html/.scss files for layout wrapper (dashboard component) and project components
 - ✅ Production Code Cleanliness: No debug statements, clean deployment ready
 
 **Technology Stack Alignment:**
@@ -65,7 +65,7 @@ frontend/
 ├── src/
 │   ├── app/
 │   │   ├── components/
-│   │   │   ├── dashboard/
+│   │   │   ├── dashboard/           # Layout wrapper component
 │   │   │   │   ├── dashboard.component.ts
 │   │   │   │   ├── dashboard.component.html
 │   │   │   │   └── dashboard.component.scss
@@ -116,7 +116,7 @@ e2e/
 │   ├── project-creation.spec.ts
 │   ├── project-modification-tracking.spec.ts
 │   ├── undo-redo-operations.spec.ts
-│   └── dashboard-navigation.spec.ts
+│   └── projects-navigation.spec.ts   # Tests projects list navigation
 ```
 
 **Structure Decision**: Web application structure selected with separate frontend/backend architecture. Frontend uses Angular SPA with component-based architecture, while backend provides REST API for project persistence and user subscription management.
@@ -256,7 +256,7 @@ class UndoRedoService {
 - [ ] Build ProjectListComponent
 - [ ] Create ProjectFormComponent with validation
 - [ ] Implement UndoRedoControlsComponent
-- [ ] Update DashboardComponent with project management
+- [x] Update DashboardComponent (layout wrapper) with project management routing
 - [ ] Add responsive styling and accessibility
 
 ### Phase 5: Integration & Testing
