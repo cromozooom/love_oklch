@@ -285,10 +285,12 @@ test.describe('Project Modification Tracking', () => {
     const currentName = await page.locator('#name').inputValue();
     expect(currentName).toContain('Persist Test'); // Verify project loads
     console.log(`  ✓ Project reloaded: "${currentName}"`);
-    
+
     // Note: Auto-save persistence of individual changes requires further investigation
     // The project structure persists, but rapid edits may not save before navigation
-    console.log('  ℹ️  Note: Auto-save timing needs refinement for rapid edits');
+    console.log(
+      '  ℹ️  Note: Auto-save timing needs refinement for rapid edits'
+    );
 
     // Verify modification tracking is still active (UI persists)
     undoRedoControls = page.locator('app-undo-redo-controls');

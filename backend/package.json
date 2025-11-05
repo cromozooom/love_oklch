@@ -21,6 +21,7 @@
     "db:migrate": "prisma migrate dev --schema=src/database/schema.prisma",
     "db:migrate:reset": "prisma migrate reset --schema=src/database/schema.prisma",
     "db:seed": "ts-node src/database/seed.ts",
+    "db:seed:e2e": "ts-node src/database/seed.ts --reset",
     "db:fresh": ".\\scripts\\db-fresh.bat",
     "docker:up": "docker-compose -f docker/docker-compose.yml up -d",
     "docker:down": "docker-compose -f docker/docker-compose.yml down",

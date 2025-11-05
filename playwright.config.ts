@@ -7,6 +7,9 @@ import { defineConfig, devices } from '@playwright/test';
 export default defineConfig({
   testDir: './e2e',
 
+  // Global setup to seed database before tests
+  globalSetup: require.resolve('./e2e/global-setup.ts'),
+
   // Maximum time one test can run for
   timeout: 60 * 1000,
 

@@ -26,6 +26,26 @@ Before running the tests, make sure:
    npx prisma db push
    ```
 
+## Database Seeding for Tests
+
+The E2E tests automatically seed the database before each test run to ensure consistent starting state:
+
+- **Automatic**: The `globalSetup` in `playwright.config.ts` runs `npm run db:seed:e2e` before tests
+- **Manual seeding**: You can manually seed the database with:
+  ```powershell
+  cd backend
+  npm run db:seed:e2e
+  ```
+
+This command:
+- Clears all tables in dependency order
+- Seeds fresh data from `backend/database/seeds/seed-data.json`
+- Creates the test user (`default@solopx.com` with password `password123`)
+
+**Single Source of Truth**: All seed data is maintained in one place:
+- **Location**: `backend/database/seeds/seed-data.json`
+- **Script**: `backend/src/database/seed.ts` (with `--reset` flag for E2E)
+
 ## Installation
 
 Install test dependencies:
