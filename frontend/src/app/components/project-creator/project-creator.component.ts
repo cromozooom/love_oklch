@@ -32,13 +32,20 @@ export class ProjectCreatorComponent implements OnInit {
         .subscribe({
           next: (project) => {
             // Navigate to the newly created project editor
-            this.router.navigate(['/projects', project.id]);
+            this.router
+              .navigate(['/projects', project.id])
+              .then((success) => {});
           },
           error: (error) => {
-            console.error('Failed to create project:', error);
+            console.error('❌ Failed to create project:', error);
             // Error handling could be improved here
           },
         });
+    } else {
+      console.warn(
+        '⚠️  Unexpected request type in creator component:',
+        request
+      );
     }
   }
 
