@@ -6,13 +6,23 @@
     "test": "tests"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "playwright test",
+    "test:ui": "playwright test --ui",
+    "test:ui:seed": "npm run seed && playwright test --ui",
+    "test:debug": "playwright test --debug",
+    "test:report": "playwright show-report",
+    "test:headed": "playwright test --headed",
+    "test:project-history": "playwright test project-history.spec.ts",
+    "test:manual": "playwright test manual-debug.spec.ts --headed --debug",
+    "seed": "cd ../backend && npm run db:seed:e2e",
+    "preseed": "echo Seeding database for E2E tests..."
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "description": "",
+  "description": "E2E tests for Love OKLCH project",
   "devDependencies": {
-    "@playwright/test": "^1.56.1"
+    "@playwright/test": "^1.56.1",
+    "@types/node": "^22.19.0"
   }
 }

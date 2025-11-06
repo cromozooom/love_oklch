@@ -13,6 +13,39 @@ config();
 
 const prisma = new PrismaClient();
 
+/**
+ * Reset database by clearing all tables in dependency order
+ * Use this for E2E tests to ensure clean state
+ */
+async function resetDatabase(): Promise<void> {
+  console.log('🧹 Resetting database...\n');
+
+  // Delete all records in reverse order of dependencies
+  await prisma.projectModification.deleteMany({});
+  console.log('  ✓ Cleared project modifications');
+
+  await prisma.project.deleteMany({});
+  console.log('  ✓ Cleared projects');
+
+  await prisma.adminRole.deleteMany({});
+  console.log('  ✓ Cleared admin roles');
+
+  await prisma.subscription.deleteMany({});
+  console.log('  ✓ Cleared subscriptions');
+
+  await prisma.user.deleteMany({});
+  console.log('  ✓ Cleared users');
+
+  await prisma.planFeature.deleteMany({});
+  console.log('  ✓ Cleared plan features');
+
+  await prisma.feature.deleteMany({});
+  console.log('  ✓ Cleared features');
+
+  await prisma.plan.deleteMany({});
+  console.log('  ✓ Cleared plans\n');
+}
+
 interface SeedData {
   plans: Array<{
     plan_id: string;
@@ -223,6 +256,14 @@ async function seedFromJson(): Promise<void> {
 }
 
 async function main(): Promise<void> {
+  // Check if we should reset database (for E2E tests)
+  const shouldReset =
+    process.argv.includes('--reset') || process.env.RESET_DB === 'true';
+
+  if (shouldReset) {
+    await resetDatabase();
+  }
+
   await seedFromJson();
 }
 

@@ -5,7 +5,7 @@ import { config } from '@/config/environment';
 import { Logger } from '@/utils/logger';
 import { errorHandler } from '@/middleware/error.middleware';
 import { DatabaseConnection } from '@/database/connection';
-import { authRoutes } from '@/routes/auth.routes';
+import { createMainRouter } from '@/routes/index';
 
 /**
  * Express.js server configuration for Love OKLCH Backend
@@ -21,8 +21,8 @@ export class Server {
     this.logger = new Logger('Server');
     this.dbConnection = DatabaseConnection.getInstance();
     this.setupMiddleware();
-    this.setupRoutes();
-    this.setupErrorHandling();
+    this.setupBasicRoutes(); // Only setup routes that don't need DB
+    // NOTE: Error handling setup moved to after database routes are mounted
   }
 
   /**
@@ -82,18 +82,7 @@ export class Server {
       next();
     });
 
-    // Health check endpoint (before authentication)
-    this.app.get('/health', (req: Request, res: Response) => {
-      res.status(200).json({
-        status: 'healthy',
-        timestamp: new Date().toISOString(),
-        version: process.env.npm_package_version || '1.0.0',
-        environment: config.app.environment,
-      });
-    });
-
-    // API version prefix
-    this.app.use(config.app.apiPrefix, this.createApiRouter());
+    this.logger.info('Basic routes setup completed');
   }
 
   /**
@@ -122,39 +111,53 @@ export class Server {
   }
 
   /**
-   * Setup application routes
+   * Setup basic routes that don't require database connection
    */
-  private setupRoutes(): void {
+  private setupBasicRoutes(): void {
     // Health check endpoint
     this.app.get('/health', (req: Request, res: Response) => {
       res.status(200).json({
-        status: 'ok',
-        message: 'Love OKLCH Backend is running',
+        status: 'healthy',
         timestamp: new Date().toISOString(),
-        version: '1.0.0',
+        version: process.env.npm_package_version || '1.0.0',
+        environment: config.app.environment,
       });
     });
 
-    // API routes with version prefix
+    this.logger.info('Basic routes setup completed');
+  }
+
+  /**
+   * Setup application routes that require database connection
+   */
+  private setupDatabaseRoutes(): void {
+    // Simple test route first
+    this.app.get('/api/v1/simple-test', (req, res) => {
+      console.log('🧪 Simple test endpoint hit!');
+      res.json({
+        message: 'Simple test works!',
+        timestamp: new Date().toISOString(),
+      });
+    });
+
+    // API routes with version prefix using main router
     const apiPrefix = config.app.apiPrefix; // /api/v1
+    console.log(`🔧 Setting up API routes with prefix: ${apiPrefix}`);
 
-    // Authentication routes
-    this.app.use(`${apiPrefix}/auth`, authRoutes);
+    try {
+      const mainRouter = createMainRouter(this.dbConnection.getClient());
+      console.log('🔧 Main router created, mounting at:', apiPrefix);
 
-    // API info endpoint
-    this.app.get(apiPrefix, (req: Request, res: Response) => {
-      res.status(200).json({
-        name: 'Love OKLCH API',
-        version: '1.0.0',
-        description: 'Freemium Entitlement System API',
-        endpoints: {
-          auth: `${apiPrefix}/auth`,
-          health: '/health',
-        },
-      });
-    });
+      this.app.use(apiPrefix, mainRouter);
+      console.log('🔧 Main router mounted successfully');
+    } catch (error) {
+      console.error('❌ Error creating main router:', error);
+      this.logger.error('Failed to create main router:', error);
+    }
 
-    this.logger.info('Routes setup completed with authentication endpoints');
+    this.logger.info(
+      'Database-dependent routes setup completed with main router including authentication and project management endpoints',
+    );
   }
 
   /**
@@ -182,6 +185,12 @@ export class Server {
       // Initialize database connection
       await this.dbConnection.connect();
       this.logger.info('Database connection established');
+
+      // Now setup routes that require database connection
+      this.setupDatabaseRoutes();
+
+      // Setup error handling AFTER all routes are mounted
+      this.setupErrorHandling();
 
       // Start HTTP server
       const port = config.app.port;

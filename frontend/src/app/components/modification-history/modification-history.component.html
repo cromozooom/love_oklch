@@ -1,0 +1,89 @@
+<div class="modification-history">
+  <div class="history-header">
+    <h3>Modification History</h3>
+    <div class="history-badge">
+      <span class="history-count">{{ historyCount() }}</span>
+      <span class="history-label">changes</span>
+      <span class="unlimited-badge">✨ Unlimited</span>
+    </div>
+  </div>
+
+  <!-- Loading state -->
+  <div *ngIf="loading()" class="loading">
+    <p>Loading modification history...</p>
+  </div>
+
+  <!-- Error state -->
+  <div *ngIf="error() && !loading()" class="error">
+    <p>⚠️ {{ error() }}</p>
+  </div>
+
+  <!-- Empty state -->
+  <div
+    *ngIf="!loading() && !error() && modifications().length === 0"
+    class="empty"
+  >
+    <p>No modifications yet</p>
+  </div>
+
+  <!-- Modifications list -->
+  <div
+    *ngIf="!loading() && !error() && modifications().length > 0"
+    class="modifications-list"
+  >
+    <div
+      *ngFor="
+        let modification of modifications();
+        trackBy: trackByModificationId
+      "
+      class="modification-item"
+      [class.initial-state]="modification.type === 'initial_state'"
+      [class.property-change]="modification.type === 'property_change'"
+    >
+      <div class="modification-header">
+        <span class="modification-type">{{
+          getModificationTypeText(modification.type)
+        }}</span>
+        <span class="modification-timestamp">{{
+          formatTimestamp(modification.timestamp)
+        }}</span>
+      </div>
+
+      <div
+        class="modification-details"
+        *ngIf="modification.type === 'property_change'"
+      >
+        <div class="property-info">
+          <strong>{{ modification.propertyName }}</strong>
+        </div>
+        <div class="value-change">
+          <div
+            class="previous-value"
+            *ngIf="modification.previousValue !== undefined"
+          >
+            <span class="label">From:</span>
+            <code>{{ formatValue(modification.previousValue) }}</code>
+          </div>
+          <div class="new-value">
+            <span class="label">To:</span>
+            <code>{{ formatValue(modification.newValue) }}</code>
+          </div>
+        </div>
+      </div>
+
+      <div
+        class="modification-meta"
+        *ngIf="modification.type === 'initial_state'"
+      >
+        <div class="initial-value">
+          <span class="label">Initial value:</span>
+          <code>{{ formatValue(modification.newValue) }}</code>
+        </div>
+      </div>
+
+      <div class="command-id">
+        <small>Command ID: {{ modification.commandId }}</small>
+      </div>
+    </div>
+  </div>
+</div>

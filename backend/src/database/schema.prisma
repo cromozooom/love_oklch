@@ -38,6 +38,28 @@ enum AdminRoleType {
   @@map("admin_role_type")
 }
 
+enum ColorGamut {
+  sRGB          @map("sRGB")
+  Display_P3    @map("Display P3")
+  Unlimited     @map("Unlimited gamut")
+
+  @@map("color_gamut")
+}
+
+enum ColorSpace {
+  LCH
+  OKLCH
+
+  @@map("color_space")
+}
+
+enum ModificationType {
+  property_change
+  initial_state
+
+  @@map("modification_type")
+}
+
 // Models
 model User {
   userId      String   @id @default(dbgenerated("uuid_generate_v4()")) @map("user_id") @db.Uuid
@@ -53,8 +75,51 @@ model User {
   adminRoles    AdminRole[]
   featureUsage  FeatureUsage[]
   grantedRoles  AdminRole[]    @relation("GrantedBy")
+  projects      Project[]
 
   @@map("users")
+}
+
+model Project {
+  projectId     String               @id @default(dbgenerated("uuid_generate_v4()")) @map("project_id") @db.Uuid
+  userId        String               @map("user_id") @db.Uuid
+  name          String               @db.VarChar(100)
+  description   String?
+  colorGamut    ColorGamut           @map("color_gamut")
+  colorSpace    ColorSpace           @map("color_space")
+  colorCount    Int?                 @map("color_count") // DEMO: For testing history tracking
+  createdAt     DateTime             @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt     DateTime             @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+  isActive      Boolean              @default(true) @map("is_active")
+
+  // Relations
+  user          User                 @relation(fields: [userId], references: [userId], onDelete: Cascade)
+  modifications ProjectModification[]
+
+  // Constraints
+  @@unique([userId, name], name: "unique_project_name_per_user", map: "unique_project_name_per_user")
+  @@index([userId, isActive], map: "idx_projects_user_active")
+  @@index([updatedAt], map: "idx_projects_updated_at")
+  @@map("projects")
+}
+
+model ProjectModification {
+  modificationId   String           @id @default(dbgenerated("uuid_generate_v4()")) @map("modification_id") @db.Uuid
+  projectId        String           @map("project_id") @db.Uuid
+  type             ModificationType
+  propertyName     String           @map("property_name") @db.VarChar(50)
+  previousValue    Json?            @map("previous_value")
+  newValue         Json             @map("new_value")
+  timestamp        DateTime         @default(now()) @db.Timestamptz(6)
+  commandId        String           @map("command_id") @db.Uuid
+
+  // Relations
+  project Project @relation(fields: [projectId], references: [projectId], onDelete: Cascade)
+
+  // Indexes
+  @@index([projectId, timestamp], map: "idx_project_modifications_project_timestamp")
+  @@index([commandId], map: "idx_project_modifications_command")
+  @@map("project_modifications")
 }
 
 model Plan {

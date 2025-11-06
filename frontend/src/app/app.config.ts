@@ -7,11 +7,14 @@ import { provideRouter } from '@angular/router';
 import {
   provideHttpClient,
   withInterceptorsFromDi,
+  HTTP_INTERCEPTORS,
 } from '@angular/common/http';
 
 import { routes } from './app.routes';
-// Temporarily removing AuthInterceptor to fix circular dependency
-// import { AuthInterceptor } from './auth/services/auth.interceptor';
+import { AuthInterceptor } from './auth/services/auth.interceptor';
+
+// Import the UI Kit's LayoutStateStore
+import { LayoutStateStore } from '@solopx/spx-ui-kit';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -19,11 +22,12 @@ export const appConfig: ApplicationConfig = {
     provideZonelessChangeDetection(),
     provideRouter(routes),
     provideHttpClient(withInterceptorsFromDi()),
-    // Temporarily removing AuthInterceptor to fix circular dependency
-    // {
-    //   provide: HTTP_INTERCEPTORS,
-    //   useClass: AuthInterceptor,
-    //   multi: true,
-    // },
+    {
+      provide: HTTP_INTERCEPTORS,
+      useClass: AuthInterceptor,
+      multi: true,
+    },
+    // Provide the UI Kit's LayoutStateStore globally
+    LayoutStateStore,
   ],
 };

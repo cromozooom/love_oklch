@@ -1,0 +1,48 @@
+<spx-layout-container>
+  <ng-container header>
+    <div class="flex w-full justify-between items-center border-bottom">
+      <div class="flex items-center">
+        <div class="p-2">
+          <h2>love</h2>
+        </div>
+        <app-breadcrumb [breadcrumbs]="breadcrumbs()"></app-breadcrumb>
+      </div>
+      <div class="flex items-center gap-4">
+        <button>Light ☀️</button>
+        <button>Dark 🌙</button>
+        <button>System 🖥️</button>
+        <!-- User area with logout -->
+
+        <div class="flex items-center gap-2">
+          <span>Welcome</span>
+          <button type="button" (click)="logout()" title="Logout">
+            Logout
+          </button>
+        </div>
+      </div>
+    </div>
+  </ng-container>
+  <!-- TODO: all the content should be here based on clicks and the routes set in the app -->
+  <!-- Dashboard-level loading state -->
+  <div class="flex flex-col xoverflow-auto">
+    <div *ngIf="isLoading()" class="dashboard-loading">
+      <div class="loading-spinner"></div>
+      <p>Loading dashboard...</p>
+    </div>
+
+    <!-- Dashboard-level error state -->
+    <div *ngIf="error() && !isLoading()" class="dashboard-error">
+      <div class="error-message">
+        <span class="error-icon">⚠️</span>
+        <span>{{ error() }}</span>
+      </div>
+      <button type="button" class="btn btn-secondary" (click)="retryLoad()">
+        Try Again
+      </button>
+    </div>
+
+    <!-- Main content - Router outlet for child routes -->
+
+    <router-outlet></router-outlet>
+  </div>
+</spx-layout-container>
