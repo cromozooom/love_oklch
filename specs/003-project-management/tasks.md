@@ -177,6 +177,33 @@ Based on plan.md structure: `frontend/src/`, `backend/src/`, `e2e/tests/`
 - [x] T063 Error handling for edge cases implemented (form validation, API errors, network failures)
 - [x] T064 Loading states and user feedback added (undo/redo button states, form dirty state)
 - [ ] T065 Verify subscription limit enforcement (deferred - unlimited history for MVP)
+  - **Status**: Deferred to post-MVP (aligned with T062 decision)
+  - **Original Spec**: Free users: 5 undo/redo operations, Subscription users: 50 operations
+  - **Current Implementation**: Unlimited undo/redo for all users (no limits enforced)
+  - **What exists**:
+    - ✅ Database schema supports subscription tracking (users.subscription field)
+    - ✅ Seed data includes Free, Basic, Pro plans with test accounts
+    - ✅ Complete modification history persisted in project_modifications table
+    - ✅ UndoRedoService maintains operation stacks per project
+  - **What's missing for limits**:
+    - ❌ Limit checking in UndoRedoService.canUndo() / canRedo()
+    - ❌ Backend validation of operation counts per subscription tier
+    - ❌ UI warnings when approaching limits (e.g., "3 of 5 undos remaining")
+    - ❌ Upgrade prompts for limit-exceeded scenarios
+    - ❌ E2E tests verifying limit enforcement by subscription tier
+  - **Implementation requirements** (post-MVP):
+    1. Add `getUndoLimit()` method to UserService based on subscription
+    2. Modify UndoRedoService to check limits before adding to undo stack
+    3. Add backend endpoint: GET /api/users/:id/undo-limit
+    4. Create LimitWarningComponent for UI feedback
+    5. Add E2E tests: e2e/subscription-limits.spec.ts
+    6. Implement pruning strategy (FIFO) when limit exceeded
+  - **Testing strategy** (when implemented):
+    - Test with free.user@example.com (Free plan) - verify 5 operation limit
+    - Test with basic.user@example.com (Basic plan) - verify 50 operation limit  
+    - Test with pro.user@example.com (Pro plan) - verify unlimited operations
+    - Test limit exceeded scenarios and upgrade prompts
+  - **Reference**: See docs/SEED_DATA_REFERENCE.md for complete subscription tier details
 
 ---
 
