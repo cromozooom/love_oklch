@@ -1,0 +1,132 @@
+<main>
+  <header>
+    <h1>Entitlement Matrix</h1>
+    <p>View and compare feature entitlements across all subscription plans</p>
+  </header>
+
+  <!-- Loading State -->
+  <div *ngIf="isLoading">
+    <p>Loading entitlement matrix...</p>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="error">
+    <div>{{ error }}</div>
+    <button (click)="retryLoading()">Retry</button>
+  </div>
+
+  <!-- Matrix Summary -->
+  <section *ngIf="!isLoading && !error">
+    <h2>Summary</h2>
+    <dl>
+      <dt>Total Plans:</dt>
+      <dd>{{ getMatrixSummary().totalPlans }}</dd>
+
+      <dt>Total Features:</dt>
+      <dd>{{ getMatrixSummary().totalFeatures }}</dd>
+
+      <dt>Total Entitlements:</dt>
+      <dd>{{ getMatrixSummary().totalEntitlements }}</dd>
+    </dl>
+  </section>
+
+  <!-- Empty State -->
+  <div
+    *ngIf="
+      !isLoading && !error && (plans.length === 0 || features.length === 0)
+    "
+  >
+    <h2>No Data Available</h2>
+    <p *ngIf="plans.length === 0">
+      No subscription plans have been created yet.
+    </p>
+    <p *ngIf="features.length === 0">No features have been defined yet.</p>
+    <p>Create plans and features to see the entitlement matrix.</p>
+  </div>
+
+  <!-- Entitlement Matrix Table -->
+  <section
+    *ngIf="!isLoading && !error && plans.length > 0 && features.length > 0"
+  >
+    <h2>Feature Entitlements by Plan</h2>
+
+    <table>
+      <thead>
+        <tr>
+          <th scope="col">Plan</th>
+          <th scope="col">Price</th>
+          <th scope="col">Status</th>
+          <th *ngFor="let feature of features" scope="col">
+            {{ feature.displayName }}
+            <small *ngIf="getFeatureUnit(feature)">
+              ({{ getFeatureUnit(feature) }})
+            </small>
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let row of matrixData">
+          <th scope="row">{{ row.plan.name }}</th>
+          <td>{{ formatPlanPrice(row.plan.price) }}</td>
+          <td>
+            <span
+              [attr.data-status]="
+                isPlanActive(row.plan) ? 'active' : 'inactive'
+              "
+            >
+              {{ isPlanActive(row.plan) ? "Active" : "Inactive" }}
+            </span>
+          </td>
+          <td
+            *ngFor="let feature of features"
+            [attr.data-value-type]="getFeatureValueClass(row, feature)"
+          >
+            {{ getFeatureValue(row, feature) }}
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- Legend -->
+  <aside
+    *ngIf="!isLoading && !error && plans.length > 0 && features.length > 0"
+  >
+    <h3>Legend</h3>
+    <dl>
+      <dt data-value-type="enabled">Enabled</dt>
+      <dd>Feature is available and active</dd>
+
+      <dt data-value-type="disabled">Disabled</dt>
+      <dd>Feature is not available</dd>
+
+      <dt data-value-type="limited">Limited</dt>
+      <dd>Feature has usage limits</dd>
+
+      <dt data-value-type="unlimited">Unlimited</dt>
+      <dd>Feature has no usage limits</dd>
+
+      <dt data-value-type="not-included">Not Included</dt>
+      <dd>Feature is not configured for this plan</dd>
+    </dl>
+  </aside>
+
+  <!-- Feature Details -->
+  <section *ngIf="!isLoading && !error && features.length > 0">
+    <h2>Feature Descriptions</h2>
+    <dl>
+      <div *ngFor="let feature of features">
+        <dt>
+          {{ feature.displayName }}
+          <small>({{ feature.isBoolean ? "Boolean" : "Limit" }})</small>
+        </dt>
+        <dd>
+          {{ feature.description }}
+          <small
+            >Key: <code>{{ feature.keyName }}</code></small
+          >
+        </dd>
+      </div>
+    </dl>
+  </section>
+</main>

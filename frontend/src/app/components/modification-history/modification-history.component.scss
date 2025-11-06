@@ -1,0 +1,212 @@
+.modification-history {
+  margin-top: 2rem;
+  padding: 1.5rem;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.5rem;
+  background-color: #ffffff;
+
+  .history-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+
+    h3 {
+      margin: 0;
+      font-size: 1.25rem;
+      font-weight: 600;
+      color: #111827;
+    }
+
+    .history-badge {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.5rem 1rem;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      border-radius: 1rem;
+      color: white;
+      font-size: 0.875rem;
+
+      .history-count {
+        font-weight: 700;
+        font-size: 1.125rem;
+      }
+
+      .history-label {
+        font-weight: 500;
+      }
+
+      .unlimited-badge {
+        margin-left: 0.5rem;
+        padding: 0.25rem 0.5rem;
+        background-color: rgba(255, 255, 255, 0.2);
+        border-radius: 0.375rem;
+        font-size: 0.75rem;
+        font-weight: 600;
+      }
+    }
+  }
+}
+
+.loading,
+.error,
+.empty {
+  text-align: center;
+  padding: 2rem;
+  color: #6b7280;
+
+  p {
+    margin: 0;
+    font-size: 0.875rem;
+  }
+}
+
+.error {
+  color: #dc2626;
+  background-color: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: 0.375rem;
+}
+
+.modifications-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.modification-item {
+  padding: 1rem;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.375rem;
+  background-color: #f9fafb;
+
+  &.initial-state {
+    border-left: 4px solid #10b981;
+  }
+
+  &.property-change {
+    border-left: 4px solid #3b82f6;
+  }
+}
+
+.modification-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.75rem;
+
+  .modification-type {
+    font-weight: 600;
+    font-size: 0.875rem;
+    color: #111827;
+  }
+
+  .modification-timestamp {
+    font-size: 0.75rem;
+    color: #6b7280;
+  }
+}
+
+.modification-details,
+.modification-meta {
+  margin-bottom: 0.75rem;
+}
+
+.property-info {
+  margin-bottom: 0.5rem;
+
+  strong {
+    color: #111827;
+    font-size: 0.875rem;
+  }
+}
+
+.value-change {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.previous-value,
+.new-value,
+.initial-value {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+
+  .label {
+    font-weight: 500;
+    color: #374151;
+    min-width: 2.5rem;
+    flex-shrink: 0;
+  }
+
+  code {
+    background-color: #f3f4f6;
+    padding: 0.125rem 0.375rem;
+    border-radius: 0.25rem;
+    font-family: "Monaco", "Menlo", "Ubuntu Mono", monospace;
+    font-size: 0.75rem;
+    color: #111827;
+    word-break: break-all;
+  }
+}
+
+.command-id {
+  margin-top: 0.5rem;
+  padding-top: 0.5rem;
+  border-top: 1px solid #e5e7eb;
+
+  small {
+    color: #6b7280;
+    font-size: 0.625rem;
+  }
+}
+
+// Dark mode support
+@media (prefers-color-scheme: dark) {
+  .modification-history {
+    border-color: #374151;
+    background-color: #1f2937;
+    color: #f9fafb;
+
+    h3 {
+      color: #f9fafb;
+    }
+  }
+
+  .modification-item {
+    border-color: #374151;
+    background-color: #111827;
+  }
+
+  .modification-type {
+    color: #f9fafb;
+  }
+
+  .modification-timestamp {
+    color: #9ca3af;
+  }
+
+  strong {
+    color: #f9fafb;
+  }
+
+  .label {
+    color: #d1d5db;
+  }
+
+  code {
+    background-color: #374151;
+    color: #f9fafb;
+  }
+
+  .command-id {
+    border-top-color: #374151;
+  }
+
+  small {
+    color: #9ca3af;
+  }
+}

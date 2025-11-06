@@ -1,105 +1,100 @@
-# drawings
-drawings
-# Dependencies
-node_modules/
+# See https://docs.github.com/get-started/getting-started-with-git/ignoring-files for more about ignoring files.
+
+docs/drawings
+docs/drawings
+
+# Compiled output
+/dist
+/tmp
+/out-tsc
+/bazel-out
+
+# Node
+*/node_modules
+npm-debug.log
+yarn-error.log
+
+# IDEs and editors
+.idea/
+.project
+.classpath
+.c9/
+*.launch
+.settings/
+*.sublime-workspace
+
+# Visual Studio Code
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+.history/*
+
+# Miscellaneous
+/.angular/cache
+.sass-cache/
+/connect.lock
+/coverage
+/libpeerconnection.log
+testem.log
+/typings
+__screenshots__/
+*.tsbuildinfo
+
+# Testing and Reports
+test-results/
+playwright-report/
+.nyc_output/
+mochawesome-report/
+
+# Logs
+*.log
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
-pnpm-debug.log*
 lerna-debug.log*
 
-# Build outputs
-dist/
-build/
-*.tsbuildinfo
+# Backend specific
+backend/node_modules
+backend/dist
+backend/coverage
+backend/.env
+backend/.env.local
+backend/.env.development
+backend/.env.production
+backend/logs
+backend/*.log
+backend/*.tgz
+backend/*.tsbuildinfo
 
-# Environment variables
-.env
-.env.local
-.env.development.local
-.env.test.local
-.env.production.local
+# Prisma generated files (if not using default location)
+backend/prisma/migrations/*.sql.bak
 
-# Editor directories and files
-.vscode/
-.idea/
+# frontend specific
+frontend/node_modules
+frontend/.angular
+frontend/dist
+frontend/coverage
+frontend/*.tsbuildinfo
+
+# E2E Testing
+e2e/test-results
+e2e/playwright-report
+e2e/coverage
+# Database
+*.db
+*.sqlite
+*.sqlite3
+
+# System files
+.DS_Store
+Thumbs.db
 *.swp
 *.swo
 *~
 
-# OS generated files
-.DS_Store
-.DS_Store?
-._*
-.Spotlight-V100
-.Trashes
-ehthumbs.db
-Thumbs.db
-desktop.ini
-
-# Logs
-logs/
-*.log
-
-# Runtime data
-pids/
-*.pid
-*.seed
-*.pid.lock
-
-# Coverage directory used by tools like istanbul
-coverage/
-*.lcov
-
-# Cache directories
+# Temporary files
+*.tmp
+*.temp
 .cache/
-.parcel-cache/
-.next/
-.nuxt/
-
-# Temporary folders
-tmp/
-temp/
-
-# Optional npm cache directory
-.npm
-
-# Optional eslint cache
-.eslintcache
-
-# Microbundle cache
-.rpt2_cache/
-.rts2_cache_cjs/
-.rts2_cache_es/
-.rts2_cache_umd/
-
-# Optional REPL history
-.node_repl_history
-
-# Output of 'npm pack'
-*.tgz
-
-# Yarn Integrity file
-.yarn-integrity
-
-# dotenv environment variables file
-.env.test
-
-# Stores VSCode versions used for testing VSCode extensions
-.vscode-test
-
-# yarn v2
-.yarn/cache
-.yarn/unplugged
-.yarn/build-state.yml
-.yarn/install-state.gz
-.pnp.*
-
-# Backup files
-*.bak
-*.backup
-*.orig
-
-# Auto-generated files
-auto-generated/
-generated/

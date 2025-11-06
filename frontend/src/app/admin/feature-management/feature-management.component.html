@@ -1,0 +1,205 @@
+<main>
+  <header>
+    <h1>Feature Management</h1>
+    <button (click)="onCreateNewFeature()" [disabled]="isLoading">
+      Create New Feature
+    </button>
+  </header>
+
+  <!-- Loading State -->
+  <div *ngIf="isLoading && features.length === 0">
+    <p>Loading features...</p>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="error">
+    <div>{{ error }}</div>
+    <button (click)="retryLoading()">Retry</button>
+  </div>
+
+  <!-- Main Content -->
+  <div *ngIf="!isLoading || features.length > 0">
+    <!-- Features List -->
+    <section>
+      <h2>Available Features</h2>
+
+      <div *ngIf="features.length === 0">
+        <h3>No Features Created Yet</h3>
+        <p>
+          Create your first feature to define what capabilities can be included
+          in subscription plans.
+        </p>
+        <button (click)="onCreateNewFeature()">Create First Feature</button>
+      </div>
+
+      <div *ngIf="features.length > 0">
+        <article
+          *ngFor="let feature of features"
+          [class.selected]="selectedFeature?.featureId === feature.featureId"
+          (click)="onSelectFeature(feature)"
+        >
+          <header>
+            <h3>{{ feature.displayName }}</h3>
+            <div>
+              <span>{{ getFeatureTypeLabel(feature) }}</span>
+            </div>
+          </header>
+
+          <div>
+            <p>{{ feature.description }}</p>
+            <p>
+              Key: <code>{{ feature.keyName }}</code>
+            </p>
+          </div>
+
+          <div>
+            <button
+              (click)="onEditFeature(feature); $event.stopPropagation()"
+              [disabled]="isLoading"
+            >
+              Edit
+            </button>
+            <button
+              (click)="onDeleteFeature(feature); $event.stopPropagation()"
+              [disabled]="isLoading"
+            >
+              Delete
+            </button>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <!-- Feature Details -->
+    <aside *ngIf="selectedFeature">
+      <h2>Feature Details: {{ selectedFeature.displayName }}</h2>
+
+      <dl>
+        <dt>Display Name:</dt>
+        <dd>{{ selectedFeature.displayName }}</dd>
+
+        <dt>Key Name:</dt>
+        <dd>
+          <code>{{ selectedFeature.keyName }}</code>
+        </dd>
+
+        <dt>Type:</dt>
+        <dd>{{ getFeatureTypeLabel(selectedFeature) }}</dd>
+
+        <dt>Created:</dt>
+        <dd>{{ selectedFeature.createdAt | date : "medium" }}</dd>
+      </dl>
+
+      <div>
+        <h3>Description</h3>
+        <p>{{ selectedFeature.description }}</p>
+      </div>
+
+      <div>
+        <h3>Usage Information</h3>
+        <p *ngIf="selectedFeature.isBoolean">
+          This is a <strong>boolean feature</strong>. Plans can either enable or
+          disable this feature.
+        </p>
+        <p *ngIf="!selectedFeature.isBoolean">
+          This is a <strong>limit-based feature</strong>. Plans can set numeric
+          limits for this feature.
+        </p>
+      </div>
+    </aside>
+  </div>
+
+  <!-- Create/Edit Feature Modal -->
+  <dialog *ngIf="showCreateForm" (click)="onCancelEdit()">
+    <div (click)="$event.stopPropagation()">
+      <header>
+        <h2>{{ editingFeature ? "Edit Feature" : "Create New Feature" }}</h2>
+        <button type="button" (click)="onCancelEdit()">×</button>
+      </header>
+
+      <form [formGroup]="featureForm" (ngSubmit)="onSaveFeature()">
+        <fieldset>
+          <legend>Feature Information</legend>
+
+          <div>
+            <label for="keyName">Key Name *</label>
+            <input
+              id="keyName"
+              type="text"
+              formControlName="keyName"
+              placeholder="e.g., api_calls, storage_limit, premium_support"
+            />
+            <small>
+              Lowercase with underscores. Used in code and API calls.
+            </small>
+            <div *ngIf="isFieldInvalid('keyName')">
+              {{ getFieldError("keyName") }}
+            </div>
+          </div>
+
+          <div>
+            <label for="displayName">Display Name *</label>
+            <input
+              id="displayName"
+              type="text"
+              formControlName="displayName"
+              placeholder="e.g., API Calls, Storage Limit, Premium Support"
+            />
+            <small> Human-readable name shown in the admin interface. </small>
+            <div *ngIf="isFieldInvalid('displayName')">
+              {{ getFieldError("displayName") }}
+            </div>
+          </div>
+
+          <div>
+            <label for="description">Description *</label>
+            <textarea
+              id="description"
+              formControlName="description"
+              placeholder="Describe what this feature provides to users"
+              rows="3"
+            ></textarea>
+            <div *ngIf="isFieldInvalid('description')">
+              {{ getFieldError("description") }}
+            </div>
+          </div>
+
+          <div>
+            <label>
+              <input type="checkbox" formControlName="isBoolean" />
+              Boolean Feature
+            </label>
+            <small>
+              Check if this is an on/off feature. Uncheck for numeric limits.
+            </small>
+          </div>
+
+          <div>
+            <div *ngIf="featureForm.get('isBoolean')?.value">
+              <strong>Boolean Feature:</strong> Plans can enable or disable this
+              feature. <br /><em
+                >Example: Premium Support (enabled/disabled)</em
+              >
+            </div>
+            <div *ngIf="!featureForm.get('isBoolean')?.value">
+              <strong>Limit Feature:</strong> Plans can set numeric limits for
+              this feature. <br /><em
+                >Example: API Calls (1000/month), Storage (5GB)</em
+              >
+            </div>
+          </div>
+        </fieldset>
+
+        <footer>
+          <button type="button" (click)="onCancelEdit()" [disabled]="isLoading">
+            Cancel
+          </button>
+          <button type="submit" [disabled]="!featureForm.valid || isLoading">
+            <span *ngIf="isLoading">Loading...</span>
+            {{ editingFeature ? "Update Feature" : "Create Feature" }}
+          </button>
+        </footer>
+      </form>
+    </div>
+  </dialog>
+</main>

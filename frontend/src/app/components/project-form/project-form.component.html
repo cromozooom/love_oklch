@@ -1,0 +1,202 @@
+<div class="project-form-container">
+  <form [formGroup]="projectForm" (ngSubmit)="onSubmit()" class="project-form">
+    <!-- Form Title -->
+    <div class="form-header">
+      <h2 class="form-title">
+        {{ isEditMode() ? "Edit Project" : "Create New Project" }}
+      </h2>
+      @if (hasUnsavedChanges()) {
+      <div class="saving-indicator">
+        @if (isSaving()) {
+        <span class="saving-text">Saving...</span>
+        <div class="saving-spinner"></div>
+        } @else {
+        <span class="unsaved-text">Unsaved changes</span>
+        }
+      </div>
+      } @if (projectLimits) {
+      <div class="subscription-info">
+        <span class="current-projects">{{
+          projectLimits.currentProjects
+        }}</span>
+        @if (projectLimits.projectLimit > 0) {
+        <span class="project-limit">/ {{ projectLimits.projectLimit }}</span>
+        } @else {
+        <span class="unlimited">unlimited</span>
+        }
+        <span class="projects-label">projects</span>
+      </div>
+      }
+    </div>
+
+    <!-- Project Name Field -->
+    <div class="form-field">
+      <label for="name" class="field-label"> Project Name * </label>
+      <input
+        id="name"
+        type="text"
+        formControlName="name"
+        placeholder="Enter project name"
+        class="field-input"
+        [class.error]="isFieldInvalid('name')"
+        maxlength="100"
+      />
+      @if (isFieldInvalid('name')) {
+      <div class="field-error">
+        @if (projectForm.get('name')?.errors?.['required']) { Project name is
+        required } @if (projectForm.get('name')?.errors?.['minlength']) {
+        Project name must be at least 1 character } @if
+        (projectForm.get('name')?.errors?.['maxlength']) { Project name must be
+        100 characters or less }
+      </div>
+      }
+    </div>
+
+    <!-- Project Description Field -->
+    <div class="form-field">
+      <label for="description" class="field-label"> Description </label>
+      <textarea
+        id="description"
+        formControlName="description"
+        placeholder="Enter project description (optional)"
+        class="field-textarea"
+        [class.error]="isFieldInvalid('description')"
+        maxlength="500"
+        rows="3"
+      ></textarea>
+      @if (isFieldInvalid('description')) {
+      <div class="field-error">
+        @if (projectForm.get('description')?.errors?.['maxlength']) {
+        Description must be 500 characters or less }
+      </div>
+      }
+      <div class="field-hint">
+        {{ getDescriptionCharCount() }}/500 characters
+      </div>
+    </div>
+
+    <!-- Color Gamut Field -->
+    <div class="form-field">
+      <label for="colorGamut" class="field-label"> Color Gamut * </label>
+      <select
+        id="colorGamut"
+        formControlName="colorGamut"
+        class="field-select"
+        [class.error]="isFieldInvalid('colorGamut')"
+      >
+        <option value="" disabled>Select color gamut</option>
+        @for (option of colorGamutOptions; track option.value) {
+        <option [value]="option.value">
+          {{ option.label }}
+        </option>
+        }
+      </select>
+      @if (selectedGamutInfo()) {
+      <div class="field-info">
+        {{ selectedGamutInfo()?.description }}
+        <br />
+        <strong>Coverage:</strong> {{ selectedGamutInfo()?.coverage }}
+        <br />
+        <strong>Best for:</strong> {{ selectedGamutInfo()?.recommendation }}
+      </div>
+      } @if (isFieldInvalid('colorGamut')) {
+      <div class="field-error">Color gamut is required</div>
+      }
+    </div>
+
+    <!-- Color Space Field -->
+    <div class="form-field">
+      <label for="colorSpace" class="field-label"> Color Space * </label>
+      <select
+        id="colorSpace"
+        formControlName="colorSpace"
+        class="field-select"
+        [class.error]="isFieldInvalid('colorSpace')"
+      >
+        <option value="" disabled>Select color space</option>
+        @for (option of colorSpaceOptions; track option.value) {
+        <option [value]="option.value">
+          {{ option.label }}
+        </option>
+        }
+      </select>
+      @if (selectedSpaceInfo()) {
+      <div class="field-info">
+        {{ selectedSpaceInfo()?.description }}
+        <br />
+        <strong>Perceptual Uniformity:</strong>
+        {{ selectedSpaceInfo()?.perceptualUniformity }}
+        <br />
+        <strong>Best for:</strong> {{ selectedSpaceInfo()?.recommendation }}
+      </div>
+      } @if (isFieldInvalid('colorSpace')) {
+      <div class="field-error">Color space is required</div>
+      }
+    </div>
+
+    <!-- DEMO: Color Count Field (for testing history) -->
+    <div class="form-field demo-field">
+      <label for="colorCount" class="field-label">
+        🧪 Color Count (Demo - for testing history)
+      </label>
+      <input
+        id="colorCount"
+        type="number"
+        formControlName="colorCount"
+        placeholder="Enter number of colors"
+        class="field-input"
+        [class.error]="isFieldInvalid('colorCount')"
+        min="1"
+        max="100"
+      />
+      <div class="field-info">
+        ✨ Change this number to see unlimited history in action! Each change is
+        tracked.
+      </div>
+      @if (isFieldInvalid('colorCount')) {
+      <div class="field-error">
+        @if (projectForm.get('colorCount')?.errors?.['min']) { Must be at least
+        1 } @if (projectForm.get('colorCount')?.errors?.['max']) { Must be 100
+        or less }
+      </div>
+      }
+    </div>
+
+    <!-- Form Actions -->
+    <div class="form-actions">
+      <button
+        type="button"
+        class="p-2 border"
+        (click)="onCancel()"
+        [disabled]="isSubmitting()"
+      >
+        Cancel
+      </button>
+      <button
+        type="submit"
+        class="p-2 border"
+        [ngClass]="{
+          'bg-red-900': !projectForm.valid || isSubmitting() || !canSubmit()
+        }"
+        [disabled]="!projectForm.valid || isSubmitting() || !canSubmit()"
+      >
+        @if (isSubmitting()) {
+        <span class="loading-spinner"></span>
+        {{ isEditMode() ? "Updating..." : "Creating..." }}
+        } @else {
+        {{ isEditMode() ? "Update Project" : "Create Project" }}
+        }
+      </button>
+    </div>
+
+    <!-- Limit Warning -->
+    @if (!isEditMode() && projectLimits && !projectLimits.canCreateMore) {
+    <div class="limit-warning">
+      <p>You've reached your project limit for this subscription.</p>
+      @if (projectLimits.subscriptionType === 'default') {
+      <button type="button" class="btn btn-upgrade">Upgrade to Premium</button>
+      }
+    </div>
+    }
+  </form>
+</div>

@@ -29,9 +29,26 @@
 
 ## Constitution Check
 
-*GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
+_GATE: Must pass before Phase 0 research. Re-check after Phase 1 design._
 
-[Gates determined based on constitution file]
+**Core Principles Compliance:**
+
+- ✅/❌ Clean Code Excellence: [TypeScript types, meaningful names, single responsibility]
+- ✅/❌ Simple User Experience: [Intuitive UI, minimal clicks, consistent patterns]
+- ✅/❌ Minimal Dependencies: [Angular CDK preferred, essential packages only]
+- ✅/❌ Comprehensive E2E Testing: [Playwright coverage for all scenarios]
+- ✅/❌ Centralized State Store: [Angular Signals + RxJS, no legacy state libraries]
+- ✅/❌ PowerShell Command Execution: [Commands specify target directory, account for frontend/backend/e2e structure]
+- ✅/❌ Frontend Component File Structure: [Components >60 lines use separate .ts/.html/.scss files]
+- ✅/❌ Production Code Cleanliness: [No debug console statements in production code, clean deployments]
+
+**Technology Stack Alignment:**
+
+- ✅/❌ Frontend: Angular (latest stable)
+- ✅/❌ Database: PostgreSQL with proper containerization
+- ✅/❌ Testing: Playwright for E2E, multi-browser support
+- ✅/❌ Build Tools: PowerShell 7+ cross-platform scripts with explicit directory targeting
+- ✅/❌ Repository Structure: frontend/, backend/, e2e/, docs/ organization
 
 ## Project Structure
 
@@ -48,6 +65,7 @@ specs/[###-feature]/
 ```
 
 ### Source Code (repository root)
+
 <!--
   ACTION REQUIRED: Replace the placeholder tree below with the concrete layout
   for this feature. Delete unused options and expand the chosen structure with
@@ -98,7 +116,7 @@ directories captured above]
 
 > **Fill ONLY if Constitution Check has violations that must be justified**
 
-| Violation | Why Needed | Simpler Alternative Rejected Because |
-|-----------|------------|-------------------------------------|
-| [e.g., 4th project] | [current need] | [why 3 projects insufficient] |
-| [e.g., Repository pattern] | [specific problem] | [why direct DB access insufficient] |
+| Violation                  | Why Needed         | Simpler Alternative Rejected Because |
+| -------------------------- | ------------------ | ------------------------------------ |
+| [e.g., 4th project]        | [current need]     | [why 3 projects insufficient]        |
+| [e.g., Repository pattern] | [specific problem] | [why direct DB access insufficient]  |
