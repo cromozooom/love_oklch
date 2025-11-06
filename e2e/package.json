@@ -8,11 +8,13 @@
   "scripts": {
     "test": "playwright test",
     "test:ui": "playwright test --ui",
+    "test:ui:seed": "cd ../backend && npm run db:seed:e2e && cd ../e2e && playwright test --ui",
     "test:debug": "playwright test --debug",
     "test:report": "playwright show-report",
     "test:headed": "playwright test --headed",
     "test:project-history": "playwright test project-history.spec.ts",
-    "test:manual": "playwright test manual-debug.spec.ts --headed --debug"
+    "test:manual": "playwright test manual-debug.spec.ts --headed --debug",
+    "seed": "cd ../backend && npm run db:seed:e2e"
   },
   "keywords": [],
   "author": "",

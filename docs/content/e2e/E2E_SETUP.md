@@ -48,6 +48,40 @@ This command:
 - **Location**: `backend/database/seeds/seed-data.json`
 - **Script**: `backend/src/database/seed.ts` (with `--reset` flag for E2E)
 
+### ⚠️ Important: UI Mode (`--ui`) Does NOT Run Global Setup
+
+**Playwright UI mode does not execute `globalSetup` automatically**. This is by design for interactive debugging.
+
+**Solution**: Use the convenient seed+UI script:
+
+```powershell
+# From e2e directory - this seeds the database then launches UI mode
+npm run test:ui:seed
+```
+
+Or seed manually if needed:
+
+```powershell
+# From e2e directory
+npm run seed
+
+# Then run UI mode
+npm run test:ui
+```
+
+**Why This Happens**:
+
+- UI mode is designed for interactive debugging
+- Global setup runs once per test session (not per test run in UI)
+- Manual seeding ensures consistent state before debugging
+
+**When You Need to Re-seed**:
+
+- Before starting a UI mode session
+- After tests create/modify data that affects other tests
+- When you see authentication failures (401 errors)
+- When test data seems inconsistent
+
 ## Installation
 
 Install test dependencies:
@@ -65,17 +99,29 @@ npm install
 npm test
 ```
 
+**✅ Global setup runs automatically** - Database is seeded before tests start.
+
 ### Run tests with UI (interactive mode)
 
 ```powershell
+# ⚠️ IMPORTANT: Seed database first!
+cd backend
+npm run db:seed:e2e
+
+# Then run UI mode
+cd ../e2e
 npm run test:ui
 ```
+
+**❌ Global setup does NOT run in UI mode** - You must seed manually first.
 
 ### Run tests in headed mode (see browser)
 
 ```powershell
 npm run test:headed
 ```
+
+**✅ Global setup runs automatically** - Database is seeded before tests start.
 
 ### Run specific test file
 
