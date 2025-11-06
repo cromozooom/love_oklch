@@ -200,7 +200,7 @@ Based on plan.md structure: `frontend/src/`, `backend/src/`, `e2e/tests/`
     6. Implement pruning strategy (FIFO) when limit exceeded
   - **Testing strategy** (when implemented):
     - Test with free.user@example.com (Free plan) - verify 5 operation limit
-    - Test with basic.user@example.com (Basic plan) - verify 50 operation limit  
+    - Test with basic.user@example.com (Basic plan) - verify 50 operation limit
     - Test with pro.user@example.com (Pro plan) - verify unlimited operations
     - Test limit exceeded scenarios and upgrade prompts
   - **Reference**: See docs/SEED_DATA_REFERENCE.md for complete subscription tier details
