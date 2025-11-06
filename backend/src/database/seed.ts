@@ -257,12 +257,13 @@ async function seedFromJson(): Promise<void> {
 
 async function main(): Promise<void> {
   // Check if we should reset database (for E2E tests)
-  const shouldReset = process.argv.includes('--reset') || process.env.RESET_DB === 'true';
-  
+  const shouldReset =
+    process.argv.includes('--reset') || process.env.RESET_DB === 'true';
+
   if (shouldReset) {
     await resetDatabase();
   }
-  
+
   await seedFromJson();
 }
 

@@ -38,11 +38,13 @@ The E2E tests automatically seed the database before each test run to ensure con
   ```
 
 This command:
+
 - Clears all tables in dependency order
 - Seeds fresh data from `backend/database/seeds/seed-data.json`
 - Creates the test user (`default@solopx.com` with password `password123`)
 
 **Single Source of Truth**: All seed data is maintained in one place:
+
 - **Location**: `backend/database/seeds/seed-data.json`
 - **Script**: `backend/src/database/seed.ts` (with `--reset` flag for E2E)
 
