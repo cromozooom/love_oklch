@@ -1,0 +1,60 @@
+<div data-testid="rgb-sliders">
+  <div>
+    <label for="rgb-r">Red</label>
+    <input
+      id="rgb-r"
+      type="range"
+      min="0"
+      max="255"
+      step="1"
+      [(ngModel)]="rgbValues[0]"
+      (change)="onRgbChange()"
+      (input)="onRgbInput()"
+      data-testid="rgb-slider-r"
+    />
+    <span data-testid="rgb-value-r">
+      {{ Math.round(rgbValues[0]) }}
+    </span>
+  </div>
+
+  <div>
+    <label for="rgb-g">Green</label>
+    <input
+      id="rgb-g"
+      type="range"
+      min="0"
+      max="255"
+      step="1"
+      [(ngModel)]="rgbValues[1]"
+      (change)="onRgbChange()"
+      (input)="onRgbInput()"
+      data-testid="rgb-slider-g"
+    />
+    <span data-testid="rgb-value-g">
+      {{ Math.round(rgbValues[1]) }}
+    </span>
+  </div>
+
+  <div>
+    <label for="rgb-b">Blue</label>
+    <input
+      id="rgb-b"
+      type="range"
+      min="0"
+      max="255"
+      step="1"
+      [(ngModel)]="rgbValues[2]"
+      (change)="onRgbChange()"
+      (input)="onRgbInput()"
+      data-testid="rgb-slider-b"
+    />
+    <span data-testid="rgb-value-b">
+      {{ Math.round(rgbValues[2]) }}
+    </span>
+  </div>
+
+  <div data-testid="rgb-display">
+    rgb({{ Math.round(rgbValues[0]) }}, {{ Math.round(rgbValues[1]) }},
+    {{ Math.round(rgbValues[2]) }})
+  </div>
+</div>

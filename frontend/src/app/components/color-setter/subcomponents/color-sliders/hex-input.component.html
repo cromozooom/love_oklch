@@ -1,0 +1,18 @@
+<div>
+  <div>
+    <label for="hex-input">HEX Color</label>
+    <input
+      id="hex-input"
+      type="text"
+      [(ngModel)]="hexValue"
+      (change)="onHexChange()"
+      (blur)="onHexChange()"
+      data-testid="hex-input"
+      placeholder="#000000"
+      maxlength="7"
+    />
+  </div>
+  <div data-testid="hex-display">
+    {{ hexValue }}
+  </div>
+</div>

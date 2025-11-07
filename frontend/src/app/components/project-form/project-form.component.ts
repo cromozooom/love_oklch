@@ -38,6 +38,7 @@ import { ProjectValidators } from '../../validators/project.validators';
 import { UndoRedoService } from '../../services/undo-redo.service';
 import { OptimisticUpdatesService } from '../../services/optimistic-updates.service';
 import { UpdateProjectPropertyCommand } from '../../commands/update-project-property.command';
+import { ColorSetterComponent } from '../../components/color-setter/color-setter.component';
 
 /**
  * Form component for creating and editing projects
@@ -46,7 +47,7 @@ import { UpdateProjectPropertyCommand } from '../../commands/update-project-prop
 @Component({
   selector: 'app-project-form',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, ColorSetterComponent],
   templateUrl: './project-form.component.html',
   styleUrls: ['./project-form.component.scss'],
 })

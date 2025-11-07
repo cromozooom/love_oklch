@@ -4,6 +4,7 @@ import { ActivatedRoute } from '@angular/router';
 import { ProjectFormComponent } from '../../components/project-form/project-form.component';
 import { UndoRedoControlsComponent } from '../../components/undo-redo-controls/undo-redo-controls.component';
 import { ModificationHistoryComponent } from '../../components/modification-history/modification-history.component';
+import { ColorSetterComponent } from '../../components/color-setter/color-setter.component';
 import { ProjectService } from '../../services/project.service';
 import { OptimisticUpdatesService } from '../../services/optimistic-updates.service';
 import { Project } from '../../models/project.interface';
@@ -17,6 +18,7 @@ import { ProjectModification } from '../../models/project-modification.interface
     ProjectFormComponent,
     UndoRedoControlsComponent,
     ModificationHistoryComponent,
+    ColorSetterComponent,
   ],
   templateUrl: './project-editor.component.html',
   styleUrl: './project-editor.component.scss',

@@ -118,3 +118,23 @@
 .retry-button:hover {
   background-color: #2563eb;
 }
+
+// Color Setter Demo Section
+.color-setter-demo {
+  margin-top: 3rem;
+  padding: 1.5rem;
+  background-color: #f9fafb;
+  border-radius: 0.5rem;
+  border: 1px solid #e5e7eb;
+
+  h3 {
+    margin: 0 0 1rem 0;
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: #374151;
+  }
+
+  app-color-setter {
+    display: block;
+  }
+}

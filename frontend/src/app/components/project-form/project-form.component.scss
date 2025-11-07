@@ -97,3 +97,31 @@
     font-size: 0.875rem;
   }
 }
+
+// Color Setter Demo Section
+.color-setter-demo {
+  margin-top: 2.5rem;
+  padding: 1.5rem;
+  background: linear-gradient(135deg, #f9fafb 0%, #f3f4f6 100%);
+  border-radius: 0.5rem;
+  border: 2px dashed #3b82f6;
+  box-shadow: 0 2px 8px rgba(59, 130, 246, 0.1);
+
+  h3 {
+    margin: 0 0 0.5rem 0;
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: #1e40af;
+  }
+
+  .demo-description {
+    margin: 0 0 1rem 0;
+    font-size: 0.875rem;
+    color: #6b7280;
+  }
+
+  app-color-setter {
+    display: block;
+    padding-top: 0.5rem;
+  }
+}

@@ -189,6 +189,21 @@
       </button>
     </div>
 
+    <!-- Color Setter Component Demo -->
+    <div class="color-setter-demo">
+      <h3>🎨 Color Setter - Live Demo</h3>
+      <p class="demo-description">Try selecting and changing colors below:</p>
+      <app-color-setter
+        [initialColor]="'#FF6B6B'"
+        [initialFormat]="'RGB'"
+        [initialGamut]="'sRGB'"
+        [showWCAG]="true"
+        [showColorName]="true"
+        [supportedGamuts]="['sRGB', 'display-p3']"
+      >
+      </app-color-setter>
+    </div>
+
     <!-- Limit Warning -->
     @if (!isEditMode() && projectLimits && !projectLimits.canCreateMore) {
     <div class="limit-warning">
