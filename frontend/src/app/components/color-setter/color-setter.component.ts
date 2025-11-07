@@ -248,8 +248,8 @@ export interface ColorChangeEvent {
           </div>
 
           <div class="hsl-display" data-testid="hsl-display">
-            hsl({{ Math.round(hslValues[0]) }},
-            {{ Math.round(hslValues[1]) }}%, {{ Math.round(hslValues[2]) }}%)
+            hsl({{ Math.round(hslValues[0]) }}, {{ Math.round(hslValues[1]) }}%,
+            {{ Math.round(hslValues[2]) }}%)
           </div>
         </div>
       </div>
@@ -455,7 +455,7 @@ export class ColorSetterComponent implements OnInit {
     const state = this.colorState();
     try {
       const rgb = state.internalValue.to('srgb');
-      const [r, g, b] = rgb.coords.map(c => Math.round(c * 255));
+      const [r, g, b] = rgb.coords.map((c) => Math.round(c * 255));
       return `rgb(${r}, ${g}, ${b})`;
     } catch {
       return '#FF0000';
@@ -469,7 +469,9 @@ export class ColorSetterComponent implements OnInit {
         case 'hex':
           return this.hexInputValue();
         case 'rgb':
-          return `rgb(${this.rgbValues().map(v => Math.round(v)).join(', ')})`;
+          return `rgb(${this.rgbValues()
+            .map((v) => Math.round(v))
+            .join(', ')})`;
         case 'hsl':
           const [h, s, l] = this.hslValues();
           return `hsl(${Math.round(h)}, ${Math.round(s)}%, ${Math.round(l)}%)`;
@@ -493,7 +495,7 @@ export class ColorSetterComponent implements OnInit {
 
   constructor(private colorService: ColorService) {
     // Setup debounced color change (16ms for 60fps)
-    this.colorChangeSubject.pipe(debounceTime(16)).subscribe(event => {
+    this.colorChangeSubject.pipe(debounceTime(16)).subscribe((event) => {
       this.colorChange.emit(event);
     });
 
@@ -541,7 +543,9 @@ export class ColorSetterComponent implements OnInit {
       if (!ColorValidators.isValidHex(hex)) {
         // Revert to previous value
         const state = this.colorState();
-        this.hexInputValue.set(this.colorService.convert(state.internalValue, 'hex'));
+        this.hexInputValue.set(
+          this.colorService.convert(state.internalValue, 'hex')
+        );
         return;
       }
 
@@ -555,7 +559,9 @@ export class ColorSetterComponent implements OnInit {
       console.error('Invalid HEX color:', error);
       // Revert to previous
       const state = this.colorState();
-      this.hexInputValue.set(this.colorService.convert(state.internalValue, 'hex'));
+      this.hexInputValue.set(
+        this.colorService.convert(state.internalValue, 'hex')
+      );
     }
   }
 
@@ -586,7 +592,7 @@ export class ColorSetterComponent implements OnInit {
       const state = this.colorState();
 
       // Update format
-      this.colorState.update(s => ({ ...s, format: newFormat }));
+      this.colorState.update((s) => ({ ...s, format: newFormat }));
       this.format.set(newFormat);
 
       // Update display values
@@ -606,7 +612,9 @@ export class ColorSetterComponent implements OnInit {
   private updateRgbFromSliders(): void {
     try {
       const [r, g, b] = this.rgbValues();
-      const rgbString = `rgb(${Math.round(r)}, ${Math.round(g)}, ${Math.round(b)})`;
+      const rgbString = `rgb(${Math.round(r)}, ${Math.round(g)}, ${Math.round(
+        b
+      )})`;
 
       const parsed = this.colorService.parse(rgbString);
       this.updateColorState(parsed, 'rgb');
@@ -618,7 +626,9 @@ export class ColorSetterComponent implements OnInit {
   private updateHslFromSliders(): void {
     try {
       const [h, s, l] = this.hslValues();
-      const hslString = `hsl(${Math.round(h)}, ${Math.round(s)}%, ${Math.round(l)}%)`;
+      const hslString = `hsl(${Math.round(h)}, ${Math.round(s)}%, ${Math.round(
+        l
+      )}%)`;
 
       const parsed = this.colorService.parse(hslString);
       this.updateColorState(parsed, 'hsl');
@@ -628,7 +638,7 @@ export class ColorSetterComponent implements OnInit {
   }
 
   private updateColorState(color: Color, format: ColorFormat): void {
-    this.colorState.update(state => ({
+    this.colorState.update((state) => ({
       ...state,
       internalValue: color,
       format,
@@ -646,11 +656,17 @@ export class ColorSetterComponent implements OnInit {
     this.hexInputValue.set(allFormats.hex);
 
     // Update RGB sliders
-    const rgbChannels = this.colorService.getChannels(state.internalValue, 'rgb');
+    const rgbChannels = this.colorService.getChannels(
+      state.internalValue,
+      'rgb'
+    );
     this.rgbValues.set([rgbChannels[0], rgbChannels[1], rgbChannels[2]]);
 
     // Update HSL sliders
-    const hslChannels = this.colorService.getChannels(state.internalValue, 'hsl');
+    const hslChannels = this.colorService.getChannels(
+      state.internalValue,
+      'hsl'
+    );
     this.hslValues.set([hslChannels[0], hslChannels[1], hslChannels[2]]);
   }
 

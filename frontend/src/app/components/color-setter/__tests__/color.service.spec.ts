@@ -4,7 +4,7 @@ import Color from 'colorjs.io';
 
 /**
  * Unit Tests for ColorService
- * 
+ *
  * Tests core color conversion methods:
  * - parse(): Parse color strings to Color objects
  * - convert(): Convert between color formats
@@ -246,7 +246,11 @@ describe('ColorService', () => {
     });
 
     it('should not throw for valid colors', () => {
-      const validColors = ['#FF0000', 'rgb(128, 64, 192)', 'hsl(120, 50%, 50%)'];
+      const validColors = [
+        '#FF0000',
+        'rgb(128, 64, 192)',
+        'hsl(120, 50%, 50%)',
+      ];
 
       for (const colorStr of validColors) {
         const color = service.parse(colorStr);

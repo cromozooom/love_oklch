@@ -2,12 +2,12 @@ import { test, expect } from '@playwright/test';
 
 /**
  * E2E Tests for Color Setter Component - User Story 1: Basic Color Selection
- * 
+ *
  * Tests cover:
  * - HEX color input and validation
  * - RGB slider interaction
  * - HSL format switching with color preservation
- * 
+ *
  * Prerequisites: Color Setter Component must be rendered in test harness
  */
 
@@ -18,11 +18,15 @@ test.describe('Color Setter Component - US1: Basic Color Selection', () => {
     await page.goto('/color-setter-demo');
 
     // Wait for component to be ready
-    await page.waitForSelector('[data-testid="color-setter-component"]', { timeout: 5000 });
+    await page.waitForSelector('[data-testid="color-setter-component"]', {
+      timeout: 5000,
+    });
   });
 
   test.describe('HEX Color Input', () => {
-    test('T013: Should accept valid HEX color (#00FF00 green) and update preview', async ({ page }) => {
+    test('T013: Should accept valid HEX color (#00FF00 green) and update preview', async ({
+      page,
+    }) => {
       // Given: User sees color setter component with default red color
       const hexInput = page.locator('[data-testid="hex-input"]');
       const colorPreview = page.locator('[data-testid="color-preview"]');
@@ -58,7 +62,9 @@ test.describe('Color Setter Component - US1: Basic Color Selection', () => {
       expect(displayedValue).toMatch(/^#?FF0000$/i);
     });
 
-    test('T013: Should silently clamp invalid HEX to nearest valid value', async ({ page }) => {
+    test('T013: Should silently clamp invalid HEX to nearest valid value', async ({
+      page,
+    }) => {
       const hexInput = page.locator('[data-testid="hex-input"]');
       const colorPreview = page.locator('[data-testid="color-preview"]');
 
@@ -81,7 +87,9 @@ test.describe('Color Setter Component - US1: Basic Color Selection', () => {
       expect(previewColor).toMatch(/rgb\(/);
     });
 
-    test('T013: Should update displayValue for HEX format immediately', async ({ page }) => {
+    test('T013: Should update displayValue for HEX format immediately', async ({
+      page,
+    }) => {
       const hexInput = page.locator('[data-testid="hex-input"]');
       const displayValue = page.locator('[data-testid="display-value"]');
 
@@ -96,7 +104,9 @@ test.describe('Color Setter Component - US1: Basic Color Selection', () => {
   });
 
   test.describe('RGB Slider Interaction', () => {
-    test('T014: Should support RGB slider adjustment for rgb(128,64,192)', async ({ page }) => {
+    test('T014: Should support RGB slider adjustment for rgb(128,64,192)', async ({
+      page,
+    }) => {
       const rSlider = page.locator('[data-testid="rgb-slider-r"]');
       const gSlider = page.locator('[data-testid="rgb-slider-g"]');
       const bSlider = page.locator('[data-testid="rgb-slider-b"]');
@@ -122,10 +132,14 @@ test.describe('Color Setter Component - US1: Basic Color Selection', () => {
       });
 
       // Should approximately match rgb(128, 64, 192)
-      expect(previewColor).toMatch(/rgb\(\s*1[0-2]\d,\s*[0-9]{1,3},\s*1[0-9]{2}\s*\)/);
+      expect(previewColor).toMatch(
+        /rgb\(\s*1[0-2]\d,\s*[0-9]{1,3},\s*1[0-9]{2}\s*\)/
+      );
     });
 
-    test('T014: Should update RGB values when slider moves', async ({ page }) => {
+    test('T014: Should update RGB values when slider moves', async ({
+      page,
+    }) => {
       const rSlider = page.locator('[data-testid="rgb-slider-r"]');
       const rLabel = page.locator('[data-testid="rgb-value-r"]');
 
@@ -141,7 +155,9 @@ test.describe('Color Setter Component - US1: Basic Color Selection', () => {
       expect(value).toContain('200');
     });
 
-    test('T014: Should maintain 60fps performance during rapid slider changes', async ({ page }) => {
+    test('T014: Should maintain 60fps performance during rapid slider changes', async ({
+      page,
+    }) => {
       const rSlider = page.locator('[data-testid="rgb-slider-r"]');
 
       // When: User switches to RGB format
@@ -165,7 +181,9 @@ test.describe('Color Setter Component - US1: Basic Color Selection', () => {
   });
 
   test.describe('Format Switching', () => {
-    test('T015: Should preserve color when switching from HSL back to HEX', async ({ page }) => {
+    test('T015: Should preserve color when switching from HSL back to HEX', async ({
+      page,
+    }) => {
       const hexInput = page.locator('[data-testid="hex-input"]');
       const hslFormatBtn = page.locator('[data-testid="format-selector-hsl"]');
       const hexFormatBtn = page.locator('[data-testid="format-selector-hex"]');
@@ -180,7 +198,9 @@ test.describe('Color Setter Component - US1: Basic Color Selection', () => {
       await hslFormatBtn.click();
 
       // Wait for format to switch
-      await page.waitForSelector('[data-testid="hsl-sliders"]', { timeout: 1000 });
+      await page.waitForSelector('[data-testid="hsl-sliders"]', {
+        timeout: 1000,
+      });
 
       // Then: Verify HSL values are displayed (Hue=0, Saturation=100, Lightness=50)
       const hueSlider = page.locator('[data-testid="hsl-slider-h"]');
@@ -188,7 +208,9 @@ test.describe('Color Setter Component - US1: Basic Color Selection', () => {
 
       // When: User switches back to HEX
       await hexFormatBtn.click();
-      await page.waitForSelector('[data-testid="hex-input"]', { timeout: 1000 });
+      await page.waitForSelector('[data-testid="hex-input"]', {
+        timeout: 1000,
+      });
 
       // Then: HEX should show the same color (may vary slightly due to rounding)
       const hexValue = await hexInput.inputValue();
@@ -196,7 +218,9 @@ test.describe('Color Setter Component - US1: Basic Color Selection', () => {
       expect(hexValue.toUpperCase()).toMatch(/#FF[0-9A-F]{4}/);
     });
 
-    test('T015: Should handle HSL format switching from RGB', async ({ page }) => {
+    test('T015: Should handle HSL format switching from RGB', async ({
+      page,
+    }) => {
       const rgbFormatBtn = page.locator('[data-testid="format-selector-rgb"]');
       const hslFormatBtn = page.locator('[data-testid="format-selector-hsl"]');
 
@@ -218,7 +242,9 @@ test.describe('Color Setter Component - US1: Basic Color Selection', () => {
       await expect(hueSlider).toBeDefined();
     });
 
-    test('T015: Should display colorChange event on format switch', async ({ page }) => {
+    test('T015: Should display colorChange event on format switch', async ({
+      page,
+    }) => {
       // When: User switches format
       await page.locator('[data-testid="format-selector-rgb"]').click();
 
@@ -233,7 +259,9 @@ test.describe('Color Setter Component - US1: Basic Color Selection', () => {
   });
 
   test.describe('Real-time Preview', () => {
-    test('T016: Should update color preview in real-time as user types', async ({ page }) => {
+    test('T016: Should update color preview in real-time as user types', async ({
+      page,
+    }) => {
       const hexInput = page.locator('[data-testid="hex-input"]');
       const colorPreview = page.locator('[data-testid="color-preview"]');
 
