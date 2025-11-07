@@ -101,10 +101,10 @@
 
 ### Tests for User Story 2
 
-- [ ] T033 [P] [US2] Create E2E test for WCAG panel display in `e2e/specs/color-setter/accessibility-compliance.spec.ts` - test dark blue contrast [Est: 1.5h]
-- [ ] T034 [P] [US2] Create E2E test for AA/AAA indicators in `e2e/specs/color-setter/accessibility-compliance.spec.ts` - test all 4 thresholds [Est: 2h]
-- [ ] T035 [P] [US2] Create E2E test for dynamic contrast updates in `e2e/specs/color-setter/accessibility-compliance.spec.ts` - test brightness changes [Est: 1.5h]
-- [ ] T036 [P] [US2] Create unit test for WCAGService calculations in `frontend/src/app/components/color-setter/services/__tests__/wcag.service.spec.ts` [Est: 2h]
+- [x] T033 [P] [US2] Create E2E test for WCAG panel display in `e2e/specs/color-setter/accessibility-compliance.spec.ts` - test dark blue contrast [Est: 1.5h]
+- [x] T034 [P] [US2] Create E2E test for AA/AAA indicators in `e2e/specs/color-setter/accessibility-compliance.spec.ts` - test all 4 thresholds [Est: 2h]
+- [x] T035 [P] [US2] Create E2E test for dynamic contrast updates in `e2e/specs/color-setter/accessibility-compliance.spec.ts` - test brightness changes [Est: 1.5h]
+- [x] T036 [P] [US2] Create unit test for WCAGService calculations in `frontend/src/app/components/color-setter/services/__tests__/wcag.service.spec.ts` [Est: 2h]
 
 ### Implementation for User Story 2
 
