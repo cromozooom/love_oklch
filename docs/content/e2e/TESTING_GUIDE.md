@@ -263,3 +263,221 @@ You should be able to:
 - ✅ Auto-save everything
 
 **This exceeds competitor features!** 🏆
+
+---
+
+## 🧪 E2E Testing with Playwright
+
+### Test Modes
+
+Playwright is configured with two modes for different testing scenarios:
+
+#### 🚀 **DEV Mode (Default)**
+
+Fast, minimal configuration for daily development:
+
+- ✅ Single browser: Chromium only
+- ✅ Sequential execution: `workers: 1` (no DB conflicts)
+- ✅ Reuses existing dev server
+- ✅ No retries (fail fast)
+
+```bash
+# All dev commands use this mode by default
+npm run test:ui:seed
+npm run test:color-setter:ui
+npm run test:headed
+```
+
+#### 🌙 **NIGHTLY Mode**
+
+Comprehensive testing across all desktop browsers:
+
+- ✅ All browsers: Chromium, Firefox, WebKit, Edge, Chrome
+- ✅ Parallel execution: `workers: 3` (faster)
+- ✅ 2 retries on failure
+- ✅ Fresh server start
+
+```bash
+# Run comprehensive nightly tests
+npm run test:nightly
+
+# Run nightly and open report
+npm run test:nightly:report
+```
+
+### Quick Start Commands
+
+```bash
+# DEV MODE - Fast, single browser
+npm run test:ui:seed          # UI mode with fresh DB
+npm run test:color-setter:ui  # Only color-setter tests with fresh DB
+npm run test:headed           # Headless with browser visible
+
+# NIGHTLY MODE - Comprehensive, all browsers
+npm run test:nightly          # Run on all desktop browsers
+npm run test:nightly:report   # Run + open HTML report
+
+# DATABASE
+npm run seed                  # Reset database manually
+```
+
+### Test Ordering & Database Management
+
+**Problem**: Tests may fail in UI mode if database gets polluted between test runs.
+
+**Solution**:
+
+- **DEV mode**: Tests run sequentially (`--workers=1`) to prevent conflicts
+- **NIGHTLY mode**: Fresh database seed + parallel execution with isolated workers
+
+### Available Test Commands
+
+```bash
+# DEV MODE - UI Testing (with database reset)
+npm run test:ui:seed          # All tests in UI mode with fresh DB
+npm run test:color-setter:ui  # Only color-setter tests with fresh DB
+
+# DEV MODE - UI Testing (without reset)
+npm run test:ui               # All tests in UI mode (use existing DB)
+
+# DEV MODE - Headless
+npm run test                  # All tests
+npm run test:headed           # All tests with browser visible
+npm run test:color-setter     # Only color-setter tests
+
+# NIGHTLY MODE - Comprehensive
+npm run test:nightly          # All browsers, parallel execution
+npm run test:nightly:report   # Run nightly + show HTML report
+
+# Debug Mode
+npm run test:debug            # Debug mode with Playwright inspector
+npm run test:manual           # Manual debug test
+
+# Database Management
+npm run seed                  # Reset database to clean state
+```
+
+### Best Practices
+
+#### For Daily Development (DEV Mode)
+
+1. **Always start with fresh database**:
+
+   ```bash
+   npm run test:ui:seed
+   ```
+
+2. **Run specific test files to avoid interference**:
+
+   ```bash
+   npm run test:color-setter:ui
+   ```
+
+3. **If tests fail unexpectedly**, reset the database:
+
+   ```bash
+   npm run seed
+   npm run test:ui
+   ```
+
+4. **For debugging single tests**:
+   ```bash
+   npx playwright test --grep "T020" --headed --workers=1
+   ```
+
+#### For Nightly/Comprehensive Testing
+
+1. **Run before pushing to main**:
+
+   ```bash
+   npm run test:nightly
+   ```
+
+2. **Check all browsers**:
+
+   - Chromium (most common)
+   - Firefox (CSS differences)
+   - WebKit (Safari compatibility)
+   - Edge & Chrome (branded browsers)
+
+3. **Review HTML report**:
+   ```bash
+   npm run test:nightly:report
+   ```
+
+### Understanding Test Execution
+
+#### DEV Mode
+
+- **Browser**: Chromium only
+- **Workers**: 1 (sequential)
+- **Retries**: 0 (fail fast)
+- **Server**: Reuses existing dev server
+- **Use case**: Daily development, quick feedback
+
+#### NIGHTLY Mode
+
+- **Browsers**: All 5 desktop browsers
+- **Workers**: 3 (parallel)
+- **Retries**: 2 (handle flaky tests)
+- **Server**: Fresh start
+- **Use case**: Before releases, comprehensive validation
+
+### Common Issues & Solutions
+
+| Issue                                     | Solution                      | Command                       |
+| ----------------------------------------- | ----------------------------- | ----------------------------- |
+| Tests pass individually but fail together | Run with workers=1 (DEV mode) | `npm run test:ui:seed`        |
+| Database state from previous run          | Reset database                | `npm run seed`                |
+| Tests run in wrong order                  | Already fixed in DEV mode     | Use provided scripts          |
+| UI mode shows failures                    | Use seed command              | `npm run test:ui:seed`        |
+| Need to test all browsers                 | Use NIGHTLY mode              | `npm run test:nightly`        |
+| Flaky test in one browser                 | Check nightly report          | `npm run test:nightly:report` |
+
+### Test Structure
+
+```
+e2e/
+├── specs/
+│   └── color-setter/
+│       ├── basic-color-selection.spec.ts    (13 tests)
+│       ├── accessibility-compliance.spec.ts (12 tests)
+│       └── color-conversion.spec.ts         (7 tests)
+├── fixtures/
+│   ├── auth.ts          # Login utilities
+│   └── database.ts      # Database reset fixture (advanced)
+├── playwright.config.ts # DEV vs NIGHTLY configuration
+└── global-setup.ts      # Initial database seed
+```
+
+### Configuration Summary
+
+#### DEV Mode (Default)
+
+```typescript
+{
+  fullyParallel: false,
+  workers: 1,
+  retries: 0,
+  projects: ['chromium'],
+  reuseExistingServer: true
+}
+```
+
+#### NIGHTLY Mode (NIGHTLY=true)
+
+```typescript
+{
+  fullyParallel: true,
+  workers: 3,
+  retries: 2,
+  projects: ['chromium', 'firefox', 'webkit', 'edge', 'chrome'],
+  reuseExistingServer: false
+}
+```
+
+---
+
+```
+
+```

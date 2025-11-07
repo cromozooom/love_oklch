@@ -96,274 +96,8 @@ export interface ColorChangeEvent {
  */
 @Component({
   selector: 'app-color-setter',
-  template: `
-    <div class="color-setter-container" data-testid="color-setter-component">
-      <!-- Color Preview -->
-      <div class="color-preview-section">
-        <div
-          class="color-sample"
-          [style.backgroundColor]="colorPreview()"
-          data-testid="color-preview"
-        ></div>
-        <div class="color-info">
-          <div class="color-value" data-testid="display-value">
-            {{ currentFormatValue() }}
-          </div>
-        </div>
-      </div>
-
-      <!-- Format Selector -->
-      <div class="format-selector-section">
-        <div class="format-buttons">
-          <button
-            *ngFor="let fmt of availableFormats"
-            [class.active]="format() === fmt"
-            (click)="switchFormat(fmt)"
-            [attr.data-testid]="'format-selector-' + fmt"
-            class="format-btn"
-          >
-            {{ getFormatLabel(fmt) }}
-          </button>
-        </div>
-      </div>
-
-      <!-- Color Input Controls -->
-      <div class="color-controls-section">
-        <!-- HEX Input -->
-        <div *ngIf="format() === 'hex'" class="hex-controls">
-          <input
-            type="text"
-            [(ngModel)]="hexInputValue"
-            (change)="onHexChange()"
-            (blur)="onHexChange()"
-            data-testid="hex-input"
-            placeholder="#FF0000"
-            class="hex-input"
-          />
-        </div>
-
-        <!-- RGB Sliders -->
-        <div *ngIf="format() === 'rgb'" class="rgb-controls">
-          <div class="slider-group">
-            <label>Red</label>
-            <input
-              type="range"
-              min="0"
-              max="255"
-              [(ngModel)]="rgbValues[0]"
-              (change)="onRgbChange()"
-              (input)="onRgbInput()"
-              data-testid="rgb-slider-r"
-              class="slider"
-            />
-            <span class="value-display" data-testid="rgb-value-r">
-              {{ Math.round(rgbValues[0]) }}
-            </span>
-          </div>
-
-          <div class="slider-group">
-            <label>Green</label>
-            <input
-              type="range"
-              min="0"
-              max="255"
-              [(ngModel)]="rgbValues[1]"
-              (change)="onRgbChange()"
-              (input)="onRgbInput()"
-              data-testid="rgb-slider-g"
-              class="slider"
-            />
-            <span class="value-display" data-testid="rgb-value-g">
-              {{ Math.round(rgbValues[1]) }}
-            </span>
-          </div>
-
-          <div class="slider-group">
-            <label>Blue</label>
-            <input
-              type="range"
-              min="0"
-              max="255"
-              [(ngModel)]="rgbValues[2]"
-              (change)="onRgbChange()"
-              (input)="onRgbInput()"
-              data-testid="rgb-slider-b"
-              class="slider"
-            />
-            <span class="value-display" data-testid="rgb-value-b">
-              {{ Math.round(rgbValues[2]) }}
-            </span>
-          </div>
-
-          <div class="rgb-display" data-testid="rgb-display">
-            rgb({{ Math.round(rgbValues[0]) }}, {{ Math.round(rgbValues[1]) }},
-            {{ Math.round(rgbValues[2]) }})
-          </div>
-        </div>
-
-        <!-- HSL Sliders -->
-        <div *ngIf="format() === 'hsl'" class="hsl-controls">
-          <div class="slider-group">
-            <label>Hue</label>
-            <input
-              type="range"
-              min="0"
-              max="360"
-              [(ngModel)]="hslValues[0]"
-              (change)="onHslChange()"
-              (input)="onHslInput()"
-              data-testid="hsl-slider-h"
-              class="slider"
-            />
-            <span class="value-display">{{ Math.round(hslValues[0]) }}°</span>
-          </div>
-
-          <div class="slider-group">
-            <label>Saturation</label>
-            <input
-              type="range"
-              min="0"
-              max="100"
-              step="0.1"
-              [(ngModel)]="hslValues[1]"
-              (change)="onHslChange()"
-              (input)="onHslInput()"
-              data-testid="hsl-slider-s"
-              class="slider"
-            />
-            <span class="value-display">{{ Math.round(hslValues[1]) }}%</span>
-          </div>
-
-          <div class="slider-group">
-            <label>Lightness</label>
-            <input
-              type="range"
-              min="0"
-              max="100"
-              step="0.1"
-              [(ngModel)]="hslValues[2]"
-              (change)="onHslChange()"
-              (input)="onHslInput()"
-              data-testid="hsl-slider-l"
-              class="slider"
-            />
-            <span class="value-display">{{ Math.round(hslValues[2]) }}%</span>
-          </div>
-
-          <div class="hsl-display" data-testid="hsl-display">
-            hsl({{ Math.round(hslValues[0]) }}, {{ Math.round(hslValues[1]) }}%,
-            {{ Math.round(hslValues[2]) }}%)
-          </div>
-        </div>
-
-        <!-- WCAG Accessibility Panel -->
-        <div *ngIf="showWCAG" class="wcag-section">
-          <app-wcag-panel [analysis]="wcagAnalysis()"></app-wcag-panel>
-        </div>
-      </div>
-    </div>
-  `,
-  styles: [
-    `
-      .color-setter-container {
-        padding: 1rem;
-        border-radius: 0.5rem;
-        background: white;
-        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-      }
-
-      .color-preview-section {
-        display: flex;
-        gap: 1rem;
-        margin-bottom: 1rem;
-      }
-
-      .color-sample {
-        width: 100px;
-        height: 100px;
-        border-radius: 0.5rem;
-        border: 1px solid #e5e7eb;
-        transition: background-color 0.016s linear;
-      }
-
-      .color-info {
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-      }
-
-      .color-value {
-        font-size: 1.5rem;
-        font-weight: bold;
-        font-family: monospace;
-      }
-
-      .format-selector-section {
-        margin-bottom: 1rem;
-      }
-
-      .format-buttons {
-        display: flex;
-        gap: 0.5rem;
-      }
-
-      .format-btn {
-        padding: 0.5rem 1rem;
-        border: 1px solid #d1d5db;
-        background: white;
-        border-radius: 0.25rem;
-        cursor: pointer;
-        transition: all 0.2s;
-      }
-
-      .format-btn.active {
-        background: #3b82f6;
-        color: white;
-        border-color: #3b82f6;
-      }
-
-      .hex-input {
-        width: 100%;
-        padding: 0.5rem;
-        border: 1px solid #d1d5db;
-        border-radius: 0.25rem;
-        font-family: monospace;
-        font-size: 1rem;
-      }
-
-      .slider-group {
-        display: grid;
-        grid-template-columns: 1fr 1fr 4rem;
-        gap: 1rem;
-        align-items: center;
-        margin-bottom: 1rem;
-      }
-
-      .slider-group label {
-        font-weight: 600;
-        font-size: 0.875rem;
-      }
-
-      .slider {
-        width: 100%;
-        cursor: pointer;
-      }
-
-      .value-display {
-        font-family: monospace;
-        text-align: right;
-      }
-
-      .rgb-display,
-      .hsl-display {
-        padding: 0.5rem;
-        background: #f9fafb;
-        border-radius: 0.25rem;
-        font-family: monospace;
-        font-size: 0.875rem;
-      }
-    `,
-  ],
+  templateUrl: './color-setter.component.html',
+  styleUrl: './color-setter.component.scss',
   standalone: true,
   imports: [CommonModule, FormsModule, WCAGPanelComponent],
   providers: [ColorService, WCAGService],
@@ -428,6 +162,8 @@ export class ColorSetterComponent implements OnInit {
   // ============================================================================
   // REACTIVE STATE (Angular Signals)
   // ============================================================================
+
+  versionbump = '1.0.0';
 
   // Internal color state
   private colorState = signal<ColorState>({
@@ -531,12 +267,11 @@ export class ColorSetterComponent implements OnInit {
     try {
       // Parse initial color
       const parsed = this.colorService.parse(this.initialColor);
-      const allFormats = this.colorService.toAllFormats(parsed);
 
-      // Update state
+      // Update state with EXPLICIT format from input
       this.colorState.set({
         internalValue: parsed,
-        format: this.initialFormat,
+        format: this.initialFormat, // Use input format, don't default
         gamut: this.initialGamut,
         lastUpdated: Date.now(),
       });
@@ -633,9 +368,18 @@ export class ColorSetterComponent implements OnInit {
   private updateRgbFromSliders(): void {
     try {
       const [r, g, b] = this.rgbValues;
-      const rgbString = `rgb(${Math.round(r)}, ${Math.round(g)}, ${Math.round(
-        b
-      )})`;
+
+      // Clamp values to valid ranges to prevent invalid CSS
+      const clampedR = Math.max(0, Math.min(255, r || 0));
+      const clampedG = Math.max(0, Math.min(255, g || 0));
+      const clampedB = Math.max(0, Math.min(255, b || 0));
+
+      // Update rgbValues with clamped values
+      this.rgbValues = [clampedR, clampedG, clampedB];
+
+      const rgbString = `rgb(${Math.round(clampedR)}, ${Math.round(
+        clampedG
+      )}, ${Math.round(clampedB)})`;
 
       const parsed = this.colorService.parse(rgbString);
       this.updateColorState(parsed, 'rgb');
@@ -647,9 +391,18 @@ export class ColorSetterComponent implements OnInit {
   private updateHslFromSliders(): void {
     try {
       const [h, s, l] = this.hslValues;
-      const hslString = `hsl(${Math.round(h)}, ${Math.round(s)}%, ${Math.round(
-        l
-      )}%)`;
+
+      // Clamp values to valid ranges to prevent invalid CSS
+      const clampedH = Math.max(0, Math.min(360, h || 0));
+      const clampedS = Math.max(0, Math.min(100, s || 0));
+      const clampedL = Math.max(0, Math.min(100, l || 0));
+
+      // Update hslValues with clamped values
+      this.hslValues = [clampedH, clampedS, clampedL];
+
+      const hslString = `hsl(${Math.round(clampedH)}, ${Math.round(
+        clampedS
+      )}%, ${Math.round(clampedL)}%)`;
 
       const parsed = this.colorService.parse(hslString);
       this.updateColorState(parsed, 'hsl');
@@ -666,7 +419,49 @@ export class ColorSetterComponent implements OnInit {
       lastUpdated: Date.now(),
     }));
 
-    this.updateDisplayValues();
+    // Only update display values for formats OTHER than the current one
+    // to avoid overwriting the slider values that the user is currently adjusting
+    // For example: if user is adjusting RGB sliders, don't update rgbValues
+    // This prevents precision loss and slider jumping
+    const currentFormat = this.format();
+    if (currentFormat !== format) {
+      this.updateDisplayValues();
+    } else {
+      // Still update HEX input and other formats except the current one
+      const state = this.colorState();
+      const allFormats = this.colorService.toAllFormats(state.internalValue);
+
+      // Always update HEX
+      this.hexInputValue.set(allFormats.hex);
+
+      // Update the format we're NOT currently using
+      if (format !== 'rgb') {
+        const rgbChannels = this.colorService.getChannels(
+          state.internalValue,
+          'rgb'
+        );
+        this.rgbValues = [
+          Math.max(0, Math.min(255, rgbChannels[0] || 0)),
+          Math.max(0, Math.min(255, rgbChannels[1] || 0)),
+          Math.max(0, Math.min(255, rgbChannels[2] || 0)),
+        ];
+      }
+
+      if (format !== 'hsl') {
+        const hslChannels = this.colorService.getChannels(
+          state.internalValue,
+          'hsl'
+        );
+        this.hslValues = [
+          Math.max(
+            0,
+            Math.min(360, isNaN(hslChannels[0]) ? 0 : hslChannels[0])
+          ),
+          Math.max(0, Math.min(100, hslChannels[1] || 0)),
+          Math.max(0, Math.min(100, hslChannels[2] || 0)),
+        ];
+      }
+    }
   }
 
   private updateDisplayValues(): void {
@@ -676,19 +471,29 @@ export class ColorSetterComponent implements OnInit {
     // Update HEX display
     this.hexInputValue.set(allFormats.hex);
 
-    // Update RGB sliders
+    // Update RGB sliders with clamping
     const rgbChannels = this.colorService.getChannels(
       state.internalValue,
       'rgb'
     );
-    this.rgbValues = [rgbChannels[0], rgbChannels[1], rgbChannels[2]];
+    this.rgbValues = [
+      Math.max(0, Math.min(255, rgbChannels[0] || 0)),
+      Math.max(0, Math.min(255, rgbChannels[1] || 0)),
+      Math.max(0, Math.min(255, rgbChannels[2] || 0)),
+    ];
 
-    // Update HSL sliders
+    // Update HSL sliders with clamping and NaN handling
+    // Note: Hue can be NaN for achromatic colors (black, white, grays)
+    // because hue is undefined when saturation is 0%
     const hslChannels = this.colorService.getChannels(
       state.internalValue,
       'hsl'
     );
-    this.hslValues = [hslChannels[0], hslChannels[1], hslChannels[2]];
+    this.hslValues = [
+      Math.max(0, Math.min(360, isNaN(hslChannels[0]) ? 0 : hslChannels[0])),
+      Math.max(0, Math.min(100, hslChannels[1] || 0)),
+      Math.max(0, Math.min(100, hslChannels[2] || 0)),
+    ];
   }
 
   private emitColorChange(): void {

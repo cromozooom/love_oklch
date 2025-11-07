@@ -1,14 +1,17 @@
-<div *ngIf="analysis" class="wcag-panel">
+<!-- <div *ngIf="analysis" class="wcag-panel" data-testid="wcag-panel">
+
+</div> -->
+<div *ngIf="analysis" class="wcag-panel" data-testid="wcag-panel">
   <div class="wcag-header">
     <h3 class="text-lg font-semibold text-gray-800">WCAG Compliance</h3>
   </div>
 
   <!-- White Background -->
-  <div class="wcag-section">
+  <div class="wcag-section" data-testid="wcag-white-bg">
     <div class="background-label">White Background (#FFFFFF)</div>
     <div class="contrast-ratio">
       <span class="label">Contrast:</span>
-      <span class="ratio">{{
+      <span class="ratio" data-testid="wcag-contrast-value">{{
         formatRatio(analysis.whiteBackground.ratio)
       }}</span>
     </div>
@@ -32,12 +35,17 @@
 
     <div class="compliance-grid">
       <!-- Normal AA -->
-      <div class="compliance-item">
-        <div class="threshold-label">Normal AA</div>
+      <div class="compliance-item" data-testid="wcag-normal-aa">
+        <div class="threshold-label" data-testid="wcag-normal-aa-threshold">
+          Normal AA
+        </div>
         <div class="threshold-value">4.5:1</div>
         <div
           [class]="
             'status ' +
+            getComplianceClass(analysis.whiteBackground.normalTextAA)
+          "
+          [attr.data-status]="
             getComplianceClass(analysis.whiteBackground.normalTextAA)
           "
         >
@@ -46,12 +54,17 @@
       </div>
 
       <!-- Normal AAA -->
-      <div class="compliance-item">
-        <div class="threshold-label">Normal AAA</div>
+      <div class="compliance-item" data-testid="wcag-normal-aaa">
+        <div class="threshold-label" data-testid="wcag-normal-aaa-threshold">
+          Normal AAA
+        </div>
         <div class="threshold-value">7:1</div>
         <div
           [class]="
             'status ' +
+            getComplianceClass(analysis.whiteBackground.normalTextAAA)
+          "
+          [attr.data-status]="
             getComplianceClass(analysis.whiteBackground.normalTextAAA)
           "
         >
@@ -60,12 +73,17 @@
       </div>
 
       <!-- Large AA -->
-      <div class="compliance-item">
-        <div class="threshold-label">Large AA</div>
+      <div class="compliance-item" data-testid="wcag-large-aa">
+        <div class="threshold-label" data-testid="wcag-large-aa-threshold">
+          Large AA
+        </div>
         <div class="threshold-value">3:1</div>
         <div
           [class]="
             'status ' + getComplianceClass(analysis.whiteBackground.largeTextAA)
+          "
+          [attr.data-status]="
+            getComplianceClass(analysis.whiteBackground.largeTextAA)
           "
         >
           {{ getStatusLabel(analysis.whiteBackground.largeTextAA) }}
@@ -73,12 +91,17 @@
       </div>
 
       <!-- Large AAA -->
-      <div class="compliance-item">
-        <div class="threshold-label">Large AAA</div>
+      <div class="compliance-item" data-testid="wcag-large-aaa">
+        <div class="threshold-label" data-testid="wcag-large-aaa-threshold">
+          Large AAA
+        </div>
         <div class="threshold-value">4.5:1</div>
         <div
           [class]="
             'status ' +
+            getComplianceClass(analysis.whiteBackground.largeTextAAA)
+          "
+          [attr.data-status]="
             getComplianceClass(analysis.whiteBackground.largeTextAAA)
           "
         >
@@ -116,11 +139,11 @@
   </div>
 
   <!-- Black Background -->
-  <div class="wcag-section">
+  <div class="wcag-section" data-testid="wcag-black-bg">
     <div class="background-label">Black Background (#000000)</div>
     <div class="contrast-ratio">
       <span class="label">Contrast:</span>
-      <span class="ratio">{{
+      <span class="ratio" data-testid="wcag-contrast-black">{{
         formatRatio(analysis.blackBackground.ratio)
       }}</span>
     </div>
@@ -152,6 +175,9 @@
             'status ' +
             getComplianceClass(analysis.blackBackground.normalTextAA)
           "
+          [attr.data-status]="
+            getComplianceClass(analysis.blackBackground.normalTextAA)
+          "
         >
           {{ getStatusLabel(analysis.blackBackground.normalTextAA) }}
         </div>
@@ -164,6 +190,9 @@
         <div
           [class]="
             'status ' +
+            getComplianceClass(analysis.blackBackground.normalTextAAA)
+          "
+          [attr.data-status]="
             getComplianceClass(analysis.blackBackground.normalTextAAA)
           "
         >
@@ -179,6 +208,9 @@
           [class]="
             'status ' + getComplianceClass(analysis.blackBackground.largeTextAA)
           "
+          [attr.data-status]="
+            getComplianceClass(analysis.blackBackground.largeTextAA)
+          "
         >
           {{ getStatusLabel(analysis.blackBackground.largeTextAA) }}
         </div>
@@ -191,6 +223,9 @@
         <div
           [class]="
             'status ' +
+            getComplianceClass(analysis.blackBackground.largeTextAAA)
+          "
+          [attr.data-status]="
             getComplianceClass(analysis.blackBackground.largeTextAAA)
           "
         >

@@ -125,23 +125,23 @@ export const loggingInterceptor: HttpInterceptorFn = (
 ) => {
   const startTime = Date.now();
 
-  // Log request in development mode
-  if (!isProduction()) {
-    console.log('HTTP Request:', {
-      method: req.method,
-      url: req.url,
-      headers: req.headers.keys().reduce((acc, key) => {
-        // Don't log sensitive headers
-        if (key.toLowerCase() === 'authorization') {
-          acc[key] = '[REDACTED]';
-        } else {
-          acc[key] = req.headers.get(key);
-        }
-        return acc;
-      }, {} as Record<string, string | null>),
-      body: req.body,
-    });
-  }
+  // Log request in development mode (disabled for cleaner output)
+  // if (!isProduction()) {
+  //   console.log('HTTP Request:', {
+  //     method: req.method,
+  //     url: req.url,
+  //     headers: req.headers.keys().reduce((acc, key) => {
+  //       // Don't log sensitive headers
+  //       if (key.toLowerCase() === 'authorization') {
+  //         acc[key] = '[REDACTED]';
+  //       } else {
+  //         acc[key] = req.headers.get(key);
+  //       }
+  //       return acc;
+  //     }, {} as Record<string, string | null>),
+  //     body: req.body,
+  //   });
+  // }
 
   return next(req).pipe(
     catchError((error: HttpErrorResponse) => {

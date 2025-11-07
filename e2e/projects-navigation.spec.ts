@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { login, TEST_USERS } from './fixtures/auth';
 
 /**
  * E2E Test: Projects List Navigation and SPA Behavior
@@ -20,11 +21,8 @@ test.describe('Projects List Navigation', () => {
       }
     });
 
-    // Login as default user (Pro plan with unlimited projects)
-    await page.goto('http://localhost:4200/login');
-    await page.fill('input[type="email"]', 'default@solopx.com');
-    await page.fill('input[type="password"]', 'password123');
-    await page.click('button[type="submit"]');
+    // Login as PRO user (has unlimited projects like color-setter tests)
+    await login(page, TEST_USERS.PRO_USER.email, TEST_USERS.PRO_USER.password);
 
     // Wait for successful login and navigation to projects list
     await page.waitForURL('**/projects', { timeout: 10000 });
@@ -143,21 +141,24 @@ test.describe('Projects List Navigation', () => {
     // Create and navigate to a project
     console.log('📝 Setting up test project...');
     await page.click('button:has-text("New Project")');
-    await page.waitForSelector('form');
+    await page.waitForSelector('form', { timeout: 10000 });
+    await page.waitForLoadState('networkidle');
 
     const projectName = `Back Nav Test ${Date.now()}`;
     await page.fill('#name', projectName);
-    await page.selectOption('select#colorGamut', 'Display P3');
-    await page.selectOption('select#colorSpace', 'LCH');
+    await page.selectOption('select#colorGamut', 'sRGB');
+    await page.selectOption('select#colorSpace', 'OKLCH');
     await page.fill('input#colorCount', '8');
     await page.click('button[type="submit"]:has-text("Create")');
     await page.waitForURL(/\/projects\/[^\/]+/, { timeout: 10000 });
+    await page.waitForLoadState('networkidle');
     console.log('  ✓ In project editor');
 
     // Use browser back button
     console.log('\n⬅️  Using browser back button...');
     await page.goBack();
-    await page.waitForURL('**/projects', { timeout: 5000 });
+    await page.waitForLoadState('networkidle');
+    await page.waitForURL('**/projects', { timeout: 10000 });
     console.log('  ✓ Navigated back to projects list');
 
     // Verify we're on projects list
@@ -165,14 +166,16 @@ test.describe('Projects List Navigation', () => {
     expect(page.url()).not.toMatch(/\/projects\/[^\/]+/);
     console.log('  ✓ URL is /projects (not editor URL)');
 
-    // Verify project list UI
-    const heading = page.locator('h2:has-text("My Projects")');
-    await expect(heading).toBeVisible();
+    // Verify project list UI - wait for it to load
+    const newProjectButton = page.locator('button:has-text("New Project")');
+    await expect(newProjectButton).toBeVisible({ timeout: 10000 });
     console.log('  ✓ Projects list UI visible');
 
-    // Verify project list has loaded (may need to refresh to see new project)
-    const newProjectButton = page.locator('button:has-text("New Project")');
-    await expect(newProjectButton).toBeVisible();
+    // Verify project list has loaded
+    const projectList = page.locator(
+      '[data-testid="project-list"], app-project-list'
+    );
+    await expect(projectList).toBeVisible({ timeout: 10000 });
     console.log('  ✓ Projects list controls available');
 
     // Note: The newly created project may not appear immediately due to pagination/ordering

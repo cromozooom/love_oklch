@@ -22,6 +22,7 @@ import { WCAGAnalysis } from '../../models/wcag-contrast.model';
 })
 export class WCAGPanelComponent {
   @Input() analysis: WCAGAnalysis | null = null;
+  public versionBump = 1;
 
   /**
    * Get CSS class for compliance indicator

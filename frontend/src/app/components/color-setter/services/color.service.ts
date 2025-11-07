@@ -57,8 +57,15 @@ export class ColorService {
 
       switch (targetFormat) {
         case 'hex':
-          // Convert to sRGB and then to HEX
-          result = color.to('srgb').toString({ format: 'hex' });
+          // Convert to sRGB and then to HEX (always use full 6-digit format, never shortened)
+          const rgbColor = color.to('srgb');
+          const [rVal, gVal, bVal] = rgbColor.coords.map((c) =>
+            Math.round(Math.max(0, Math.min(255, c * 255)))
+          );
+          const rHex = rVal.toString(16).padStart(2, '0');
+          const gHex = gVal.toString(16).padStart(2, '0');
+          const bHex = bVal.toString(16).padStart(2, '0');
+          result = `#${rHex}${gHex}${bHex}`.toUpperCase();
           break;
 
         case 'rgb':
@@ -167,15 +174,16 @@ export class ColorService {
       // Normalize coordinates based on format expectations
       switch (format) {
         case 'rgb':
-          // Convert from 0-1 range to 0-255
-          return coords.map((c) => c * 255);
+          // Convert from 0-1 range to 0-255 and clamp to valid range
+          return coords.map((c) => Math.max(0, Math.min(255, c * 255)));
 
         case 'hsl':
-          // HSL coordinates: H (0-360), S (0-1 -> 0-100), L (0-1 -> 0-100)
+          // HSL coordinates in colorjs.io: H (0-360), S (0-100), L (0-100)
+          // Note: S and L are already percentages, not 0-1 fractional values
           return [
-            coords[0], // Hue stays as-is
-            coords[1] * 100, // Saturation to percentage
-            coords[2] * 100, // Lightness to percentage
+            coords[0], // Hue (0-360)
+            coords[1], // Saturation (already 0-100)
+            coords[2], // Lightness (already 0-100)
           ];
 
         case 'lch':

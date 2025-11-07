@@ -134,6 +134,27 @@
       }
     </div>
 
+    <!-- Color Setter - Live Preview -->
+    <div class="form-field color-setter-field">
+      <label class="field-label">🎨 Color Picker - Live Preview</label>
+      <p class="field-hint">
+        Select colors in the
+        {{ selectedSpaceInfo()?.label || "color space" }} space ({{
+          selectedGamutInfo()?.label || "gamut"
+        }}
+        gamut)
+      </p>
+      <app-color-setter
+        [initialColor]="'#FF0000'"
+        [initialFormat]="'hex'"
+        [initialGamut]="getGamutValue()"
+        [showWCAG]="true"
+        [showColorName]="false"
+        [supportedGamuts]="['srgb', 'display-p3', 'unlimited']"
+      >
+      </app-color-setter>
+    </div>
+
     <!-- DEMO: Color Count Field (for testing history) -->
     <div class="form-field demo-field">
       <label for="colorCount" class="field-label">
@@ -187,21 +208,6 @@
         {{ isEditMode() ? "Update Project" : "Create Project" }}
         }
       </button>
-    </div>
-
-    <!-- Color Setter Component Demo -->
-    <div class="color-setter-demo">
-      <h3>🎨 Color Setter - Live Demo</h3>
-      <p class="demo-description">Try selecting and changing colors below:</p>
-      <app-color-setter
-        [initialColor]="'#FF6B6B'"
-        [initialFormat]="'rgb'"
-        [initialGamut]="'srgb'"
-        [showWCAG]="true"
-        [showColorName]="true"
-        [supportedGamuts]="['srgb', 'display-p3']"
-      >
-      </app-color-setter>
     </div>
 
     <!-- Limit Warning -->

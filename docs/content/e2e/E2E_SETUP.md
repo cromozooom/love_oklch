@@ -28,14 +28,33 @@ Before running the tests, make sure:
 
 ## Database Seeding for Tests
 
-The E2E tests automatically seed the database before each test run to ensure consistent starting state:
+The E2E tests require a clean database state to run reliably. We use automatic database seeding with proper test isolation.
 
-- **Automatic**: The `globalSetup` in `playwright.config.ts` runs `npm run db:seed:e2e` before tests
-- **Manual seeding**: You can manually seed the database with:
-  ```powershell
-  cd backend
-  npm run db:seed:e2e
-  ```
+### Quick Commands
+
+```bash
+# Run tests with fresh database (RECOMMENDED)
+npm run test:ui:seed
+
+# Run specific test suite
+npm run test:color-setter:ui
+
+# Manual database reset
+npm run seed
+```
+
+### How Database Seeding Works
+
+1. **Global Setup**: `playwright.config.ts` runs `npm run db:seed:e2e` once before all tests
+2. **Test Isolation**: Tests run sequentially (`--workers=1`) to prevent conflicts
+3. **Seed Command**: Clears all tables and reseeds from `backend/database/seeds/seed-data.json`
+
+### Manual Seeding
+
+```powershell
+cd backend
+npm run db:seed:e2e
+```
 
 This command:
 
@@ -47,6 +66,28 @@ This command:
 
 - **Location**: `backend/database/seeds/seed-data.json`
 - **Script**: `backend/src/database/seed.ts` (with `--reset` flag for E2E)
+
+### Database Pollution Prevention
+
+**Problem**: Tests may fail when run in different orders because database state from one test affects another.
+
+**Solution**: All test commands now include `--workers=1` flag to run tests sequentially:
+
+```json
+{
+  "test:ui": "playwright test --ui --workers=1",
+  "test:ui:seed": "npm run seed && playwright test --ui --workers=1",
+  "test:headed": "playwright test --headed --workers=1",
+  "test:color-setter": "playwright test specs/color-setter --workers=1"
+}
+```
+
+### Best Practices
+
+1. **Always use `npm run test:ui:seed`** for UI testing
+2. **Run specific test files** to avoid interference between test suites
+3. **Reset database manually** if tests fail unexpectedly: `npm run seed`
+4. **Use sequential execution** with `--workers=1` flag
 
 ### ⚠️ Important: UI Mode (`--ui`) Does NOT Run Global Setup
 
@@ -296,11 +337,92 @@ Test user credentials:
 
 ### Issue: Database conflicts
 
-**Solution:** Tests run sequentially, but if you run multiple test sessions in parallel, they may conflict
+**Solution:** Use `npm run test:ui:seed` which runs tests sequentially with `--workers=1`. If running multiple terminal sessions, only run one at a time.
+
+### Issue: Tests pass individually but fail when run together
+
+**Solution:** Database pollution issue. Run with: `npm run test:ui:seed` to reset database and use sequential execution.
+
+### Issue: Test order in UI mode causes failures
+
+**Solution:** Already fixed in config with `fullyParallel: false` and `workers: 1`. Always use `npm run test:ui:seed`.
 
 ### Issue: colorCount not appearing
 
 **Solution:** Run the API response test to see if backend is returning the field
+
+## Test User Configuration
+
+### Architecture: Single Source of Truth
+
+```
+backend/database/seeds/seed-data.json  ← SOURCE OF TRUTH
+           ↓ (manual sync)
+e2e/config/test-config.ts  ← SYNCED COPY
+           ↓ (imports)
+e2e/fixtures/auth.ts  ← AUTH UTILITIES
+           ↓ (used by)
+E2E Test Specs
+```
+
+### Available Test Users
+
+All test users are synced from `backend/database/seeds/seed-data.json` to `e2e/config/test-config.ts`:
+
+| Constant       | Email                     | Password      | Plan  | Purpose                 |
+| -------------- | ------------------------- | ------------- | ----- | ----------------------- |
+| `FREE_USER`    | `free.user@example.com`   | `password123` | free  | Test free tier          |
+| `BASIC_USER`   | `basic.user@example.com`  | `password123` | basic | Test basic tier         |
+| `PRO_USER`     | `pro.user@example.com`    | `password123` | pro   | Test pro tier (default) |
+| `ADMIN`        | `admin@solopx.com`        | `password123` | admin | Test admin functions    |
+| `DEFAULT`      | `default@solopx.com`      | `password123` | pro   | General pro user        |
+| `SUBSCRIPTION` | `subscription@solopx.com` | `password123` | pro   | Test subscriptions      |
+
+### Using Test Users in Tests
+
+```typescript
+// Import from fixtures
+import { login, loginAsUser, TEST_USERS } from "../../fixtures/auth";
+
+// Method 1: Direct login
+await login(page, TEST_USERS.PRO_USER.email, TEST_USERS.PRO_USER.password);
+
+// Method 2: Using helper
+await loginAsUser(page, TEST_USERS.PRO_USER);
+
+// Method 3: In beforeEach hook
+test.beforeEach(async ({ page }) => {
+  await loginAsUser(page, TEST_USERS.PRO_USER);
+});
+```
+
+### Updating Test Users
+
+When backend seed data changes:
+
+```bash
+# 1. Edit backend seeds
+vim backend/database/seeds/seed-data.json
+# Update users and subscriptions
+
+# 2. Sync to E2E config
+vim e2e/config/test-config.ts
+# Update E2E_TEST_USERS to match
+
+# 3. Commit together
+git add backend/database/seeds/seed-data.json e2e/config/test-config.ts
+git commit -m "refactor: sync test users"
+```
+
+### Field Mapping
+
+| Backend                                    | E2E Config | Example                                |
+| ------------------------------------------ | ---------- | -------------------------------------- |
+| `users[].email`                            | `email`    | `pro.user@example.com`                 |
+| `users[].name`                             | `name`     | `Pro User`                             |
+| `users[].user_id`                          | `userId`   | `20000000-0000-0000-0000-000000000003` |
+| `subscriptions[].plan_id` → `plans[].slug` | `plan`     | `pro`                                  |
+| (hardcoded for E2E)                        | `password` | `password123`                          |
 
 ## Next Steps
 

@@ -365,6 +365,25 @@ export class ProjectFormComponent implements OnInit, OnDestroy {
     return space ? ColorEnumHelpers.getColorSpaceInfo(space) : null;
   }
 
+  /**
+   * Get the gamut value for the color setter component
+   * Maps the form's colorGamut enum to GamutProfile type
+   */
+  getGamutValue(): 'srgb' | 'display-p3' | 'unlimited' {
+    const gamut = this.projectForm.get('colorGamut')?.value as ColorGamut;
+
+    switch (gamut) {
+      case ColorGamut.SRGB:
+        return 'srgb';
+      case ColorGamut.DISPLAY_P3:
+        return 'display-p3';
+      case ColorGamut.UNLIMITED:
+        return 'unlimited';
+      default:
+        return 'srgb'; // Default fallback
+    }
+  }
+
   private markAllFieldsAsTouched(): void {
     Object.keys(this.projectForm.controls).forEach((key) => {
       this.projectForm.get(key)?.markAsTouched();

@@ -26,6 +26,7 @@
     "docker:up": "docker-compose -f docker/docker-compose.yml up -d",
     "docker:down": "docker-compose -f docker/docker-compose.yml down",
     "docker:logs": "docker-compose -f docker/docker-compose.yml logs -f",
+    "generate:e2e-config": "node scripts/generate-e2e-config.js",
     "setup": "npm install && npm run db:generate && npm run docker:up"
   },
   "keywords": [
