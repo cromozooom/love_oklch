@@ -24,7 +24,7 @@ export class ColorPreviewComponent {
   get colorPreview(): string {
     try {
       const rgb = this.color.to('srgb');
-      const [r, g, b] = rgb.coords.map(c => Math.round(c * 255));
+      const [r, g, b] = rgb.coords.map((c) => Math.round(c * 255));
       return `rgb(${r}, ${g}, ${b})`;
     } catch {
       return '#FF0000';

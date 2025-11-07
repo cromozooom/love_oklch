@@ -435,11 +435,11 @@ export class ColorSetterComponent implements OnInit {
   // Current gamut
   gamut = signal<GamutProfile>('srgb');
 
-  // Slider values for RGB (0-255)
-  rgbValues = signal<[number, number, number]>([255, 0, 0]);
+  // Slider values for RGB (0-255) - regular property for ngModel binding
+  rgbValues: [number, number, number] = [255, 0, 0];
 
-  // Slider values for HSL (H: 0-360, S: 0-100, L: 0-100)
-  hslValues = signal<[number, number, number]>([0, 100, 50]);
+  // Slider values for HSL (H: 0-360, S: 0-100, L: 0-100) - regular property for ngModel binding
+  hslValues: [number, number, number] = [0, 100, 50];
 
   // HEX input value
   hexInputValue = signal<string>('#FF0000');
@@ -469,11 +469,9 @@ export class ColorSetterComponent implements OnInit {
         case 'hex':
           return this.hexInputValue();
         case 'rgb':
-          return `rgb(${this.rgbValues()
-            .map((v) => Math.round(v))
-            .join(', ')})`;
+          return `rgb(${this.rgbValues.map((v) => Math.round(v)).join(', ')})`;
         case 'hsl':
-          const [h, s, l] = this.hslValues();
+          const [h, s, l] = this.hslValues;
           return `hsl(${Math.round(h)}, ${Math.round(s)}%, ${Math.round(l)}%)`;
         default:
           return this.hexInputValue();
@@ -611,7 +609,7 @@ export class ColorSetterComponent implements OnInit {
 
   private updateRgbFromSliders(): void {
     try {
-      const [r, g, b] = this.rgbValues();
+      const [r, g, b] = this.rgbValues;
       const rgbString = `rgb(${Math.round(r)}, ${Math.round(g)}, ${Math.round(
         b
       )})`;
@@ -625,7 +623,7 @@ export class ColorSetterComponent implements OnInit {
 
   private updateHslFromSliders(): void {
     try {
-      const [h, s, l] = this.hslValues();
+      const [h, s, l] = this.hslValues;
       const hslString = `hsl(${Math.round(h)}, ${Math.round(s)}%, ${Math.round(
         l
       )}%)`;
@@ -660,14 +658,14 @@ export class ColorSetterComponent implements OnInit {
       state.internalValue,
       'rgb'
     );
-    this.rgbValues.set([rgbChannels[0], rgbChannels[1], rgbChannels[2]]);
+    this.rgbValues = [rgbChannels[0], rgbChannels[1], rgbChannels[2]];
 
     // Update HSL sliders
     const hslChannels = this.colorService.getChannels(
       state.internalValue,
       'hsl'
     );
-    this.hslValues.set([hslChannels[0], hslChannels[1], hslChannels[2]]);
+    this.hslValues = [hslChannels[0], hslChannels[1], hslChannels[2]];
   }
 
   private emitColorChange(): void {

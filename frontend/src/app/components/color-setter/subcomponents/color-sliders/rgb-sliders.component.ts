@@ -28,11 +28,23 @@ export class RgbSlidersComponent {
   protected Math = Math;
 
   onRgbInput(): void {
-    this.rgbInput.emit([this.rgbValues[0], this.rgbValues[1], this.rgbValues[2]]);
+    this.rgbInput.emit([
+      this.rgbValues[0],
+      this.rgbValues[1],
+      this.rgbValues[2],
+    ]);
   }
 
   onRgbChange(): void {
-    this.rgbValuesChange.emit([this.rgbValues[0], this.rgbValues[1], this.rgbValues[2]]);
-    this.rgbChange.emit([this.rgbValues[0], this.rgbValues[1], this.rgbValues[2]]);
+    this.rgbValuesChange.emit([
+      this.rgbValues[0],
+      this.rgbValues[1],
+      this.rgbValues[2],
+    ]);
+    this.rgbChange.emit([
+      this.rgbValues[0],
+      this.rgbValues[1],
+      this.rgbValues[2],
+    ]);
   }
 }

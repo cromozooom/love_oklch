@@ -1,0 +1,54 @@
+<div data-testid="hsl-sliders">
+  <div>
+    <label for="hsl-h">Hue</label>
+    <input
+      id="hsl-h"
+      type="range"
+      min="0"
+      max="360"
+      step="1"
+      [(ngModel)]="hslValues[0]"
+      (change)="onHslChange()"
+      (input)="onHslInput()"
+      data-testid="hsl-slider-h"
+    />
+    <span data-testid="hsl-value-h">{{ Math.round(hslValues[0]) }}°</span>
+  </div>
+
+  <div>
+    <label for="hsl-s">Saturation</label>
+    <input
+      id="hsl-s"
+      type="range"
+      min="0"
+      max="100"
+      step="0.1"
+      [(ngModel)]="hslValues[1]"
+      (change)="onHslChange()"
+      (input)="onHslInput()"
+      data-testid="hsl-slider-s"
+    />
+    <span data-testid="hsl-value-s">{{ Math.round(hslValues[1]) }}%</span>
+  </div>
+
+  <div>
+    <label for="hsl-l">Lightness</label>
+    <input
+      id="hsl-l"
+      type="range"
+      min="0"
+      max="100"
+      step="0.1"
+      [(ngModel)]="hslValues[2]"
+      (change)="onHslChange()"
+      (input)="onHslInput()"
+      data-testid="hsl-slider-l"
+    />
+    <span data-testid="hsl-value-l">{{ Math.round(hslValues[2]) }}%</span>
+  </div>
+
+  <div data-testid="hsl-display">
+    hsl({{ Math.round(hslValues[0]) }}, {{ Math.round(hslValues[1]) }}%,
+    {{ Math.round(hslValues[2]) }}%)
+  </div>
+</div>
