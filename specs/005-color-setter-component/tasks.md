@@ -64,17 +64,17 @@
 
 ### Tests for User Story 1
 
-- [ ] T013 [P] [US1] Create E2E test for HEX color input in `e2e/specs/color-setter/basic-color-selection.spec.ts` - test "#00FF00" input [Est: 1.5h]
-- [ ] T014 [P] [US1] Create E2E test for RGB slider interaction in `e2e/specs/color-setter/basic-color-selection.spec.ts` - test rgb(128,64,192) [Est: 2h]
-- [ ] T015 [P] [US1] Create E2E test for HSL format switching in `e2e/specs/color-setter/basic-color-selection.spec.ts` - test color preservation [Est: 2h]
-- [ ] T016 [P] [US1] Create unit test for ColorService conversion methods in `frontend/src/app/components/color-setter/services/__tests__/color.service.spec.ts` [Est: 2h]
+- [x] T013 [P] [US1] Create E2E test for HEX color input in `e2e/specs/color-setter/basic-color-selection.spec.ts` - test "#00FF00" input [Est: 1.5h]
+- [x] T014 [P] [US1] Create E2E test for RGB slider interaction in `e2e/specs/color-setter/basic-color-selection.spec.ts` - test rgb(128,64,192) [Est: 2h]
+- [x] T015 [P] [US1] Create E2E test for HSL format switching in `e2e/specs/color-setter/basic-color-selection.spec.ts` - test color preservation [Est: 2h]
+- [x] T016 [P] [US1] Create unit test for ColorService conversion methods in `frontend/src/app/components/color-setter/services/__tests__/color.service.spec.ts` [Est: 2h]
 
 ### Implementation for User Story 1
 
-- [ ] T017 [P] [US1] Implement ColorService.toAllFormats() method in `frontend/src/app/components/color-setter/services/color.service.ts` [Est: 2h]
-- [ ] T018 [P] [US1] Implement ColorService.getChannels() for RGB/HSL in `frontend/src/app/components/color-setter/services/color.service.ts` [Est: 1.5h]
-- [ ] T019 [P] [US1] Implement ColorService.setChannel() for updating individual channels in `frontend/src/app/components/color-setter/services/color.service.ts` [Est: 1.5h]
-- [ ] T020 [US1] Create main ColorSetterComponent with Angular Signals state in `frontend/src/app/components/color-setter/color-setter.component.ts` [Est: 3h]
+- [x] T017 [P] [US1] Implement ColorService.toAllFormats() method in `frontend/src/app/components/color-setter/services/color.service.ts` [Est: 2h]
+- [x] T018 [P] [US1] Implement ColorService.getChannels() for RGB/HSL in `frontend/src/app/components/color-setter/services/color.service.ts` [Est: 1.5h]
+- [x] T019 [P] [US1] Implement ColorService.setChannel() for updating individual channels in `frontend/src/app/components/color-setter/services/color.service.ts` [Est: 1.5h]
+- [x] T020 [US1] Create main ColorSetterComponent with Angular Signals state in `frontend/src/app/components/color-setter/color-setter.component.ts` [Est: 3h]
 - [ ] T021 [US1] Implement component inputs (initialColor, initialFormat) in `frontend/src/app/components/color-setter/color-setter.component.ts` [Est: 1h]
 - [ ] T022 [US1] Implement component output (colorChange event) in `frontend/src/app/components/color-setter/color-setter.component.ts` [Est: 1h]
 - [ ] T023 [P] [US1] Create format selector subcomponent UI in `frontend/src/app/components/color-setter/subcomponents/format-selector/format-selector.component.ts` [Est: 2h]
