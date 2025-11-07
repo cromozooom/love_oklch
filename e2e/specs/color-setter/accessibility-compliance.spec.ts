@@ -40,7 +40,9 @@ test.describe('User Story 2: Accessibility Compliance Checking', () => {
       await expect(wcagPanel).toBeVisible();
 
       // Verify panel contains contrast ratio information
-      const contrastDisplay = page.locator('[data-testid="wcag-contrast-value"]');
+      const contrastDisplay = page.locator(
+        '[data-testid="wcag-contrast-value"]'
+      );
       await expect(contrastDisplay).toBeVisible();
 
       // For dark blue (#00008B) on white background:
@@ -124,10 +126,18 @@ test.describe('User Story 2: Accessibility Compliance Checking', () => {
     });
 
     test('should show correct threshold values (4.5:1, 7:1, 3:1, 4.5:1)', async () => {
-      const normalAAValue = page.locator('[data-testid="wcag-normal-aa-threshold"]');
-      const normalAAAValue = page.locator('[data-testid="wcag-normal-aaa-threshold"]');
-      const largeAAValue = page.locator('[data-testid="wcag-large-aa-threshold"]');
-      const largeAAAValue = page.locator('[data-testid="wcag-large-aaa-threshold"]');
+      const normalAAValue = page.locator(
+        '[data-testid="wcag-normal-aa-threshold"]'
+      );
+      const normalAAAValue = page.locator(
+        '[data-testid="wcag-normal-aaa-threshold"]'
+      );
+      const largeAAValue = page.locator(
+        '[data-testid="wcag-large-aa-threshold"]'
+      );
+      const largeAAAValue = page.locator(
+        '[data-testid="wcag-large-aaa-threshold"]'
+      );
 
       await expect(normalAAValue).toContainText('4.5:1');
       await expect(normalAAAValue).toContainText('7:1');
@@ -141,7 +151,7 @@ test.describe('User Story 2: Accessibility Compliance Checking', () => {
       await page.keyboard.press('Enter');
 
       const passIndicator = page.locator('[data-testid="wcag-normal-aa"]');
-      
+
       // Pass indicators should have specific styling (green background expected)
       const classList = await passIndicator.getAttribute('class');
       expect(classList).toContain('pass');
@@ -155,7 +165,9 @@ test.describe('User Story 2: Accessibility Compliance Checking', () => {
       await redSlider.fill('255');
       await page.keyboard.press('Enter');
 
-      const initialContrast = page.locator('[data-testid="wcag-contrast-value"]');
+      const initialContrast = page.locator(
+        '[data-testid="wcag-contrast-value"]'
+      );
       const initialValue = await initialContrast.innerText();
 
       // Decrease red brightness to 128
@@ -178,7 +190,7 @@ test.describe('User Story 2: Accessibility Compliance Checking', () => {
       await page.waitForTimeout(100);
 
       const lightnessSlider = page.locator('[data-testid="hsl-slider-l"]');
-      
+
       // Get initial contrast at lightness=50
       let currentContrast = page.locator('[data-testid="wcag-contrast-value"]');
       let value1 = await currentContrast.innerText();
@@ -236,7 +248,7 @@ test.describe('User Story 2: Accessibility Compliance Checking', () => {
       await hexInput.fill('#00008B');
       await page.keyboard.press('Enter');
       await page.waitForTimeout(100);
-      
+
       let status = await normalTextAA.getAttribute('data-status');
       expect(status).toBe('pass');
 

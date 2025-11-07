@@ -43,4 +43,22 @@ export class WCAGPanelComponent {
   getStatusLabel(passes: boolean): string {
     return passes ? 'PASS' : 'FAIL';
   }
+
+  /**
+   * Get color for contrast ratio bar (gradient from red to green)
+   * Red: 0-4.5, Yellow: 4.5-7, Green: 7+
+   */
+  getContrastBarColor(ratio: number): string {
+    if (ratio < 3) return '#ef4444'; // Red
+    if (ratio < 4.5) return '#f97316'; // Orange
+    if (ratio < 7) return '#eab308'; // Yellow
+    return '#22c55e'; // Green
+  }
+
+  /**
+   * Get percentage width for contrast bar (max 21:1)
+   */
+  getContrastBarWidth(ratio: number): number {
+    return Math.min((ratio / 21) * 100, 100);
+  }
 }

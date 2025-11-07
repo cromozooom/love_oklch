@@ -151,7 +151,17 @@ export class ColorService {
         return []; // HEX has no channels
       }
 
-      const converted = color.to(format);
+      // Map format names to colorjs.io color space names
+      const spaceMap: Record<ColorFormat, string> = {
+        hex: 'srgb', // Not used (handled above)
+        rgb: 'srgb',
+        hsl: 'hsl',
+        lch: 'lch',
+        oklch: 'oklch',
+        lab: 'lab',
+      };
+
+      const converted = color.to(spaceMap[format]);
       const coords = [...converted.coords];
 
       // Normalize coordinates based on format expectations
@@ -204,7 +214,17 @@ export class ColorService {
     value: number
   ): Color {
     try {
-      const converted = color.to(format);
+      // Map format names to colorjs.io color space names
+      const spaceMap: Record<ColorFormat, string> = {
+        hex: 'srgb', // Not used here
+        rgb: 'srgb',
+        hsl: 'hsl',
+        lch: 'lch',
+        oklch: 'oklch',
+        lab: 'lab',
+      };
+
+      const converted = color.to(spaceMap[format]);
       const coords = [...converted.coords];
 
       if (channelIndex < 0 || channelIndex >= coords.length) {
@@ -244,8 +264,8 @@ export class ColorService {
 
       coords[channelIndex] = normalizedValue;
 
-      // Create new color with updated coordinates
-      const newColor = new Color(format);
+      // Create new color with updated coordinates in the correct color space
+      const newColor = new Color(spaceMap[format]);
       (newColor.coords as any) = coords;
 
       return newColor;

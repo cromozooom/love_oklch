@@ -2,11 +2,16 @@
  * WCAG Contrast Ratio Models
  *
  * Defines interfaces for WCAG 2.1 accessibility compliance checking.
- * Supports 4 thresholds:
+ *
+ * **Text Thresholds:**
  * - Normal Text AA: 4.5:1
  * - Normal Text AAA: 7:1
  * - Large Text AA: 3:1
  * - Large Text AAA: 4.5:1
+ *
+ * **Graphical Objects & UI Components Thresholds:**
+ * - Graphical AA: 3:1
+ * - Graphical AAA: 4.5:1
  */
 
 /**
@@ -17,17 +22,25 @@ export interface WCAGResult {
   /** The contrast ratio (luminance-based, 1:1 to 21:1) */
   ratio: number;
 
+  // ===== TEXT CONTRAST THRESHOLDS =====
   /** Pass/fail for normal text AA (4.5:1) */
-  normalAA: boolean;
+  normalTextAA: boolean;
 
   /** Pass/fail for normal text AAA (7:1) */
-  normalAAA: boolean;
+  normalTextAAA: boolean;
 
   /** Pass/fail for large text AA (3:1) */
-  largeAA: boolean;
+  largeTextAA: boolean;
 
   /** Pass/fail for large text AAA (4.5:1) */
-  largeAAA: boolean;
+  largeTextAAA: boolean;
+
+  // ===== GRAPHICAL OBJECTS & UI COMPONENTS THRESHOLDS =====
+  /** Pass/fail for graphical objects/UI components AA (3:1) */
+  graphicalAA: boolean;
+
+  /** Pass/fail for graphical objects/UI components AAA (4.5:1) */
+  graphicalAAA: boolean;
 }
 
 /**

@@ -4,11 +4,9 @@
  * Provides WCAG 2.1 accessibility compliance calculations using colorjs.io
  * for accurate contrast ratio computation between colors.
  *
- * Implements 4 compliance thresholds:
- * - Normal Text AA: 4.5:1
- * - Normal Text AAA: 7:1
- * - Large Text AA: 3:1
- * - Large Text AAA: 4.5:1
+ * Implements 6 compliance thresholds:
+ * - Text: Normal AA (4.5:1), Normal AAA (7:1), Large AA (3:1), Large AAA (4.5:1)
+ * - Graphical Objects & UI: AA (3:1), AAA (4.5:1)
  */
 
 import { Injectable } from '@angular/core';
@@ -16,14 +14,18 @@ import Color from 'colorjs.io';
 import { WCAGResult, WCAGAnalysis } from '../models/wcag-contrast.model';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class WCAGService {
-  // Standard WCAG thresholds
+  // ===== TEXT CONTRAST THRESHOLDS =====
   private readonly NORMAL_TEXT_AA = 4.5;
   private readonly NORMAL_TEXT_AAA = 7;
   private readonly LARGE_TEXT_AA = 3;
   private readonly LARGE_TEXT_AAA = 4.5;
+
+  // ===== GRAPHICAL OBJECTS & UI COMPONENTS THRESHOLDS =====
+  private readonly GRAPHICAL_AA = 3;
+  private readonly GRAPHICAL_AAA = 4.5;
 
   // Standard backgrounds
   private readonly WHITE = '#FFFFFF';
@@ -53,7 +55,10 @@ export class WCAGService {
       const ratio = (lighter + 0.05) / (darker + 0.05);
       return Math.round(ratio * 100) / 100; // Round to 2 decimal places
     } catch (error) {
-      console.error(`Error calculating contrast between ${foreground} and ${background}:`, error);
+      console.error(
+        `Error calculating contrast between ${foreground} and ${background}:`,
+        error
+      );
       return 0;
     }
   }
@@ -82,25 +87,39 @@ export class WCAGService {
 
       const whiteResult: WCAGResult = {
         ratio: whiteContrast,
-        normalAA: this.passes(whiteContrast, this.NORMAL_TEXT_AA),
-        normalAAA: this.passes(whiteContrast, this.NORMAL_TEXT_AAA),
-        largeAA: this.passes(whiteContrast, this.LARGE_TEXT_AA),
-        largeAAA: this.passes(whiteContrast, this.LARGE_TEXT_AAA),
+        normalTextAA: this.passes(whiteContrast, this.NORMAL_TEXT_AA),
+        normalTextAAA: this.passes(whiteContrast, this.NORMAL_TEXT_AAA),
+        largeTextAA: this.passes(whiteContrast, this.LARGE_TEXT_AA),
+        largeTextAAA: this.passes(whiteContrast, this.LARGE_TEXT_AAA),
+        graphicalAA: this.passes(whiteContrast, this.GRAPHICAL_AA),
+        graphicalAAA: this.passes(whiteContrast, this.GRAPHICAL_AAA),
       };
 
       const blackResult: WCAGResult = {
         ratio: blackContrast,
-        normalAA: this.passes(blackContrast, this.NORMAL_TEXT_AA),
-        normalAAA: this.passes(blackContrast, this.NORMAL_TEXT_AAA),
-        largeAA: this.passes(blackContrast, this.LARGE_TEXT_AA),
-        largeAAA: this.passes(blackContrast, this.LARGE_TEXT_AAA),
+        normalTextAA: this.passes(blackContrast, this.NORMAL_TEXT_AA),
+        normalTextAAA: this.passes(blackContrast, this.NORMAL_TEXT_AAA),
+        largeTextAA: this.passes(blackContrast, this.LARGE_TEXT_AA),
+        largeTextAAA: this.passes(blackContrast, this.LARGE_TEXT_AAA),
+        graphicalAA: this.passes(blackContrast, this.GRAPHICAL_AA),
+        graphicalAAA: this.passes(blackContrast, this.GRAPHICAL_AAA),
       };
 
-      // Overall compliance: passes AA if any background passes, same for AAA
-      const passesAA = whiteResult.normalAA || whiteResult.largeAA || 
-                       blackResult.normalAA || blackResult.largeAA;
-      const passesAAA = whiteResult.normalAAA || whiteResult.largeAAA || 
-                        blackResult.normalAAA || blackResult.largeAAA;
+      // Overall compliance: passes AA if any threshold passes, same for AAA
+      const passesAA =
+        whiteResult.normalTextAA ||
+        whiteResult.largeTextAA ||
+        whiteResult.graphicalAA ||
+        blackResult.normalTextAA ||
+        blackResult.largeTextAA ||
+        blackResult.graphicalAA;
+      const passesAAA =
+        whiteResult.normalTextAAA ||
+        whiteResult.largeTextAAA ||
+        whiteResult.graphicalAAA ||
+        blackResult.normalTextAAA ||
+        blackResult.largeTextAAA ||
+        blackResult.graphicalAAA;
 
       return {
         whiteBackground: whiteResult,
@@ -111,8 +130,24 @@ export class WCAGService {
     } catch (error) {
       console.error(`Error analyzing color ${color}:`, error);
       return {
-        whiteBackground: { ratio: 0, normalAA: false, normalAAA: false, largeAA: false, largeAAA: false },
-        blackBackground: { ratio: 0, normalAA: false, normalAAA: false, largeAA: false, largeAAA: false },
+        whiteBackground: {
+          ratio: 0,
+          normalTextAA: false,
+          normalTextAAA: false,
+          largeTextAA: false,
+          largeTextAAA: false,
+          graphicalAA: false,
+          graphicalAAA: false,
+        },
+        blackBackground: {
+          ratio: 0,
+          normalTextAA: false,
+          normalTextAAA: false,
+          largeTextAA: false,
+          largeTextAAA: false,
+          graphicalAA: false,
+          graphicalAAA: false,
+        },
         passesAA: false,
         passesAAA: false,
       };
@@ -140,7 +175,10 @@ export class WCAGService {
    * @returns Luminance value
    */
   private getLuminanceChannel(channel: number): number {
-    const value = channel <= 0.03928 ? channel / 12.92 : Math.pow((channel + 0.055) / 1.055, 2.4);
+    const value =
+      channel <= 0.03928
+        ? channel / 12.92
+        : Math.pow((channel + 0.055) / 1.055, 2.4);
     return value;
   }
 }

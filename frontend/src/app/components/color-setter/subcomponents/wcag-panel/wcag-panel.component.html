@@ -8,7 +8,26 @@
     <div class="background-label">White Background (#FFFFFF)</div>
     <div class="contrast-ratio">
       <span class="label">Contrast:</span>
-      <span class="ratio">{{ formatRatio(analysis.whiteBackground.ratio) }}</span>
+      <span class="ratio">{{
+        formatRatio(analysis.whiteBackground.ratio)
+      }}</span>
+    </div>
+
+    <!-- Contrast Ratio Visual Bar -->
+    <div class="contrast-bar-container">
+      <div
+        class="contrast-bar"
+        [style.width.%]="getContrastBarWidth(analysis.whiteBackground.ratio)"
+        [style.backgroundColor]="
+          getContrastBarColor(analysis.whiteBackground.ratio)
+        "
+      ></div>
+    </div>
+    <div class="bar-scale">
+      <span>1:1</span>
+      <span>4.5:1</span>
+      <span>7:1</span>
+      <span>21:1</span>
     </div>
 
     <div class="compliance-grid">
@@ -16,8 +35,13 @@
       <div class="compliance-item">
         <div class="threshold-label">Normal AA</div>
         <div class="threshold-value">4.5:1</div>
-        <div [class]="'status ' + getComplianceClass(analysis.whiteBackground.normalAA)">
-          {{ getStatusLabel(analysis.whiteBackground.normalAA) }}
+        <div
+          [class]="
+            'status ' +
+            getComplianceClass(analysis.whiteBackground.normalTextAA)
+          "
+        >
+          {{ getStatusLabel(analysis.whiteBackground.normalTextAA) }}
         </div>
       </div>
 
@@ -25,8 +49,13 @@
       <div class="compliance-item">
         <div class="threshold-label">Normal AAA</div>
         <div class="threshold-value">7:1</div>
-        <div [class]="'status ' + getComplianceClass(analysis.whiteBackground.normalAAA)">
-          {{ getStatusLabel(analysis.whiteBackground.normalAAA) }}
+        <div
+          [class]="
+            'status ' +
+            getComplianceClass(analysis.whiteBackground.normalTextAAA)
+          "
+        >
+          {{ getStatusLabel(analysis.whiteBackground.normalTextAAA) }}
         </div>
       </div>
 
@@ -34,8 +63,12 @@
       <div class="compliance-item">
         <div class="threshold-label">Large AA</div>
         <div class="threshold-value">3:1</div>
-        <div [class]="'status ' + getComplianceClass(analysis.whiteBackground.largeAA)">
-          {{ getStatusLabel(analysis.whiteBackground.largeAA) }}
+        <div
+          [class]="
+            'status ' + getComplianceClass(analysis.whiteBackground.largeTextAA)
+          "
+        >
+          {{ getStatusLabel(analysis.whiteBackground.largeTextAA) }}
         </div>
       </div>
 
@@ -43,8 +76,40 @@
       <div class="compliance-item">
         <div class="threshold-label">Large AAA</div>
         <div class="threshold-value">4.5:1</div>
-        <div [class]="'status ' + getComplianceClass(analysis.whiteBackground.largeAAA)">
-          {{ getStatusLabel(analysis.whiteBackground.largeAAA) }}
+        <div
+          [class]="
+            'status ' +
+            getComplianceClass(analysis.whiteBackground.largeTextAAA)
+          "
+        >
+          {{ getStatusLabel(analysis.whiteBackground.largeTextAAA) }}
+        </div>
+      </div>
+
+      <!-- Graphical AA -->
+      <div class="compliance-item">
+        <div class="threshold-label">Graphical AA</div>
+        <div class="threshold-value">3:1</div>
+        <div
+          [class]="
+            'status ' + getComplianceClass(analysis.whiteBackground.graphicalAA)
+          "
+        >
+          {{ getStatusLabel(analysis.whiteBackground.graphicalAA) }}
+        </div>
+      </div>
+
+      <!-- Graphical AAA -->
+      <div class="compliance-item">
+        <div class="threshold-label">Graphical AAA</div>
+        <div class="threshold-value">4.5:1</div>
+        <div
+          [class]="
+            'status ' +
+            getComplianceClass(analysis.whiteBackground.graphicalAAA)
+          "
+        >
+          {{ getStatusLabel(analysis.whiteBackground.graphicalAAA) }}
         </div>
       </div>
     </div>
@@ -55,7 +120,26 @@
     <div class="background-label">Black Background (#000000)</div>
     <div class="contrast-ratio">
       <span class="label">Contrast:</span>
-      <span class="ratio">{{ formatRatio(analysis.blackBackground.ratio) }}</span>
+      <span class="ratio">{{
+        formatRatio(analysis.blackBackground.ratio)
+      }}</span>
+    </div>
+
+    <!-- Contrast Ratio Visual Bar -->
+    <div class="contrast-bar-container">
+      <div
+        class="contrast-bar"
+        [style.width.%]="getContrastBarWidth(analysis.blackBackground.ratio)"
+        [style.backgroundColor]="
+          getContrastBarColor(analysis.blackBackground.ratio)
+        "
+      ></div>
+    </div>
+    <div class="bar-scale">
+      <span>1:1</span>
+      <span>4.5:1</span>
+      <span>7:1</span>
+      <span>21:1</span>
     </div>
 
     <div class="compliance-grid">
@@ -63,8 +147,13 @@
       <div class="compliance-item">
         <div class="threshold-label">Normal AA</div>
         <div class="threshold-value">4.5:1</div>
-        <div [class]="'status ' + getComplianceClass(analysis.blackBackground.normalAA)">
-          {{ getStatusLabel(analysis.blackBackground.normalAA) }}
+        <div
+          [class]="
+            'status ' +
+            getComplianceClass(analysis.blackBackground.normalTextAA)
+          "
+        >
+          {{ getStatusLabel(analysis.blackBackground.normalTextAA) }}
         </div>
       </div>
 
@@ -72,8 +161,13 @@
       <div class="compliance-item">
         <div class="threshold-label">Normal AAA</div>
         <div class="threshold-value">7:1</div>
-        <div [class]="'status ' + getComplianceClass(analysis.blackBackground.normalAAA)">
-          {{ getStatusLabel(analysis.blackBackground.normalAAA) }}
+        <div
+          [class]="
+            'status ' +
+            getComplianceClass(analysis.blackBackground.normalTextAAA)
+          "
+        >
+          {{ getStatusLabel(analysis.blackBackground.normalTextAAA) }}
         </div>
       </div>
 
@@ -81,8 +175,12 @@
       <div class="compliance-item">
         <div class="threshold-label">Large AA</div>
         <div class="threshold-value">3:1</div>
-        <div [class]="'status ' + getComplianceClass(analysis.blackBackground.largeAA)">
-          {{ getStatusLabel(analysis.blackBackground.largeAA) }}
+        <div
+          [class]="
+            'status ' + getComplianceClass(analysis.blackBackground.largeTextAA)
+          "
+        >
+          {{ getStatusLabel(analysis.blackBackground.largeTextAA) }}
         </div>
       </div>
 
@@ -90,8 +188,40 @@
       <div class="compliance-item">
         <div class="threshold-label">Large AAA</div>
         <div class="threshold-value">4.5:1</div>
-        <div [class]="'status ' + getComplianceClass(analysis.blackBackground.largeAAA)">
-          {{ getStatusLabel(analysis.blackBackground.largeAAA) }}
+        <div
+          [class]="
+            'status ' +
+            getComplianceClass(analysis.blackBackground.largeTextAAA)
+          "
+        >
+          {{ getStatusLabel(analysis.blackBackground.largeTextAAA) }}
+        </div>
+      </div>
+
+      <!-- Graphical AA -->
+      <div class="compliance-item">
+        <div class="threshold-label">Graphical AA</div>
+        <div class="threshold-value">3:1</div>
+        <div
+          [class]="
+            'status ' + getComplianceClass(analysis.blackBackground.graphicalAA)
+          "
+        >
+          {{ getStatusLabel(analysis.blackBackground.graphicalAA) }}
+        </div>
+      </div>
+
+      <!-- Graphical AAA -->
+      <div class="compliance-item">
+        <div class="threshold-label">Graphical AAA</div>
+        <div class="threshold-value">4.5:1</div>
+        <div
+          [class]="
+            'status ' +
+            getComplianceClass(analysis.blackBackground.graphicalAAA)
+          "
+        >
+          {{ getStatusLabel(analysis.blackBackground.graphicalAAA) }}
         </div>
       </div>
     </div>

@@ -455,12 +455,19 @@ export class ColorSetterComponent implements OnInit {
   // Available formats for selection
   availableFormats: ColorFormat[] = ['hex', 'rgb', 'hsl'];
 
-  // WCAG analysis result
-  wcagAnalysis = signal<WCAGAnalysis | null>(null);
-
   // ============================================================================
   // COMPUTED SIGNALS
   // ============================================================================
+
+  // WCAG analysis - computed reactively from color state
+  wcagAnalysis = computed(() => {
+    if (!this.showWCAG) {
+      return null;
+    }
+    const state = this.colorState();
+    const allFormats = this.colorService.toAllFormats(state.internalValue);
+    return this.wcagService.analyze(allFormats.hex);
+  });
 
   colorPreview = computed(() => {
     const state = this.colorState();
@@ -497,7 +504,6 @@ export class ColorSetterComponent implements OnInit {
   // ============================================================================
 
   private colorChangeSubject = new Subject<ColorChangeEvent>();
-  private wcagChangeSubject = new Subject<string>();
 
   // ============================================================================
   // CONSTRUCTOR & LIFECYCLE
@@ -510,14 +516,6 @@ export class ColorSetterComponent implements OnInit {
     // Setup debounced color change (16ms for 60fps)
     this.colorChangeSubject.pipe(debounceTime(16)).subscribe((event) => {
       this.colorChange.emit(event);
-    });
-
-    // Setup debounced WCAG calculation (100ms as per spec)
-    this.wcagChangeSubject.pipe(debounceTime(100)).subscribe((color) => {
-      if (this.showWCAG) {
-        const analysis = this.wcagService.analyze(color);
-        this.wcagAnalysis.set(analysis);
-      }
     });
 
     // Effect to update state on initialization
@@ -546,11 +544,7 @@ export class ColorSetterComponent implements OnInit {
       // Update display values based on format
       this.updateDisplayValues();
 
-      // Initialize WCAG analysis if enabled
-      if (this.showWCAG) {
-        const analysis = this.wcagService.analyze(allFormats.hex);
-        this.wcagAnalysis.set(analysis);
-      }
+      // WCAG analysis will be computed automatically via computed signal
     } catch (error) {
       console.error('Failed to initialize color:', error);
       // Fall back to red
@@ -715,8 +709,6 @@ export class ColorSetterComponent implements OnInit {
       if (wcagResult) {
         event.wcagResults = wcagResult;
       }
-      // Trigger WCAG calculation with debounce
-      this.wcagChangeSubject.next(allFormats.hex);
     }
 
     this.colorChangeSubject.next(event);
