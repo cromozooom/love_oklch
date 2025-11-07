@@ -14,10 +14,13 @@ import { debounceTime, Subject } from 'rxjs';
 import Color from 'colorjs.io';
 
 import { ColorService } from './services/color.service';
+import { WCAGService } from './services/wcag.service';
 import { ColorFormat, FORMAT_CONFIGS } from './models/format-config.model';
 import { GamutProfile, GAMUT_PROFILES } from './models/gamut-profile.model';
 import { ColorState } from './models/color-state.model';
+import { WCAGAnalysis } from './models/wcag-contrast.model';
 import { ColorValidators } from './utils/color-validators';
+import { WCAGPanelComponent } from './subcomponents/wcag-panel/wcag-panel.component';
 
 /**
  * Event payload emitted when color changes
@@ -65,7 +68,7 @@ export interface ColorChangeEvent {
   /**
    * WCAG contrast results (if US2 enabled)
    */
-  wcagResults?: any; // Type from US2 phase
+  wcagResults?: WCAGAnalysis;
 }
 
 /**
@@ -252,6 +255,11 @@ export interface ColorChangeEvent {
             {{ Math.round(hslValues[2]) }}%)
           </div>
         </div>
+
+        <!-- WCAG Accessibility Panel -->
+        <div *ngIf="showWCAG" class="wcag-section">
+          <app-wcag-panel [analysis]="wcagAnalysis()"></app-wcag-panel>
+        </div>
       </div>
     </div>
   `,
@@ -357,8 +365,8 @@ export interface ColorChangeEvent {
     `,
   ],
   standalone: true,
-  imports: [CommonModule, FormsModule],
-  providers: [ColorService],
+  imports: [CommonModule, FormsModule, WCAGPanelComponent],
+  providers: [ColorService, WCAGService],
 })
 export class ColorSetterComponent implements OnInit {
   // ============================================================================
@@ -447,6 +455,9 @@ export class ColorSetterComponent implements OnInit {
   // Available formats for selection
   availableFormats: ColorFormat[] = ['hex', 'rgb', 'hsl'];
 
+  // WCAG analysis result
+  wcagAnalysis = signal<WCAGAnalysis | null>(null);
+
   // ============================================================================
   // COMPUTED SIGNALS
   // ============================================================================
@@ -486,15 +497,27 @@ export class ColorSetterComponent implements OnInit {
   // ============================================================================
 
   private colorChangeSubject = new Subject<ColorChangeEvent>();
+  private wcagChangeSubject = new Subject<string>();
 
   // ============================================================================
   // CONSTRUCTOR & LIFECYCLE
   // ============================================================================
 
-  constructor(private colorService: ColorService) {
+  constructor(
+    private colorService: ColorService,
+    private wcagService: WCAGService
+  ) {
     // Setup debounced color change (16ms for 60fps)
     this.colorChangeSubject.pipe(debounceTime(16)).subscribe((event) => {
       this.colorChange.emit(event);
+    });
+
+    // Setup debounced WCAG calculation (100ms as per spec)
+    this.wcagChangeSubject.pipe(debounceTime(100)).subscribe((color) => {
+      if (this.showWCAG) {
+        const analysis = this.wcagService.analyze(color);
+        this.wcagAnalysis.set(analysis);
+      }
     });
 
     // Effect to update state on initialization
@@ -679,6 +702,16 @@ export class ColorSetterComponent implements OnInit {
       gamut: state.gamut,
       timestamp: Date.now(),
     };
+
+    // Add WCAG results if enabled
+    if (this.showWCAG) {
+      const wcagResult = this.wcagAnalysis();
+      if (wcagResult) {
+        event.wcagResults = wcagResult;
+      }
+      // Trigger WCAG calculation with debounce
+      this.wcagChangeSubject.next(allFormats.hex);
+    }
 
     this.colorChangeSubject.next(event);
   }

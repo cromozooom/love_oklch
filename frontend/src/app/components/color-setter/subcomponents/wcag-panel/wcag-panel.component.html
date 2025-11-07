@@ -1,0 +1,99 @@
+<div *ngIf="analysis" class="wcag-panel">
+  <div class="wcag-header">
+    <h3 class="text-lg font-semibold text-gray-800">WCAG Compliance</h3>
+  </div>
+
+  <!-- White Background -->
+  <div class="wcag-section">
+    <div class="background-label">White Background (#FFFFFF)</div>
+    <div class="contrast-ratio">
+      <span class="label">Contrast:</span>
+      <span class="ratio">{{ formatRatio(analysis.whiteBackground.ratio) }}</span>
+    </div>
+
+    <div class="compliance-grid">
+      <!-- Normal AA -->
+      <div class="compliance-item">
+        <div class="threshold-label">Normal AA</div>
+        <div class="threshold-value">4.5:1</div>
+        <div [class]="'status ' + getComplianceClass(analysis.whiteBackground.normalAA)">
+          {{ getStatusLabel(analysis.whiteBackground.normalAA) }}
+        </div>
+      </div>
+
+      <!-- Normal AAA -->
+      <div class="compliance-item">
+        <div class="threshold-label">Normal AAA</div>
+        <div class="threshold-value">7:1</div>
+        <div [class]="'status ' + getComplianceClass(analysis.whiteBackground.normalAAA)">
+          {{ getStatusLabel(analysis.whiteBackground.normalAAA) }}
+        </div>
+      </div>
+
+      <!-- Large AA -->
+      <div class="compliance-item">
+        <div class="threshold-label">Large AA</div>
+        <div class="threshold-value">3:1</div>
+        <div [class]="'status ' + getComplianceClass(analysis.whiteBackground.largeAA)">
+          {{ getStatusLabel(analysis.whiteBackground.largeAA) }}
+        </div>
+      </div>
+
+      <!-- Large AAA -->
+      <div class="compliance-item">
+        <div class="threshold-label">Large AAA</div>
+        <div class="threshold-value">4.5:1</div>
+        <div [class]="'status ' + getComplianceClass(analysis.whiteBackground.largeAAA)">
+          {{ getStatusLabel(analysis.whiteBackground.largeAAA) }}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Black Background -->
+  <div class="wcag-section">
+    <div class="background-label">Black Background (#000000)</div>
+    <div class="contrast-ratio">
+      <span class="label">Contrast:</span>
+      <span class="ratio">{{ formatRatio(analysis.blackBackground.ratio) }}</span>
+    </div>
+
+    <div class="compliance-grid">
+      <!-- Normal AA -->
+      <div class="compliance-item">
+        <div class="threshold-label">Normal AA</div>
+        <div class="threshold-value">4.5:1</div>
+        <div [class]="'status ' + getComplianceClass(analysis.blackBackground.normalAA)">
+          {{ getStatusLabel(analysis.blackBackground.normalAA) }}
+        </div>
+      </div>
+
+      <!-- Normal AAA -->
+      <div class="compliance-item">
+        <div class="threshold-label">Normal AAA</div>
+        <div class="threshold-value">7:1</div>
+        <div [class]="'status ' + getComplianceClass(analysis.blackBackground.normalAAA)">
+          {{ getStatusLabel(analysis.blackBackground.normalAAA) }}
+        </div>
+      </div>
+
+      <!-- Large AA -->
+      <div class="compliance-item">
+        <div class="threshold-label">Large AA</div>
+        <div class="threshold-value">3:1</div>
+        <div [class]="'status ' + getComplianceClass(analysis.blackBackground.largeAA)">
+          {{ getStatusLabel(analysis.blackBackground.largeAA) }}
+        </div>
+      </div>
+
+      <!-- Large AAA -->
+      <div class="compliance-item">
+        <div class="threshold-label">Large AAA</div>
+        <div class="threshold-value">4.5:1</div>
+        <div [class]="'status ' + getComplianceClass(analysis.blackBackground.largeAAA)">
+          {{ getStatusLabel(analysis.blackBackground.largeAAA) }}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
