@@ -545,6 +545,12 @@ export class ColorSetterComponent implements OnInit {
 
       // Update display values based on format
       this.updateDisplayValues();
+
+      // Initialize WCAG analysis if enabled
+      if (this.showWCAG) {
+        const analysis = this.wcagService.analyze(allFormats.hex);
+        this.wcagAnalysis.set(analysis);
+      }
     } catch (error) {
       console.error('Failed to initialize color:', error);
       // Fall back to red
