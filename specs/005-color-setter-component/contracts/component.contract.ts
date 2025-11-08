@@ -13,7 +13,7 @@ import { Observable } from 'rxjs';
 // ============================================================================
 
 export type ColorFormat = 'hex' | 'rgb' | 'hsl' | 'lch' | 'oklch' | 'lab';
-export type GamutProfile = 'srgb' | 'display-p3' | 'unlimited';
+export type GamutProfile = 'srgb' | 'display-p3' | 'rec2020' | 'unlimited';
 export type WCAGLevel = 'fail' | 'AA' | 'AAA';
 
 // ============================================================================
@@ -41,7 +41,7 @@ export interface IColorSetterInputs {
 
   /**
    * Available gamut profiles for user selection
-   * @default ['srgb', 'display-p3', 'unlimited']
+   * @default ['srgb', 'display-p3', 'rec2020', 'unlimited']
    */
   supportedGamuts?: GamutProfile[];
 

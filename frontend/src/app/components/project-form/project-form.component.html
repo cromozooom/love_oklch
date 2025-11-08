@@ -150,7 +150,8 @@
         [currentGamut]="getGamutValue()"
         [showWCAG]="true"
         [showColorName]="false"
-        [supportedGamuts]="['srgb', 'display-p3', 'unlimited']"
+        [supportedGamuts]="['srgb', 'display-p3', 'rec2020', 'unlimited']"
+        (gamutChange)="onColorSetterGamutChange($event)"
       >
       </app-color-setter>
     </div>

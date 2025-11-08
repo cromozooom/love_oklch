@@ -5,7 +5,14 @@
  * Used to visualize out-of-gamut colors in advanced color space sliders.
  */
 
-import { Component, Input, Output, EventEmitter } from '@angular/core';
+import {
+  Component,
+  Input,
+  Output,
+  EventEmitter,
+  input,
+  computed,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import {
@@ -22,12 +29,13 @@ import {
   styleUrls: ['./gamut-selector.component.scss'],
 })
 export class GamutSelectorComponent {
-  @Input() selectedGamut: GamutProfile = 'srgb';
-  @Input() supportedGamuts: GamutProfile[] = [
+  selectedGamut = input<GamutProfile>('srgb');
+  supportedGamuts = input<GamutProfile[]>([
     'srgb',
     'display-p3',
+    'rec2020',
     'unlimited',
-  ];
+  ]);
   @Output() gamutChange = new EventEmitter<GamutProfile>();
 
   // Available gamut profiles
@@ -36,15 +44,14 @@ export class GamutSelectorComponent {
   /**
    * Get filtered gamut definitions based on supportedGamuts
    */
-  get availableGamuts(): GamutDefinition[] {
-    return this.supportedGamuts.map((profile) => this.gamutProfiles[profile]);
-  }
+  availableGamuts = computed(() => {
+    return this.supportedGamuts().map((profile) => this.gamutProfiles[profile]);
+  });
 
   /**
    * Handle gamut selection change
    */
   onGamutChange(gamut: GamutProfile) {
-    this.selectedGamut = gamut;
     this.gamutChange.emit(gamut);
   }
 
@@ -59,6 +66,6 @@ export class GamutSelectorComponent {
    * Check if gamut is selected
    */
   isSelected(gamut: GamutProfile): boolean {
-    return this.selectedGamut === gamut;
+    return this.selectedGamut() === gamut;
   }
 }

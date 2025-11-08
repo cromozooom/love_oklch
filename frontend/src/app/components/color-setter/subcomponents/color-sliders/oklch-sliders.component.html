@@ -1,73 +1,55 @@
 <div class="oklch-sliders space-y-4">
   <!-- Lightness Slider -->
-  <div class="slider-group">
-    <div class="flex justify-between items-center mb-2">
-      <label class="text-sm font-medium text-gray-700 dark:text-gray-300">
-        Lightness
-      </label>
-      <span class="text-sm text-gray-600 dark:text-gray-400 font-mono">
-        {{ l.toFixed(3) }}
-      </span>
-    </div>
-    <input
-      type="range"
-      [(ngModel)]="l"
-      (input)="onLInput()"
-      (change)="onLChange()"
-      min="0"
-      max="1"
-      step="0.001"
-      class="slider"
-      [style.background]="lGradient"
-      data-testid="oklch-l-slider"
-    />
-  </div>
+  <app-gamut-aware-slider
+    label="Lightness"
+    [value]="l"
+    [min]="0"
+    [max]="1"
+    [step]="0.001"
+    [colorGenerator]="lColorGenerator()"
+    [validPositions]="validLPositions"
+    [formatValue]="formatL"
+    [currentGamut]="gamut()"
+    [debugGradient]="showDebugGradients ? lGradient : ''"
+    testId="oklch-l-slider"
+    (valueInput)="onLInput($event)"
+    (valueCommit)="onLChange()"
+    (valueChange)="l = $event"
+  ></app-gamut-aware-slider>
 
   <!-- Chroma Slider -->
-  <div class="slider-group">
-    <div class="flex justify-between items-center mb-2">
-      <label class="text-sm font-medium text-gray-700 dark:text-gray-300">
-        Chroma
-      </label>
-      <span class="text-sm text-gray-600 dark:text-gray-400 font-mono">
-        {{ c.toFixed(3) }}
-      </span>
-    </div>
-    <input
-      type="range"
-      [(ngModel)]="c"
-      (input)="onCInput()"
-      (change)="onCChange()"
-      min="0"
-      max="0.4"
-      step="0.001"
-      class="slider"
-      [style.background]="cGradient"
-      data-testid="oklch-c-slider"
-    />
-  </div>
+  <app-gamut-aware-slider
+    label="Chroma"
+    [value]="c"
+    [min]="0"
+    [max]="0.4"
+    [step]="0.001"
+    [colorGenerator]="cColorGenerator()"
+    [validPositions]="validCPositions"
+    [formatValue]="formatC"
+    [currentGamut]="gamut()"
+    [debugGradient]="showDebugGradients ? cGradient : ''"
+    testId="oklch-c-slider"
+    (valueInput)="onCInput($event)"
+    (valueCommit)="onCChange()"
+    (valueChange)="c = $event"
+  ></app-gamut-aware-slider>
 
   <!-- Hue Slider -->
-  <div class="slider-group">
-    <div class="flex justify-between items-center mb-2">
-      <label class="text-sm font-medium text-gray-700 dark:text-gray-300">
-        Hue
-      </label>
-      <span class="text-sm text-gray-600 dark:text-gray-400 font-mono">
-        {{ Math.round(h) }}°
-      </span>
-    </div>
-    <input
-      type="range"
-      [(ngModel)]="h"
-      (input)="onHInput()"
-      (change)="onHChange()"
-      min="0"
-      max="360"
-      step="0.1"
-      class="slider"
-      [style.background]="hGradient"
-      data-testid="oklch-h-slider"
-    />
-  </div>
+  <app-gamut-aware-slider
+    label="Hue"
+    [value]="h"
+    [min]="0"
+    [max]="360"
+    [step]="0.1"
+    [colorGenerator]="hColorGenerator()"
+    [validPositions]="validHPositions"
+    [formatValue]="formatH"
+    [currentGamut]="gamut()"
+    [debugGradient]="showDebugGradients ? hGradient : ''"
+    testId="oklch-h-slider"
+    (valueInput)="onHInput($event)"
+    (valueCommit)="onHChange()"
+    (valueChange)="h = $event"
+  ></app-gamut-aware-slider>
 </div>

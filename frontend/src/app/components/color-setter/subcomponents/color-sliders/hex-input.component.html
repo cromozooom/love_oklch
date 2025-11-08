@@ -4,7 +4,7 @@
     <input
       id="hex-input"
       type="text"
-      [(ngModel)]="hexValue"
+      [(ngModel)]="internalHexValue"
       (change)="onHexChange()"
       (blur)="onHexChange()"
       data-testid="hex-input"
@@ -13,6 +13,6 @@
     />
   </div>
   <div data-testid="hex-display">
-    {{ hexValue }}
+    {{ internalHexValue() }}
   </div>
 </div>

@@ -49,6 +49,7 @@ export class GamutService {
       const gamutMap: Record<string, string> = {
         sRGB: 'srgb',
         'Display P3': 'p3',
+        Rec2020: 'rec2020',
       };
 
       const gamutSpace = gamutMap[gamutName] || 'srgb';
@@ -112,6 +113,7 @@ export class GamutService {
       const gamutMap: Record<string, string> = {
         sRGB: 'srgb',
         'Display P3': 'p3',
+        Rec2020: 'rec2020',
       };
 
       const gamutSpace = gamutMap[gamutName] || 'srgb';
@@ -170,10 +172,12 @@ export class GamutService {
         coords[channelIndex] = value;
 
         const stepColor = new Color(format, coords as [number, number, number]);
-        const hexColor = stepColor.to('srgb').toString({ format: 'hex' });
 
-        // Check gamut
+        // Check gamut using the original color (not sRGB converted)
         const gamutCheck = this.check(stepColor.toString(), gamut);
+
+        // Generate hex color for CSS (this may clip colors, but gamut check is accurate)
+        const hexColor = stepColor.to('srgb').toString({ format: 'hex' });
 
         stops.push({
           position,
@@ -221,15 +225,45 @@ export class GamutService {
 
   /**
    * Generate CSS linear gradient string from stops
+   * Adds sharp transitions between in-gamut (colored) and out-of-gamut (transparent) regions
    */
   private generateCSSGradient(stops: GradientStop[]): string {
-    const colorStops = stops
-      .map((stop) => {
-        const opacity = stop.inGamut ? 'ff' : '4d'; // Full opacity if in-gamut, ~30% if out
-        return `${stop.color}${opacity} ${stop.position.toFixed(1)}%`;
-      })
-      .join(', ');
+    const colorStops: string[] = [];
 
-    return `linear-gradient(to right, ${colorStops})`;
+    for (let i = 0; i < stops.length; i++) {
+      const stop = stops[i];
+      const prevStop = i > 0 ? stops[i - 1] : null;
+      const nextStop = i < stops.length - 1 ? stops[i + 1] : null;
+
+      if (stop.inGamut) {
+        // In-gamut: use full color
+        colorStops.push(`${stop.color} ${stop.position.toFixed(1)}%`);
+
+        // Check if next stop is out-of-gamut (transition to transparent)
+        if (nextStop && !nextStop.inGamut) {
+          // Add a transparent stop immediately after for sharp cutoff
+          const sharpPosition = stop.position + 0.01;
+          colorStops.push(`transparent ${sharpPosition.toFixed(2)}%`);
+        }
+      } else {
+        // Out-of-gamut: use transparent
+        // Check if previous stop was in-gamut (we just added the transition)
+        if (!prevStop || !prevStop.inGamut) {
+          // Only add if we didn't just create a sharp transition
+          colorStops.push(`transparent ${stop.position.toFixed(1)}%`);
+        }
+
+        // Check if next stop is in-gamut (transition back to color)
+        if (nextStop && nextStop.inGamut) {
+          // Add a transparent stop just before the next colored stop for sharp transition
+          const sharpPosition = nextStop.position - 0.01;
+          if (sharpPosition > stop.position) {
+            colorStops.push(`transparent ${sharpPosition.toFixed(2)}%`);
+          }
+        }
+      }
+    }
+
+    return `linear-gradient(to right, ${colorStops.join(', ')})`;
   }
 }

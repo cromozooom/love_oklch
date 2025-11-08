@@ -26,6 +26,10 @@ import { ColorName } from './models/color-name.model';
 import { ColorValidators } from './utils/color-validators';
 import { WCAGPanelComponent } from './subcomponents/wcag-panel/wcag-panel.component';
 import { GamutSelectorComponent } from './subcomponents/gamut-selector/gamut-selector.component';
+import { LchSlidersComponent } from './subcomponents/color-sliders/lch-sliders.component';
+import { OklchSlidersComponent } from './subcomponents/color-sliders/oklch-sliders.component';
+import { LabSlidersComponent } from './subcomponents/color-sliders/lab-sliders.component';
+import { GamutAwareSliderComponent } from './subcomponents/gamut-aware-slider/gamut-aware-slider.component';
 
 /**
  * Event payload emitted when color changes
@@ -109,6 +113,10 @@ export interface ColorChangeEvent {
     FormsModule,
     WCAGPanelComponent,
     GamutSelectorComponent,
+    LchSlidersComponent,
+    OklchSlidersComponent,
+    LabSlidersComponent,
+    GamutAwareSliderComponent,
   ],
   providers: [ColorService, WCAGService, GamutService, NamingService],
 })
@@ -150,9 +158,14 @@ export class ColorSetterComponent implements OnInit {
 
   /**
    * Supported gamut profiles to show in selector
-   * Default: ['srgb', 'display-p3', 'unlimited']
+   * Default: ['srgb', 'display-p3', 'rec2020', 'unlimited']
    */
-  supportedGamuts = input<GamutProfile[]>(['srgb', 'display-p3', 'unlimited']);
+  supportedGamuts = input<GamutProfile[]>([
+    'srgb',
+    'display-p3',
+    'rec2020',
+    'unlimited',
+  ]);
 
   // ============================================================================
   // OUTPUTS
@@ -163,6 +176,12 @@ export class ColorSetterComponent implements OnInit {
    */
   @Output()
   colorChange = new EventEmitter<ColorChangeEvent>();
+
+  /**
+   * Emitted when gamut profile changes internally (User Story 3)
+   */
+  @Output()
+  gamutChange = new EventEmitter<GamutProfile>();
 
   // ============================================================================
   // REACTIVE STATE (Angular Signals)
@@ -179,13 +198,23 @@ export class ColorSetterComponent implements OnInit {
   });
 
   // Current format
-  format = signal<ColorFormat>('hex');
+  format = signal<ColorFormat>('oklch');
 
   // Current gamut
   gamut = signal<GamutProfile>('srgb');
 
   // Slider values for RGB (0-255) - regular property for ngModel binding
   rgbValues: [number, number, number] = [255, 0, 0];
+
+  // RGB gradients
+  rGradient = '';
+  gGradient = '';
+  bGradient = '';
+
+  // RGB value formatters (for slider display)
+  formatR = (v: number) => Math.round(v).toString();
+  formatG = (v: number) => Math.round(v).toString();
+  formatB = (v: number) => Math.round(v).toString();
 
   // Slider values for HSL (H: 0-360, S: 0-100, L: 0-100) - regular property for ngModel binding
   hslValues: [number, number, number] = [0, 100, 50];
@@ -194,7 +223,14 @@ export class ColorSetterComponent implements OnInit {
   hexInputValue = signal<string>('#FF0000');
 
   // Available formats for selection
-  availableFormats: ColorFormat[] = ['hex', 'rgb', 'hsl'];
+  availableFormats: ColorFormat[] = [
+    'hex',
+    'rgb',
+    'hsl',
+    'lch',
+    'oklch',
+    'lab',
+  ];
 
   // ============================================================================
   // COMPUTED SIGNALS
@@ -233,6 +269,12 @@ export class ColorSetterComponent implements OnInit {
   // Color name - computed reactively from color state (with debouncing via Subject)
   colorName = signal<ColorName | null>(null);
 
+  // Gamut display name - computed to convert GamutProfile to display names for GamutService
+  gamutDisplayName = computed(() => {
+    const currentGamut = this.gamut();
+    return GAMUT_PROFILES[currentGamut].displayName;
+  });
+
   colorPreview = computed(() => {
     const state = this.colorState();
     try {
@@ -247,6 +289,7 @@ export class ColorSetterComponent implements OnInit {
   currentFormatValue = computed(() => {
     const fmt = this.format();
     try {
+      const color = this.colorState().internalValue;
       switch (fmt) {
         case 'hex':
           return this.hexInputValue();
@@ -255,6 +298,24 @@ export class ColorSetterComponent implements OnInit {
         case 'hsl':
           const [h, s, l] = this.hslValues;
           return `hsl(${Math.round(h)}, ${Math.round(s)}%, ${Math.round(l)}%)`;
+        case 'lch': {
+          const lch = color.to('lch');
+          return `lch(${lch.coords[0].toFixed(1)} ${lch.coords[1].toFixed(
+            1
+          )} ${lch.coords[2].toFixed(1)})`;
+        }
+        case 'oklch': {
+          const oklch = color.to('oklch');
+          return `oklch(${oklch.coords[0].toFixed(3)} ${oklch.coords[1].toFixed(
+            3
+          )} ${oklch.coords[2].toFixed(1)})`;
+        }
+        case 'lab': {
+          const lab = color.to('lab');
+          return `lab(${lab.coords[0].toFixed(1)} ${lab.coords[1].toFixed(
+            1
+          )} ${lab.coords[2].toFixed(1)})`;
+        }
         default:
           return this.hexInputValue();
       }
@@ -293,15 +354,18 @@ export class ColorSetterComponent implements OnInit {
       }
     });
 
-    // Effect to sync external gamut signal input with internal state
-    // Use allowSignalWrites to prevent circular dependency warnings
+    // Effect to sync external gamut signal input with internal state bidirectionally
+    // Allow external changes to control the component (e.g., from project form)
     effect(
       () => {
         const externalGamut = this.currentGamut();
         const currentInternalGamut = this.gamut();
 
+        // Sync external changes to internal state if they differ
         if (externalGamut !== currentInternalGamut) {
-          console.log('🔄 Gamut changed externally:', externalGamut);
+          console.log(
+            `[ColorSetter] External gamut change: ${currentInternalGamut} → ${externalGamut}`
+          );
 
           // Update internal gamut signal when external signal changes
           this.gamut.set(externalGamut);
@@ -313,7 +377,7 @@ export class ColorSetterComponent implements OnInit {
             lastUpdated: Date.now(),
           }));
 
-          // Emit color change to notify parent of gamut change
+          // Re-emit color change with updated gamut for consistency
           this.emitColorChange();
         }
       },
@@ -326,11 +390,16 @@ export class ColorSetterComponent implements OnInit {
       // Parse initial color
       const parsed = this.colorService.parse(this.initialColor());
 
+      // Initialize internal signals with input values
+      const initialGamut = this.currentGamut();
+      this.gamut.set(initialGamut);
+      this.format.set(this.initialFormat());
+
       // Update state with EXPLICIT format from input
       this.colorState.set({
         internalValue: parsed,
         format: this.initialFormat(), // Use input format, don't default
-        gamut: this.currentGamut(),
+        gamut: initialGamut,
         lastUpdated: Date.now(),
       });
 
@@ -382,12 +451,44 @@ export class ColorSetterComponent implements OnInit {
   onRgbInput(): void {
     // Real-time update without debounce
     this.updateRgbFromSliders();
+    this.generateRgbGradients(); // Update gradients as user drags
   }
 
   onRgbChange(): void {
     // Final update with debounce
     this.updateRgbFromSliders();
+    this.generateRgbGradients(); // Update gradients on release
     this.emitColorChange();
+  }
+
+  /**
+   * Generate RGB gradient backgrounds
+   * Each gradient shows how changing one channel affects the color
+   */
+  private generateRgbGradients(): void {
+    const [r, g, b] = this.rgbValues;
+    const steps = 255; // One step per RGB value
+
+    // Red gradient (0-255, keeping G and B constant)
+    const rStops: string[] = [];
+    for (let i = 0; i <= steps; i++) {
+      rStops.push(`rgb(${i}, ${Math.round(g)}, ${Math.round(b)})`);
+    }
+    this.rGradient = `linear-gradient(to right, ${rStops.join(', ')})`;
+
+    // Green gradient (0-255, keeping R and B constant)
+    const gStops: string[] = [];
+    for (let i = 0; i <= steps; i++) {
+      gStops.push(`rgb(${Math.round(r)}, ${i}, ${Math.round(b)})`);
+    }
+    this.gGradient = `linear-gradient(to right, ${gStops.join(', ')})`;
+
+    // Blue gradient (0-255, keeping R and G constant)
+    const bStops: string[] = [];
+    for (let i = 0; i <= steps; i++) {
+      bStops.push(`rgb(${Math.round(r)}, ${Math.round(g)}, ${i})`);
+    }
+    this.bGradient = `linear-gradient(to right, ${bStops.join(', ')})`;
   }
 
   onHslInput(): void {
@@ -399,6 +500,36 @@ export class ColorSetterComponent implements OnInit {
     // Final update with debounce
     this.updateHslFromSliders();
     this.emitColorChange();
+  }
+
+  onLchColorChange(colorString: string): void {
+    try {
+      const parsed = this.colorService.parse(colorString);
+      this.updateColorState(parsed, 'lch');
+      this.emitColorChange();
+    } catch (error) {
+      console.error('Error updating LCH:', error);
+    }
+  }
+
+  onOklchColorChange(colorString: string): void {
+    try {
+      const parsed = this.colorService.parse(colorString);
+      this.updateColorState(parsed, 'oklch');
+      this.emitColorChange();
+    } catch (error) {
+      console.error('Error updating OKLCH:', error);
+    }
+  }
+
+  onLabColorChange(colorString: string): void {
+    try {
+      const parsed = this.colorService.parse(colorString);
+      this.updateColorState(parsed, 'lab');
+      this.emitColorChange();
+    } catch (error) {
+      console.error('Error updating LAB:', error);
+    }
   }
 
   switchFormat(newFormat: ColorFormat): void {
@@ -482,6 +613,9 @@ export class ColorSetterComponent implements OnInit {
       lastUpdated: Date.now(),
     }));
 
+    // Emit gamut change event for parent components
+    this.gamutChange.emit(newGamut);
+
     // Emit color change with updated gamut status
     this.emitColorChange();
   }
@@ -556,6 +690,9 @@ export class ColorSetterComponent implements OnInit {
       Math.max(0, Math.min(255, rgbChannels[1] || 0)),
       Math.max(0, Math.min(255, rgbChannels[2] || 0)),
     ];
+
+    // Update RGB gradients
+    this.generateRgbGradients();
 
     // Update HSL sliders with clamping and NaN handling
     // Note: Hue can be NaN for achromatic colors (black, white, grays)

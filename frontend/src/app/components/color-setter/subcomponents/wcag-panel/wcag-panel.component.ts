@@ -9,7 +9,7 @@
  * Input: Accepts WCAGAnalysis result to display
  */
 
-import { Component, input, Input } from '@angular/core';
+import { Component, input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { WCAGAnalysis } from '../../models/wcag-contrast.model';
 
@@ -21,7 +21,7 @@ import { WCAGAnalysis } from '../../models/wcag-contrast.model';
   styleUrls: ['./wcag-panel.component.scss'],
 })
 export class WCAGPanelComponent {
-  @Input() analysis: WCAGAnalysis | null = null;
+  analysis = input<WCAGAnalysis | null>(null);
   color = input<string>('#FF0000');
   public versionBump = 1;
 

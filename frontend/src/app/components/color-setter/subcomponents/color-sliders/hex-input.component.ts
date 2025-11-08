@@ -1,4 +1,12 @@
-import { Component, Input, Output, EventEmitter } from '@angular/core';
+import {
+  Component,
+  Input,
+  Output,
+  EventEmitter,
+  input,
+  signal,
+  effect,
+} from '@angular/core';
 import { FormsModule } from '@angular/forms';
 
 /**
@@ -19,12 +27,24 @@ import { FormsModule } from '@angular/forms';
   styleUrl: './hex-input.component.scss',
 })
 export class HexInputComponent {
-  @Input() hexValue: string = '#FF0000';
+  hexValue = input<string>('#FF0000');
+  internalHexValue = signal('#FF0000');
   @Output() hexValueChange = new EventEmitter<string>();
   @Output() hexChange = new EventEmitter<string>();
 
+  constructor() {
+    // Sync internal value with input
+    this.internalHexValue.set(this.hexValue());
+
+    // Effect to sync with input changes
+    effect(() => {
+      this.internalHexValue.set(this.hexValue());
+    });
+  }
+
   onHexChange(): void {
-    this.hexValueChange.emit(this.hexValue);
-    this.hexChange.emit(this.hexValue);
+    const value = this.internalHexValue();
+    this.hexValueChange.emit(value);
+    this.hexChange.emit(value);
   }
 }

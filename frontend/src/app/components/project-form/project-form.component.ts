@@ -369,7 +369,7 @@ export class ProjectFormComponent implements OnInit, OnDestroy {
    * Get the gamut value for the color setter component
    * Maps the form's colorGamut enum to GamutProfile type
    */
-  getGamutValue(): 'srgb' | 'display-p3' | 'unlimited' {
+  getGamutValue(): 'srgb' | 'display-p3' | 'rec2020' | 'unlimited' {
     const gamut = this.projectForm.get('colorGamut')?.value as ColorGamut;
 
     switch (gamut) {
@@ -377,6 +377,8 @@ export class ProjectFormComponent implements OnInit, OnDestroy {
         return 'srgb';
       case ColorGamut.DISPLAY_P3:
         return 'display-p3';
+      case ColorGamut.REC2020:
+        return 'rec2020';
       case ColorGamut.UNLIMITED:
         return 'unlimited';
       default:
@@ -439,5 +441,35 @@ export class ProjectFormComponent implements OnInit, OnDestroy {
     warnings: Record<string, string>;
   } {
     return ProjectValidators.validateProjectForm(this.projectForm);
+  }
+
+  /**
+   * Handle gamut changes from the color-setter component
+   * Maps GamutProfile values to ColorGamut enum values for the form
+   */
+  onColorSetterGamutChange(
+    gamutProfile: 'srgb' | 'display-p3' | 'rec2020' | 'unlimited'
+  ): void {
+    let formGamutValue: ColorGamut;
+
+    switch (gamutProfile) {
+      case 'srgb':
+        formGamutValue = ColorGamut.SRGB;
+        break;
+      case 'display-p3':
+        formGamutValue = ColorGamut.DISPLAY_P3;
+        break;
+      case 'rec2020':
+        formGamutValue = ColorGamut.REC2020;
+        break;
+      case 'unlimited':
+        formGamutValue = ColorGamut.UNLIMITED;
+        break;
+      default:
+        formGamutValue = ColorGamut.SRGB;
+    }
+
+    // Update the form control
+    this.projectForm.get('colorGamut')?.setValue(formGamutValue);
   }
 }

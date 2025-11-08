@@ -1,4 +1,3 @@
-@if(versionbump == '1.0.0') {
 <div
   class="new w-auto flex flex-col border border-gray-300 m-2"
   data-testid="color-setter-component"
@@ -37,7 +36,7 @@
         "
         (click)="switchFormat(fmt)"
         [attr.data-testid]="'format-selector-' + fmt"
-        class="p-2 min-w-[7rem] border-b border-b-gray-300"
+        class="p-2 min-w-28 border-b border-b-gray-300"
       >
         {{ getFormatLabel(fmt) }}
       </button>
@@ -47,11 +46,11 @@
       <div class="editor flex">
         <div class="presets flex flex-col gap-2 p-2 border-r-indigo-500">
           <div
-            class="w-[13rem] aspect-square rounded"
+            class="w-52 aspect-square rounded"
             [style.backgroundColor]="colorPreview()"
           ></div>
           <div
-            class="w-[13rem] min-h-[1rem] rounded"
+            class="w-52 min-h-4 rounded"
             [style.backgroundColor]="colorPreview()"
           ></div>
         </div>
@@ -72,56 +71,50 @@
 
           <!-- RGB Sliders -->
           <div *ngIf="format() === 'rgb'" class="rgb-controls">
-            <div class="slider-group">
-              <label>Red</label>
-              <input
-                type="range"
-                min="0"
-                max="255"
-                [(ngModel)]="rgbValues[0]"
-                (change)="onRgbChange()"
-                (input)="onRgbInput()"
-                data-testid="rgb-slider-r"
-                class="slider"
-              />
-              <span class="value-display" data-testid="rgb-value-r">
-                {{ Math.round(rgbValues[0]) }}
-              </span>
-            </div>
+            <app-gamut-aware-slider
+              label="Red"
+              [value]="rgbValues[0]"
+              [min]="0"
+              [max]="255"
+              [step]="1"
+              [gradient]="rGradient"
+              [validPositions]="[]"
+              [formatValue]="formatR"
+              testId="rgb-slider-r"
+              (valueInput)="rgbValues[0] = $event; onRgbInput()"
+              (valueChange)="rgbValues[0] = $event"
+              (valueCommit)="onRgbChange()"
+            ></app-gamut-aware-slider>
 
-            <div class="slider-group">
-              <label>Green</label>
-              <input
-                type="range"
-                min="0"
-                max="255"
-                [(ngModel)]="rgbValues[1]"
-                (change)="onRgbChange()"
-                (input)="onRgbInput()"
-                data-testid="rgb-slider-g"
-                class="slider"
-              />
-              <span class="value-display" data-testid="rgb-value-g">
-                {{ Math.round(rgbValues[1]) }}
-              </span>
-            </div>
+            <app-gamut-aware-slider
+              label="Green"
+              [value]="rgbValues[1]"
+              [min]="0"
+              [max]="255"
+              [step]="1"
+              [gradient]="gGradient"
+              [validPositions]="[]"
+              [formatValue]="formatG"
+              testId="rgb-slider-g"
+              (valueInput)="rgbValues[1] = $event; onRgbInput()"
+              (valueChange)="rgbValues[1] = $event"
+              (valueCommit)="onRgbChange()"
+            ></app-gamut-aware-slider>
 
-            <div class="slider-group">
-              <label>Blue</label>
-              <input
-                type="range"
-                min="0"
-                max="255"
-                [(ngModel)]="rgbValues[2]"
-                (change)="onRgbChange()"
-                (input)="onRgbInput()"
-                data-testid="rgb-slider-b"
-                class="slider"
-              />
-              <span class="value-display" data-testid="rgb-value-b">
-                {{ Math.round(rgbValues[2]) }}
-              </span>
-            </div>
+            <app-gamut-aware-slider
+              label="Blue"
+              [value]="rgbValues[2]"
+              [min]="0"
+              [max]="255"
+              [step]="1"
+              [gradient]="bGradient"
+              [validPositions]="[]"
+              [formatValue]="formatB"
+              testId="rgb-slider-b"
+              (valueInput)="rgbValues[2] = $event; onRgbInput()"
+              (valueChange)="rgbValues[2] = $event"
+              (valueCommit)="onRgbChange()"
+            ></app-gamut-aware-slider>
 
             <div class="rgb-display" data-testid="rgb-display">
               rgb({{ Math.round(rgbValues[0]) }},
@@ -184,6 +177,30 @@
             </div>
           </div>
 
+          <!-- LCH Sliders -->
+          <app-lch-sliders
+            *ngIf="format() === 'lch'"
+            [color]="currentFormatValue()"
+            [gamut]="gamutDisplayName()"
+            (colorChange)="onLchColorChange($event)"
+          ></app-lch-sliders>
+
+          <!-- OKLCH Sliders -->
+          <app-oklch-sliders
+            *ngIf="format() === 'oklch'"
+            [color]="currentFormatValue()"
+            [gamut]="gamutDisplayName()"
+            (colorChange)="onOklchColorChange($event)"
+          ></app-oklch-sliders>
+
+          <!-- LAB Sliders -->
+          <app-lab-sliders
+            *ngIf="format() === 'lab'"
+            [color]="currentFormatValue()"
+            [gamut]="gamutDisplayName()"
+            (colorChange)="onLabColorChange($event)"
+          ></app-lab-sliders>
+
           <!-- Gamut Selector (T066) -->
           <div class="gamut-section">
             <app-gamut-selector
@@ -223,173 +240,3 @@
     </main>
   </div>
 </div>
-} @else {
-<div class="color-setter-container" data-testid="color-setter-component">
-  <!-- Color Preview -->
-  <div class="color-preview-section">
-    <div
-      class="color-sample"
-      [style.backgroundColor]="colorPreview()"
-      data-testid="color-preview"
-    ></div>
-    <div class="color-info">
-      <div class="color-value" data-testid="display-value">
-        {{ currentFormatValue() }}
-      </div>
-    </div>
-  </div>
-
-  <!-- Format Selector -->
-  <div class="format-selector-section">
-    <div class="format-buttons">
-      <button
-        *ngFor="let fmt of availableFormats"
-        [attr.data-active]="format() === fmt ? 'true' : null"
-        (click)="switchFormat(fmt)"
-        [attr.data-testid]="'format-selector-' + fmt"
-        class="format-btn"
-      >
-        {{ getFormatLabel(fmt) }}
-      </button>
-    </div>
-  </div>
-
-  <!-- Color Input Controls -->
-  <div class="color-controls-section">
-    <!-- HEX Input -->
-    <div *ngIf="format() === 'hex'" class="hex-controls">
-      <input
-        type="text"
-        [(ngModel)]="hexInputValue"
-        (change)="onHexChange()"
-        (blur)="onHexChange()"
-        data-testid="hex-input"
-        placeholder="#FF0000"
-        class="hex-input"
-      />
-    </div>
-
-    <!-- RGB Sliders -->
-    <div *ngIf="format() === 'rgb'" class="rgb-controls">
-      <div class="slider-group">
-        <label>Red</label>
-        <input
-          type="range"
-          min="0"
-          max="255"
-          [(ngModel)]="rgbValues[0]"
-          (change)="onRgbChange()"
-          (input)="onRgbInput()"
-          data-testid="rgb-slider-r"
-          class="slider"
-        />
-        <span class="value-display" data-testid="rgb-value-r">
-          {{ Math.round(rgbValues[0]) }}
-        </span>
-      </div>
-
-      <div class="slider-group">
-        <label>Green</label>
-        <input
-          type="range"
-          min="0"
-          max="255"
-          [(ngModel)]="rgbValues[1]"
-          (change)="onRgbChange()"
-          (input)="onRgbInput()"
-          data-testid="rgb-slider-g"
-          class="slider"
-        />
-        <span class="value-display" data-testid="rgb-value-g">
-          {{ Math.round(rgbValues[1]) }}
-        </span>
-      </div>
-
-      <div class="slider-group">
-        <label>Blue</label>
-        <input
-          type="range"
-          min="0"
-          max="255"
-          [(ngModel)]="rgbValues[2]"
-          (change)="onRgbChange()"
-          (input)="onRgbInput()"
-          data-testid="rgb-slider-b"
-          class="slider"
-        />
-        <span class="value-display" data-testid="rgb-value-b">
-          {{ Math.round(rgbValues[2]) }}
-        </span>
-      </div>
-
-      <div class="rgb-display" data-testid="rgb-display">
-        rgb({{ Math.round(rgbValues[0]) }}, {{ Math.round(rgbValues[1]) }},
-        {{ Math.round(rgbValues[2]) }})
-      </div>
-    </div>
-
-    <!-- HSL Sliders -->
-    <div *ngIf="format() === 'hsl'" class="hsl-controls">
-      <div class="slider-group">
-        <label>Hue</label>
-        <input
-          type="range"
-          min="0"
-          max="360"
-          [(ngModel)]="hslValues[0]"
-          (change)="onHslChange()"
-          (input)="onHslInput()"
-          data-testid="hsl-slider-h"
-          class="slider"
-        />
-        <span class="value-display">{{ Math.round(hslValues[0]) }}°</span>
-      </div>
-
-      <div class="slider-group">
-        <label>Saturation</label>
-        <input
-          type="range"
-          min="0"
-          max="100"
-          step="0.1"
-          [(ngModel)]="hslValues[1]"
-          (change)="onHslChange()"
-          (input)="onHslInput()"
-          data-testid="hsl-slider-s"
-          class="slider"
-        />
-        <span class="value-display">{{ Math.round(hslValues[1]) }}%</span>
-      </div>
-
-      <div class="slider-group">
-        <label>Lightness</label>
-        <input
-          type="range"
-          min="0"
-          max="100"
-          step="0.1"
-          [(ngModel)]="hslValues[2]"
-          (change)="onHslChange()"
-          (input)="onHslInput()"
-          data-testid="hsl-slider-l"
-          class="slider"
-        />
-        <span class="value-display">{{ Math.round(hslValues[2]) }}%</span>
-      </div>
-
-      <div class="hsl-display" data-testid="hsl-display">
-        hsl({{ Math.round(hslValues[0]) }}, {{ Math.round(hslValues[1]) }}%,
-        {{ Math.round(hslValues[2]) }}%)
-      </div>
-    </div>
-
-    <!-- WCAG Accessibility Panel -->
-    <div *ngIf="showWCAG()" class="wcag-section">
-      <app-wcag-panel
-        [analysis]="wcagAnalysis()"
-        [color]="colorPreview()"
-      ></app-wcag-panel>
-    </div>
-  </div>
-</div>
-}

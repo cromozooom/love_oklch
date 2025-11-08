@@ -1,4 +1,12 @@
-import { Component, Input, Output, EventEmitter } from '@angular/core';
+import {
+  Component,
+  Input,
+  Output,
+  EventEmitter,
+  input,
+  signal,
+  effect,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
@@ -20,31 +28,43 @@ import { FormsModule } from '@angular/forms';
   styleUrl: './hsl-sliders.component.scss',
 })
 export class HslSlidersComponent {
-  @Input() hslValues: [number, number, number] = [0, 100, 50];
+  hslValues = input<[number, number, number]>([0, 100, 50]);
+
+  // Individual signals for easier template binding
+  h = signal(0);
+  s = signal(100);
+  l = signal(50);
+
   @Output() hslValuesChange = new EventEmitter<[number, number, number]>();
   @Output() hslInput = new EventEmitter<[number, number, number]>();
   @Output() hslChange = new EventEmitter<[number, number, number]>();
 
   protected Math = Math;
 
+  constructor() {
+    // Sync individual values with input array
+    const [h, s, l] = this.hslValues();
+    this.h.set(h);
+    this.s.set(s);
+    this.l.set(l);
+
+    // Effect to sync with input changes
+    effect(() => {
+      const [h, s, l] = this.hslValues();
+      this.h.set(h);
+      this.s.set(s);
+      this.l.set(l);
+    });
+  }
+
   onHslInput(): void {
-    this.hslInput.emit([
-      this.hslValues[0],
-      this.hslValues[1],
-      this.hslValues[2],
-    ]);
+    const values: [number, number, number] = [this.h(), this.s(), this.l()];
+    this.hslInput.emit(values);
   }
 
   onHslChange(): void {
-    this.hslValuesChange.emit([
-      this.hslValues[0],
-      this.hslValues[1],
-      this.hslValues[2],
-    ]);
-    this.hslChange.emit([
-      this.hslValues[0],
-      this.hslValues[1],
-      this.hslValues[2],
-    ]);
+    const values: [number, number, number] = [this.h(), this.s(), this.l()];
+    this.hslValuesChange.emit(values);
+    this.hslChange.emit(values);
   }
 }

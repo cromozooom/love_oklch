@@ -5,6 +5,7 @@
 export enum ColorGamut {
   SRGB = 'sRGB',
   DISPLAY_P3 = 'Display P3',
+  REC2020 = 'Rec2020',
   UNLIMITED = 'Unlimited gamut',
 }
 
@@ -56,6 +57,13 @@ export const COLOR_GAMUT_INFO: Record<ColorGamut, ColorGamutInfo> = {
     description: 'Wide gamut color space for modern displays and Apple devices',
     coverage: '~45%',
     recommendation: 'Ideal for modern displays and creative work',
+  },
+  [ColorGamut.REC2020]: {
+    value: ColorGamut.REC2020,
+    label: 'Rec2020 (Ultra Wide)',
+    description: 'Ultra-wide gamut standard for HDR and professional displays',
+    coverage: '~75%',
+    recommendation: 'For HDR content and professional color work',
   },
   [ColorGamut.UNLIMITED]: {
     value: ColorGamut.UNLIMITED,

@@ -7,12 +7,12 @@
       min="0"
       max="360"
       step="1"
-      [(ngModel)]="hslValues[0]"
+      [(ngModel)]="h"
       (change)="onHslChange()"
       (input)="onHslInput()"
       data-testid="hsl-slider-h"
     />
-    <span data-testid="hsl-value-h">{{ Math.round(hslValues[0]) }}°</span>
+    <span data-testid="hsl-value-h">{{ Math.round(h()) }}°</span>
   </div>
 
   <div>
@@ -23,12 +23,12 @@
       min="0"
       max="100"
       step="0.1"
-      [(ngModel)]="hslValues[1]"
+      [(ngModel)]="s"
       (change)="onHslChange()"
       (input)="onHslInput()"
       data-testid="hsl-slider-s"
     />
-    <span data-testid="hsl-value-s">{{ Math.round(hslValues[1]) }}%</span>
+    <span data-testid="hsl-value-s">{{ Math.round(s()) }}%</span>
   </div>
 
   <div>
@@ -39,16 +39,15 @@
       min="0"
       max="100"
       step="0.1"
-      [(ngModel)]="hslValues[2]"
+      [(ngModel)]="l"
       (change)="onHslChange()"
       (input)="onHslInput()"
       data-testid="hsl-slider-l"
     />
-    <span data-testid="hsl-value-l">{{ Math.round(hslValues[2]) }}%</span>
+    <span data-testid="hsl-value-l">{{ Math.round(l()) }}%</span>
   </div>
 
   <div data-testid="hsl-display">
-    hsl({{ Math.round(hslValues[0]) }}, {{ Math.round(hslValues[1]) }}%,
-    {{ Math.round(hslValues[2]) }}%)
+    hsl({{ Math.round(h()) }}, {{ Math.round(s()) }}%, {{ Math.round(l()) }}%)
   </div>
 </div>

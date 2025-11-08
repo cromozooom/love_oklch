@@ -7,7 +7,7 @@
 
   <div class="gamut-options">
     <div
-      *ngFor="let gamutDef of availableGamuts"
+      *ngFor="let gamutDef of availableGamuts()"
       class="gamut-option"
       [class.selected]="isSelected(gamutDef.profile)"
       (click)="onGamutChange(gamutDef.profile)"

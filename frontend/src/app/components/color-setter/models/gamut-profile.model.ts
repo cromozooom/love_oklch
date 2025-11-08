@@ -1,7 +1,7 @@
 /**
  * Supported gamut profiles for color visualization and clipping
  */
-export type GamutProfile = 'srgb' | 'display-p3' | 'unlimited';
+export type GamutProfile = 'srgb' | 'display-p3' | 'rec2020' | 'unlimited';
 
 /**
  * Definition of a gamut profile with colorjs.io reference and metadata
@@ -45,6 +45,12 @@ export const GAMUT_PROFILES: Record<GamutProfile, GamutDefinition> = {
     displayName: 'Display P3',
     colorjsGamut: 'p3',
     description: 'Wide gamut for modern displays (Apple, high-end monitors)',
+  },
+  rec2020: {
+    profile: 'rec2020',
+    displayName: 'Rec2020',
+    colorjsGamut: 'rec2020',
+    description: 'Wide color gamut standard for HDR and professional displays',
   },
   unlimited: {
     profile: 'unlimited',
