@@ -61,17 +61,22 @@ export interface GamutCheckResult {
   /**
    * Whether color is in gamut for the specified profile
    */
-  inGamut: boolean;
+  isInGamut: boolean;
 
   /**
    * Gamut profile that was checked
    */
-  profile: GamutProfile;
+  gamut: string;
 
   /**
-   * If out of gamut, the nearest in-gamut color
+   * If out of gamut, the nearest in-gamut color (HEX format)
    */
   clipped?: string;
+
+  /**
+   * Distance from gamut boundary (0 if in-gamut, >0 if out-of-gamut)
+   */
+  distance?: number;
 
   /**
    * Human-readable warning message if out of gamut

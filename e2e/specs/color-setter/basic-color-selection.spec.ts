@@ -379,8 +379,8 @@ test.describe('Color Setter Component - US1: Basic Color Selection', () => {
       await hexInput.waitFor({ state: 'visible', timeout: 5000 });
 
       // Then: Format selector should show HEX as active
-  const hexBtn = page.locator('[data-testid="format-selector-hex"]');
-  await expect(hexBtn).toHaveAttribute('data-active', 'true');
+      const hexBtn = page.locator('[data-testid="format-selector-hex"]');
+      await expect(hexBtn).toHaveAttribute('data-active', 'true');
     });
   });
 

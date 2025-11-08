@@ -134,23 +134,23 @@
 
 ### Tests for User Story 3
 
-- [ ] T049 [P] [US3] Create E2E test for LCH chroma gamut warning in `e2e/specs/color-setter/advanced-color-spaces.spec.ts` - test exceeding sRGB [Est: 2h]
-- [ ] T050 [P] [US3] Create E2E test for OKLCH Display P3 gamut in `e2e/specs/color-setter/advanced-color-spaces.spec.ts` - test out-of-gamut detection [Est: 2h]
-- [ ] T051 [P] [US3] Create E2E test for LAB format validation in `e2e/specs/color-setter/advanced-color-spaces.spec.ts` - test extreme values [Est: 2h]
-- [ ] T052 [P] [US3] Create unit test for GamutService.check() in `frontend/src/app/components/color-setter/services/__tests__/gamut.service.spec.ts` [Est: 2h]
-- [ ] T053 [P] [US3] Create unit test for GamutService.generateSliderGradient() in `frontend/src/app/components/color-setter/services/__tests__/gamut.service.spec.ts` [Est: 2.5h]
+- [x] T049 [P] [US3] Create E2E test for LCH chroma gamut warning in `e2e/specs/color-setter/advanced-color-spaces.spec.ts` - test exceeding sRGB [Est: 2h]
+- [x] T050 [P] [US3] Create E2E test for OKLCH Display P3 gamut in `e2e/specs/color-setter/advanced-color-spaces.spec.ts` - test out-of-gamut detection [Est: 2h]
+- [x] T051 [P] [US3] Create E2E test for LAB format validation in `e2e/specs/color-setter/advanced-color-spaces.spec.ts` - test extreme values [Est: 2h]
+- [x] T052 [P] [US3] Create unit test for GamutService.check() in `frontend/src/app/components/color-setter/services/__tests__/gamut.service.spec.ts` [Est: 2h]
+- [x] T053 [P] [US3] Create unit test for GamutService.generateSliderGradient() in `frontend/src/app/components/color-setter/services/__tests__/gamut.service.spec.ts` [Est: 2.5h]
 
 ### Implementation for User Story 3
 
-- [ ] T054 [P] [US3] Create GamutCheckResult interface in `frontend/src/app/components/color-setter/models/gamut-profile.model.ts` [Est: 1h]
-- [ ] T055 [P] [US3] Create SliderGradient interface in `frontend/src/app/components/color-setter/models/slider-gradient.model.ts` [Est: 0.5h]
-- [ ] T056 [US3] Define gamut profile constants (sRGB, Display P3, Unlimited) in `frontend/src/app/components/color-setter/models/gamut-profile.model.ts` [Est: 1h]
-- [ ] T057 [US3] Implement GamutService with colorjs.io gamut checking in `frontend/src/app/components/color-setter/services/gamut.service.ts` [Est: 3h]
-- [ ] T058 [US3] Implement GamutService.check() method in `frontend/src/app/components/color-setter/services/gamut.service.ts` [Est: 2h]
-- [ ] T059 [US3] Implement GamutService.clip() for nearest in-gamut color in `frontend/src/app/components/color-setter/services/gamut.service.ts` [Est: 2h]
-- [ ] T060 [US3] Implement gradient generator utility in `frontend/src/app/components/color-setter/utils/slider-gradient-generator.ts` [Est: 4h]
-- [ ] T061 [US3] Implement GamutService.generateSliderGradient() with 50 steps in `frontend/src/app/components/color-setter/services/gamut.service.ts` [Est: 3h]
-- [ ] T062 [US3] Implement GamutService.getGradientStops() with transparent regions in `frontend/src/app/components/color-setter/services/gamut.service.ts` [Est: 2h]
+- [x] T054 [P] [US3] Create GamutCheckResult interface in `frontend/src/app/components/color-setter/models/gamut-profile.model.ts` [Est: 1h]
+- [x] T055 [P] [US3] Create SliderGradient interface in `frontend/src/app/components/color-setter/models/slider-gradient.model.ts` [Est: 0.5h]
+- [x] T056 [US3] Define gamut profile constants (sRGB, Display P3, Unlimited) in `frontend/src/app/components/color-setter/models/gamut-profile.model.ts` [Est: 1h]
+- [x] T057 [US3] Implement GamutService with colorjs.io gamut checking in `frontend/src/app/components/color-setter/services/gamut.service.ts` [Est: 3h]
+- [x] T058 [US3] Implement GamutService.check() method in `frontend/src/app/components/color-setter/services/gamut.service.ts` [Est: 2h]
+- [x] T059 [US3] Implement GamutService.clip() for nearest in-gamut color in `frontend/src/app/components/color-setter/services/gamut.service.ts` [Est: 2h]
+- [x] T060 [US3] Implement gradient generator utility in `frontend/src/app/components/color-setter/utils/slider-gradient-generator.ts` [Est: 4h]
+- [x] T061 [US3] Implement GamutService.generateSliderGradient() with 50 steps in `frontend/src/app/components/color-setter/services/gamut.service.ts` [Est: 3h]
+- [x] T062 [US3] Implement GamutService.getGradientStops() with transparent regions in `frontend/src/app/components/color-setter/services/gamut.service.ts` [Est: 2h]
 - [ ] T063 [US3] Create LCH sliders subcomponent with gradients in `frontend/src/app/components/color-setter/subcomponents/color-sliders/lch-sliders.component.ts` [Est: 3h]
 - [ ] T064 [US3] Create OKLCH sliders subcomponent with gradients in `frontend/src/app/components/color-setter/subcomponents/color-sliders/oklch-sliders.component.ts` [Est: 3h]
 - [ ] T065 [US3] Create LAB sliders subcomponent with gradients in `frontend/src/app/components/color-setter/subcomponents/color-sliders/lab-sliders.component.ts` [Est: 3h]
