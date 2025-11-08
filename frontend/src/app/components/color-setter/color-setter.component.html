@@ -1,6 +1,6 @@
 @if(versionbump == '1.0.0') {
 <div
-  class="new flex flex-col border border-gray-300 m-2"
+  class="new w-auto flex flex-col border border-gray-300 m-2"
   data-testid="color-setter-component"
 >
   <div>
@@ -174,19 +174,24 @@
           <div class="gamut-section">
             <app-gamut-selector
               [selectedGamut]="gamut()"
-              [supportedGamuts]="supportedGamuts"
+              [supportedGamuts]="supportedGamuts()"
               (gamutChange)="onGamutChange($event)"
             ></app-gamut-selector>
           </div>
 
           <!-- Gamut Warning Display (T068) -->
-          <div *ngIf="!gamutStatus().inGamut" class="gamut-warning" data-testid="gamut-warning">
+          <div
+            *ngIf="!gamutStatus().inGamut"
+            class="gamut-warning"
+            data-testid="gamut-warning"
+          >
             <div class="warning-icon">⚠️</div>
             <div class="warning-content">
               <strong>Out of Gamut</strong>
               <p>{{ gamutStatus().warning }}</p>
               <small *ngIf="gamutStatus().distance">
-                Distance from gamut boundary: {{ gamutStatus().distance?.toFixed(2) }}
+                Distance from gamut boundary:
+                {{ gamutStatus().distance?.toFixed(2) }}
               </small>
             </div>
           </div>
@@ -194,7 +199,7 @@
       </div>
       <div class="acesibility">
         <!-- WCAG Accessibility Panel -->
-        <div *ngIf="showWCAG" class="wcag-section">
+        <div *ngIf="showWCAG()" class="wcag-section">
           <app-wcag-panel [analysis]="wcagAnalysis()"></app-wcag-panel>
         </div>
       </div>
@@ -362,7 +367,7 @@
     </div>
 
     <!-- WCAG Accessibility Panel -->
-    <div *ngIf="showWCAG" class="wcag-section">
+    <div *ngIf="showWCAG()" class="wcag-section">
       <app-wcag-panel [analysis]="wcagAnalysis()"></app-wcag-panel>
     </div>
   </div>

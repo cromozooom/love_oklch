@@ -55,6 +55,26 @@ export const GAMUT_PROFILES: Record<GamutProfile, GamutDefinition> = {
 };
 
 /**
+ * Helper function to convert display name to GamutProfile type
+ * Useful for form selects that use human-readable values
+ */
+export function displayNameToGamutProfile(
+  displayName: string
+): GamutProfile | null {
+  const entry = Object.values(GAMUT_PROFILES).find(
+    (def) => def.displayName.toLowerCase() === displayName.toLowerCase()
+  );
+  return entry?.profile || null;
+}
+
+/**
+ * Helper function to get display name from GamutProfile type
+ */
+export function gamutProfileToDisplayName(profile: GamutProfile): string {
+  return GAMUT_PROFILES[profile].displayName;
+}
+
+/**
  * Result of gamut checking operation
  */
 export interface GamutCheckResult {

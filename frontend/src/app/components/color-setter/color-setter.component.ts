@@ -7,6 +7,7 @@ import {
   computed,
   effect,
   OnInit,
+  input,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -101,7 +102,12 @@ export interface ColorChangeEvent {
   templateUrl: './color-setter.component.html',
   styleUrl: './color-setter.component.scss',
   standalone: true,
-  imports: [CommonModule, FormsModule, WCAGPanelComponent, GamutSelectorComponent],
+  imports: [
+    CommonModule,
+    FormsModule,
+    WCAGPanelComponent,
+    GamutSelectorComponent,
+  ],
   providers: [ColorService, WCAGService, GamutService],
 })
 export class ColorSetterComponent implements OnInit {
@@ -113,43 +119,38 @@ export class ColorSetterComponent implements OnInit {
    * Initial color value (any supported format)
    * Default: #FF0000 (red)
    */
-  @Input()
-  initialColor: string = '#FF0000';
+  initialColor = input<string>('#FF0000');
 
   /**
    * Initial display format
    * Default: hex
    */
-  @Input()
-  initialFormat: ColorFormat = 'hex';
+  initialFormat = input<ColorFormat>('hex');
 
   /**
-   * Initial gamut profile
+   * Current gamut profile (signal input for reactive binding)
+   * Allows parent components to control the gamut reactively
    * Default: srgb
    */
-  @Input()
-  initialGamut: GamutProfile = 'srgb';
+  currentGamut = input<GamutProfile>('srgb');
 
   /**
    * Show WCAG accessibility panel (User Story 2)
    * Default: false
    */
-  @Input()
-  showWCAG: boolean = false;
+  showWCAG = input<boolean>(false);
 
   /**
    * Show color name display (User Story 3 enhancement)
    * Default: false
    */
-  @Input()
-  showColorName: boolean = false;
+  showColorName = input<boolean>(false);
 
   /**
    * Supported gamut profiles to show in selector
    * Default: ['srgb', 'display-p3', 'unlimited']
    */
-  @Input()
-  supportedGamuts: GamutProfile[] = ['srgb', 'display-p3', 'unlimited'];
+  supportedGamuts = input<GamutProfile[]>(['srgb', 'display-p3', 'unlimited']);
 
   // ============================================================================
   // OUTPUTS
@@ -199,7 +200,7 @@ export class ColorSetterComponent implements OnInit {
 
   // WCAG analysis - computed reactively from color state
   wcagAnalysis = computed(() => {
-    if (!this.showWCAG) {
+    if (!this.showWCAG()) {
       return null;
     }
     const state = this.colorState();
@@ -210,17 +211,20 @@ export class ColorSetterComponent implements OnInit {
   // Gamut status - computed reactively from color state and gamut
   gamutStatus = computed(() => {
     const state = this.colorState();
-    const currentGamut = this.gamut();
+    // Use currentGamut signal input (reactive from parent) or fallback to internal gamut
+    const activeGamut = this.currentGamut() || this.gamut();
     const allFormats = this.colorService.toAllFormats(state.internalValue);
-    
-    const gamutCheck = this.gamutService.check(allFormats.hex, currentGamut);
-    
+
+    const gamutCheck = this.gamutService.check(allFormats.hex, activeGamut);
+
     return {
       inGamut: gamutCheck.isInGamut,
-      profile: currentGamut,
-      warning: gamutCheck.isInGamut ? undefined : `Color is outside ${GAMUT_PROFILES[currentGamut].displayName} gamut`,
+      profile: activeGamut,
+      warning: gamutCheck.isInGamut
+        ? undefined
+        : `Color is outside ${GAMUT_PROFILES[activeGamut].displayName} gamut`,
       distance: gamutCheck.distance,
-      clipped: gamutCheck.clipped
+      clipped: gamutCheck.clipped,
     };
   });
 
@@ -274,25 +278,44 @@ export class ColorSetterComponent implements OnInit {
       this.colorChange.emit(event);
     });
 
-    // Effect to update state on initialization
-    effect(() => {
-      const state = this.colorState();
-      // Sync format and gamut signals
-      this.format.set(state.format);
-      this.gamut.set(state.gamut);
-    });
+    // Effect to sync external gamut signal input with internal state
+    // Use allowSignalWrites to prevent circular dependency warnings
+    effect(
+      () => {
+        const externalGamut = this.currentGamut();
+        const currentInternalGamut = this.gamut();
+
+        if (externalGamut !== currentInternalGamut) {
+          console.log('🔄 Gamut changed externally:', externalGamut);
+
+          // Update internal gamut signal when external signal changes
+          this.gamut.set(externalGamut);
+
+          // Update color state with new gamut
+          this.colorState.update((state) => ({
+            ...state,
+            gamut: externalGamut,
+            lastUpdated: Date.now(),
+          }));
+
+          // Emit color change to notify parent of gamut change
+          this.emitColorChange();
+        }
+      },
+      { allowSignalWrites: true }
+    );
   }
 
   ngOnInit(): void {
     try {
       // Parse initial color
-      const parsed = this.colorService.parse(this.initialColor);
+      const parsed = this.colorService.parse(this.initialColor());
 
       // Update state with EXPLICIT format from input
       this.colorState.set({
         internalValue: parsed,
-        format: this.initialFormat, // Use input format, don't default
-        gamut: this.initialGamut,
+        format: this.initialFormat(), // Use input format, don't default
+        gamut: this.currentGamut(),
         lastUpdated: Date.now(),
       });
 
@@ -436,7 +459,7 @@ export class ColorSetterComponent implements OnInit {
    */
   onGamutChange(newGamut: GamutProfile): void {
     this.gamut.set(newGamut);
-    
+
     // Update color state with new gamut
     this.colorState.update((state) => ({
       ...state,
@@ -546,7 +569,7 @@ export class ColorSetterComponent implements OnInit {
     };
 
     // Add WCAG results if enabled
-    if (this.showWCAG) {
+    if (this.showWCAG()) {
       const wcagResult = this.wcagAnalysis();
       if (wcagResult) {
         event.wcagResults = wcagResult;
@@ -559,7 +582,7 @@ export class ColorSetterComponent implements OnInit {
       event.gamutStatus = {
         inGamut: gamutResult.inGamut,
         profile: gamutResult.profile,
-        warning: gamutResult.warning
+        warning: gamutResult.warning,
       };
     }
 
