@@ -154,13 +154,13 @@
 - [x] T063 [US3] Create LCH sliders subcomponent with gradients in `frontend/src/app/components/color-setter/subcomponents/color-sliders/lch-sliders.component.ts` [Est: 3h]
 - [x] T064 [US3] Create OKLCH sliders subcomponent with gradients in `frontend/src/app/components/color-setter/subcomponents/color-sliders/oklch-sliders.component.ts` [Est: 3h]
 - [x] T065 [US3] Create LAB sliders subcomponent with gradients in `frontend/src/app/components/color-setter/subcomponents/color-sliders/lab-sliders.component.ts` [Est: 3h]
-- [ ] T066 [US3] Create gamut selector subcomponent in `frontend/src/app/components/color-setter/subcomponents/gamut-selector/gamut-selector.component.ts` [Est: 2h]
-- [ ] T067 [US3] Integrate gamut checking into main component in `frontend/src/app/components/color-setter/color-setter.component.ts` [Est: 2h]
-- [ ] T068 [US3] Add gamut warning display to UI in `frontend/src/app/components/color-setter/color-setter.component.html` [Est: 1.5h]
-- [ ] T069 [US3] Implement dynamic gradient updates on color/gamut changes in `frontend/src/app/components/color-setter/color-setter.component.ts` [Est: 2h]
-- [ ] T070 [US3] Add gamutStatus to colorChange event payload in `frontend/src/app/components/color-setter/color-setter.component.ts` [Est: 0.5h]
-- [ ] T071 [US3] Add supportedGamuts input property in `frontend/src/app/components/color-setter/color-setter.component.ts` [Est: 0.5h]
-- [ ] T072 [US3] Optimize gradient generation with throttling (50ms) in `frontend/src/app/components/color-setter/services/gamut.service.ts` [Est: 1.5h]
+- [x] T066 [US3] Create gamut selector subcomponent in `frontend/src/app/components/color-setter/subcomponents/gamut-selector/gamut-selector.component.ts` [Est: 2h]
+- [x] T067 [US3] Integrate gamut checking into main component in `frontend/src/app/components/color-setter/color-setter.component.ts` [Est: 2h]
+- [x] T068 [US3] Add gamut warning display to UI in `frontend/src/app/components/color-setter/color-setter.component.html` [Est: 1.5h]
+- [x] T069 [US3] Implement dynamic gradient updates on color/gamut changes in `frontend/src/app/components/color-setter/color-setter.component.ts` [Est: 2h]
+- [x] T070 [US3] Add gamutStatus to colorChange event payload in `frontend/src/app/components/color-setter/color-setter.component.ts` [Est: 0.5h]
+- [x] T071 [US3] Add supportedGamuts input property in `frontend/src/app/components/color-setter/color-setter.component.ts` [Est: 0.5h]
+- [x] T072 [US3] Optimize gradient generation with throttling (50ms) in `frontend/src/app/components/color-setter/services/gamut.service.ts` [Est: 1.5h]
 
 **Checkpoint**: All 3 user stories complete - full color space support with gamut visualization
 

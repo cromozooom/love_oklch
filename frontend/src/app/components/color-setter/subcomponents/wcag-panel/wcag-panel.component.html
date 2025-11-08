@@ -1,6 +1,151 @@
-<!-- <div *ngIf="analysis" class="wcag-panel" data-testid="wcag-panel">
+@if(versionBump > 0) {
+<div
+  *ngIf="analysis"
+  class="border-t border-gray-300 flex flex-col"
+  data-testid="wcag-panel"
+>
+  <div class="p-2 border-b border-b-gray-300">
+    <h3>WCAG Compliance</h3>
+  </div>
+  <div class="flex flex-col">
+    <div
+      class="flex justify-between items-center p-2 text-sm"
+      data-testid="wcag-white-bg"
+    >
+      <div>White Background (#FFFFFF)</div>
+      <div class="flex gap-2 items-center">
+        <span>Contrast:</span>
+        <span data-testid="wcag-contrast-value">
+          {{ formatRatio(analysis.whiteBackground.ratio) }}
+        </span>
+      </div>
+    </div>
+  </div>
+  <div class="flex flex-col pb-1">
+    <div class="bg-gray-50 h-1">
+      <div
+        class="bg-green-400 h-1"
+        [style.width.%]="getContrastBarWidth(analysis.whiteBackground.ratio)"
+        [style.backgroundColor]="
+          getContrastBarColor(analysis.whiteBackground.ratio)
+        "
+      ></div>
+    </div>
+    <div class="flex justify-between text-[.5rem] pt-2 px-2">
+      <span>1:1</span>
+      <span>4.5:1</span>
+      <span>7:1</span>
+      <span>21:1</span>
+    </div>
+  </div>
+  <div class="flex">
+    <div class="compliance-grid">
+      <!-- Normal AA -->
+      <div class="compliance-item" data-testid="wcag-normal-aa">
+        <div class="threshold-label" data-testid="wcag-normal-aa-threshold">
+          Normal AA
+        </div>
+        <div class="threshold-value">4.5:1</div>
+        <div
+          [class]="
+            'status ' +
+            getComplianceClass(analysis.whiteBackground.normalTextAA)
+          "
+          [attr.data-status]="
+            getComplianceClass(analysis.whiteBackground.normalTextAA)
+          "
+        >
+          {{ getStatusLabel(analysis.whiteBackground.normalTextAA) }}
+        </div>
+      </div>
 
-</div> -->
+      <!-- Normal AAA -->
+      <div class="compliance-item" data-testid="wcag-normal-aaa">
+        <div class="threshold-label" data-testid="wcag-normal-aaa-threshold">
+          Normal AAA
+        </div>
+        <div class="threshold-value">7:1</div>
+        <div
+          [class]="
+            'status ' +
+            getComplianceClass(analysis.whiteBackground.normalTextAAA)
+          "
+          [attr.data-status]="
+            getComplianceClass(analysis.whiteBackground.normalTextAAA)
+          "
+        >
+          {{ getStatusLabel(analysis.whiteBackground.normalTextAAA) }}
+        </div>
+      </div>
+
+      <!-- Large AA -->
+      <div class="compliance-item" data-testid="wcag-large-aa">
+        <div class="threshold-label" data-testid="wcag-large-aa-threshold">
+          Large AA
+        </div>
+        <div class="threshold-value">3:1</div>
+        <div
+          [class]="
+            'status ' + getComplianceClass(analysis.whiteBackground.largeTextAA)
+          "
+          [attr.data-status]="
+            getComplianceClass(analysis.whiteBackground.largeTextAA)
+          "
+        >
+          {{ getStatusLabel(analysis.whiteBackground.largeTextAA) }}
+        </div>
+      </div>
+
+      <!-- Large AAA -->
+      <div class="compliance-item" data-testid="wcag-large-aaa">
+        <div class="threshold-label" data-testid="wcag-large-aaa-threshold">
+          Large AAA
+        </div>
+        <div class="threshold-value">4.5:1</div>
+        <div
+          [class]="
+            'status ' +
+            getComplianceClass(analysis.whiteBackground.largeTextAAA)
+          "
+          [attr.data-status]="
+            getComplianceClass(analysis.whiteBackground.largeTextAAA)
+          "
+        >
+          {{ getStatusLabel(analysis.whiteBackground.largeTextAAA) }}
+        </div>
+      </div>
+
+      <!-- Graphical AA -->
+      <div class="compliance-item">
+        <div class="threshold-label">Graphical AA</div>
+        <div class="threshold-value">3:1</div>
+        <div
+          [class]="
+            'status ' + getComplianceClass(analysis.whiteBackground.graphicalAA)
+          "
+        >
+          {{ getStatusLabel(analysis.whiteBackground.graphicalAA) }}
+        </div>
+      </div>
+
+      <!-- Graphical AAA -->
+      <div class="compliance-item">
+        <div class="threshold-label">Graphical AAA</div>
+        <div class="threshold-value">4.5:1</div>
+        <div
+          [class]="
+            'status ' +
+            getComplianceClass(analysis.whiteBackground.graphicalAAA)
+          "
+        >
+          {{ getStatusLabel(analysis.whiteBackground.graphicalAAA) }}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+} @else { }
 <div *ngIf="analysis" class="wcag-panel" data-testid="wcag-panel">
   <div class="wcag-header">
     <h3 class="text-lg font-semibold text-gray-800">WCAG Compliance</h3>

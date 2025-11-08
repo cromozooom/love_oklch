@@ -1,0 +1,31 @@
+<div class="gamut-selector" data-testid="gamut-selector">
+  <div class="selector-header">
+    <label class="text-sm font-medium text-gray-700 dark:text-gray-300">
+      Color Gamut
+    </label>
+  </div>
+
+  <div class="gamut-options">
+    <div
+      *ngFor="let gamutDef of availableGamuts"
+      class="gamut-option"
+      [class.selected]="isSelected(gamutDef.profile)"
+      (click)="onGamutChange(gamutDef.profile)"
+      [attr.data-testid]="'gamut-option-' + gamutDef.profile"
+    >
+      <input
+        type="radio"
+        [id]="'gamut-' + gamutDef.profile"
+        [name]="'gamut-selector'"
+        [value]="gamutDef.profile"
+        [checked]="isSelected(gamutDef.profile)"
+        (change)="onGamutChange(gamutDef.profile)"
+        class="gamut-radio"
+      />
+      <label [for]="'gamut-' + gamutDef.profile" class="gamut-label">
+        <span class="gamut-name">{{ gamutDef.displayName }}</span>
+        <span class="gamut-description">{{ gamutDef.description }}</span>
+      </label>
+    </div>
+  </div>
+</div>

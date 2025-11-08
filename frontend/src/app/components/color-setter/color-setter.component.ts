@@ -15,12 +15,14 @@ import Color from 'colorjs.io';
 
 import { ColorService } from './services/color.service';
 import { WCAGService } from './services/wcag.service';
+import { GamutService } from './services/gamut.service';
 import { ColorFormat, FORMAT_CONFIGS } from './models/format-config.model';
 import { GamutProfile, GAMUT_PROFILES } from './models/gamut-profile.model';
 import { ColorState } from './models/color-state.model';
 import { WCAGAnalysis } from './models/wcag-contrast.model';
 import { ColorValidators } from './utils/color-validators';
 import { WCAGPanelComponent } from './subcomponents/wcag-panel/wcag-panel.component';
+import { GamutSelectorComponent } from './subcomponents/gamut-selector/gamut-selector.component';
 
 /**
  * Event payload emitted when color changes
@@ -99,8 +101,8 @@ export interface ColorChangeEvent {
   templateUrl: './color-setter.component.html',
   styleUrl: './color-setter.component.scss',
   standalone: true,
-  imports: [CommonModule, FormsModule, WCAGPanelComponent],
-  providers: [ColorService, WCAGService],
+  imports: [CommonModule, FormsModule, WCAGPanelComponent, GamutSelectorComponent],
+  providers: [ColorService, WCAGService, GamutService],
 })
 export class ColorSetterComponent implements OnInit {
   // ============================================================================
@@ -205,6 +207,23 @@ export class ColorSetterComponent implements OnInit {
     return this.wcagService.analyze(allFormats.hex);
   });
 
+  // Gamut status - computed reactively from color state and gamut
+  gamutStatus = computed(() => {
+    const state = this.colorState();
+    const currentGamut = this.gamut();
+    const allFormats = this.colorService.toAllFormats(state.internalValue);
+    
+    const gamutCheck = this.gamutService.check(allFormats.hex, currentGamut);
+    
+    return {
+      inGamut: gamutCheck.isInGamut,
+      profile: currentGamut,
+      warning: gamutCheck.isInGamut ? undefined : `Color is outside ${GAMUT_PROFILES[currentGamut].displayName} gamut`,
+      distance: gamutCheck.distance,
+      clipped: gamutCheck.clipped
+    };
+  });
+
   colorPreview = computed(() => {
     const state = this.colorState();
     try {
@@ -247,7 +266,8 @@ export class ColorSetterComponent implements OnInit {
 
   constructor(
     private colorService: ColorService,
-    private wcagService: WCAGService
+    private wcagService: WCAGService,
+    private gamutService: GamutService
   ) {
     // Setup debounced color change (16ms for 60fps)
     this.colorChangeSubject.pipe(debounceTime(16)).subscribe((event) => {
@@ -411,6 +431,23 @@ export class ColorSetterComponent implements OnInit {
     }
   }
 
+  /**
+   * Handle gamut profile change (T067)
+   */
+  onGamutChange(newGamut: GamutProfile): void {
+    this.gamut.set(newGamut);
+    
+    // Update color state with new gamut
+    this.colorState.update((state) => ({
+      ...state,
+      gamut: newGamut,
+      lastUpdated: Date.now(),
+    }));
+
+    // Emit color change with updated gamut status
+    this.emitColorChange();
+  }
+
   private updateColorState(color: Color, format: ColorFormat): void {
     this.colorState.update((state) => ({
       ...state,
@@ -514,6 +551,16 @@ export class ColorSetterComponent implements OnInit {
       if (wcagResult) {
         event.wcagResults = wcagResult;
       }
+    }
+
+    // Add gamut status
+    const gamutResult = this.gamutStatus();
+    if (gamutResult) {
+      event.gamutStatus = {
+        inGamut: gamutResult.inGamut,
+        profile: gamutResult.profile,
+        warning: gamutResult.warning
+      };
     }
 
     this.colorChangeSubject.next(event);

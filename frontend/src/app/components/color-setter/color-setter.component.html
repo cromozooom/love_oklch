@@ -169,6 +169,27 @@
               {{ Math.round(hslValues[1]) }}%, {{ Math.round(hslValues[2]) }}%)
             </div>
           </div>
+
+          <!-- Gamut Selector (T066) -->
+          <div class="gamut-section">
+            <app-gamut-selector
+              [selectedGamut]="gamut()"
+              [supportedGamuts]="supportedGamuts"
+              (gamutChange)="onGamutChange($event)"
+            ></app-gamut-selector>
+          </div>
+
+          <!-- Gamut Warning Display (T068) -->
+          <div *ngIf="!gamutStatus().inGamut" class="gamut-warning" data-testid="gamut-warning">
+            <div class="warning-icon">⚠️</div>
+            <div class="warning-content">
+              <strong>Out of Gamut</strong>
+              <p>{{ gamutStatus().warning }}</p>
+              <small *ngIf="gamutStatus().distance">
+                Distance from gamut boundary: {{ gamutStatus().distance?.toFixed(2) }}
+              </small>
+            </div>
+          </div>
         </div>
       </div>
       <div class="acesibility">
