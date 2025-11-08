@@ -1,6 +1,6 @@
 /**
  * Slider Gradient Generator Utility
- * 
+ *
  * Generates CSS gradients for color sliders with gamut-aware visualization.
  * Out-of-gamut regions are displayed with reduced opacity.
  */
@@ -53,11 +53,13 @@ export interface GradientStop {
 
 /**
  * Generate a CSS gradient string for a slider
- * 
+ *
  * @param config - Gradient configuration
  * @returns CSS linear-gradient string
  */
-export function generateSliderGradient(config: GradientGeneratorConfig): string {
+export function generateSliderGradient(
+  config: GradientGeneratorConfig
+): string {
   const steps = config.steps || 50;
   const stops: GradientStop[] = [];
 
@@ -67,11 +69,11 @@ export function generateSliderGradient(config: GradientGeneratorConfig): string 
 
     // Map channel names to indices
     const channelMap: Record<string, Record<string, number>> = {
-      'rgb': { 'r': 0, 'g': 1, 'b': 2 },
-      'hsl': { 'h': 0, 's': 1, 'l': 2 },
-      'lch': { 'l': 0, 'c': 1, 'h': 2 },
-      'oklch': { 'l': 0, 'c': 1, 'h': 2 },
-      'lab': { 'l': 0, 'a': 1, 'b': 2 }
+      rgb: { r: 0, g: 1, b: 2 },
+      hsl: { h: 0, s: 1, l: 2 },
+      lch: { l: 0, c: 1, h: 2 },
+      oklch: { l: 0, c: 1, h: 2 },
+      lab: { l: 0, a: 1, b: 2 },
     };
 
     const channelIndex = channelMap[config.format]?.[config.channel] ?? 0;
@@ -86,12 +88,20 @@ export function generateSliderGradient(config: GradientGeneratorConfig): string 
       const coords = [...baseCoords];
       coords[channelIndex] = value;
 
-      const stepColor = new Color(config.format, coords as [number, number, number]);
-      
+      const stepColor = new Color(
+        config.format,
+        coords as [number, number, number]
+      );
+
       // Check gamut
       let inGamut = true;
       if (config.gamut !== 'Unlimited gamut') {
-        const gamutSpace = config.gamut === 'sRGB' ? 'srgb' : config.gamut === 'Display P3' ? 'p3' : 'srgb';
+        const gamutSpace =
+          config.gamut === 'sRGB'
+            ? 'srgb'
+            : config.gamut === 'Display P3'
+            ? 'p3'
+            : 'srgb';
         inGamut = stepColor.inGamut(gamutSpace);
       }
 
@@ -100,13 +110,12 @@ export function generateSliderGradient(config: GradientGeneratorConfig): string 
       stops.push({
         position,
         color: hexColor,
-        inGamut
+        inGamut,
       });
     }
 
     // Generate CSS gradient
     return generateCSSGradient(stops);
-
   } catch (error) {
     console.error('Gradient generation error:', error);
     return 'linear-gradient(to right, #FF0000, #0000FF)';
@@ -117,10 +126,12 @@ export function generateSliderGradient(config: GradientGeneratorConfig): string 
  * Generate CSS gradient string from stops
  */
 function generateCSSGradient(stops: GradientStop[]): string {
-  const colorStops = stops.map(stop => {
-    const opacity = stop.inGamut ? 'ff' : '4d'; // Full or 30% opacity
-    return `${stop.color}${opacity} ${stop.position.toFixed(1)}%`;
-  }).join(', ');
+  const colorStops = stops
+    .map((stop) => {
+      const opacity = stop.inGamut ? 'ff' : '4d'; // Full or 30% opacity
+      return `${stop.color}${opacity} ${stop.position.toFixed(1)}%`;
+    })
+    .join(', ');
 
   return `linear-gradient(to right, ${colorStops})`;
 }
@@ -128,7 +139,9 @@ function generateCSSGradient(stops: GradientStop[]): string {
 /**
  * Generate gradient stops array for custom rendering
  */
-export function getGradientStops(config: GradientGeneratorConfig): GradientStop[] {
+export function getGradientStops(
+  config: GradientGeneratorConfig
+): GradientStop[] {
   const steps = config.steps || 50;
   const stops: GradientStop[] = [];
 
@@ -137,11 +150,11 @@ export function getGradientStops(config: GradientGeneratorConfig): GradientStop[
     const baseCoords = [...baseColor.to(config.format).coords];
 
     const channelMap: Record<string, Record<string, number>> = {
-      'rgb': { 'r': 0, 'g': 1, 'b': 2 },
-      'hsl': { 'h': 0, 's': 1, 'l': 2 },
-      'lch': { 'l': 0, 'c': 1, 'h': 2 },
-      'oklch': { 'l': 0, 'c': 1, 'h': 2 },
-      'lab': { 'l': 0, 'a': 1, 'b': 2 }
+      rgb: { r: 0, g: 1, b: 2 },
+      hsl: { h: 0, s: 1, l: 2 },
+      lch: { l: 0, c: 1, h: 2 },
+      oklch: { l: 0, c: 1, h: 2 },
+      lab: { l: 0, a: 1, b: 2 },
     };
 
     const channelIndex = channelMap[config.format]?.[config.channel] ?? 0;
@@ -154,11 +167,19 @@ export function getGradientStops(config: GradientGeneratorConfig): GradientStop[
       const coords = [...baseCoords];
       coords[channelIndex] = value;
 
-      const stepColor = new Color(config.format, coords as [number, number, number]);
-      
+      const stepColor = new Color(
+        config.format,
+        coords as [number, number, number]
+      );
+
       let inGamut = true;
       if (config.gamut !== 'Unlimited gamut') {
-        const gamutSpace = config.gamut === 'sRGB' ? 'srgb' : config.gamut === 'Display P3' ? 'p3' : 'srgb';
+        const gamutSpace =
+          config.gamut === 'sRGB'
+            ? 'srgb'
+            : config.gamut === 'Display P3'
+            ? 'p3'
+            : 'srgb';
         inGamut = stepColor.inGamut(gamutSpace);
       }
 
@@ -167,12 +188,11 @@ export function getGradientStops(config: GradientGeneratorConfig): GradientStop[
       stops.push({
         position,
         color: hexColor,
-        inGamut
+        inGamut,
       });
     }
 
     return stops;
-
   } catch (error) {
     console.error('Gradient stops error:', error);
     return [];
@@ -181,12 +201,15 @@ export function getGradientStops(config: GradientGeneratorConfig): GradientStop[
 
 /**
  * Optimize gradient by reducing number of stops while maintaining visual fidelity
- * 
+ *
  * @param stops - Original gradient stops
  * @param targetStops - Desired number of stops (default: 20)
  * @returns Optimized stops array
  */
-export function optimizeGradient(stops: GradientStop[], targetStops: number = 20): GradientStop[] {
+export function optimizeGradient(
+  stops: GradientStop[],
+  targetStops: number = 20
+): GradientStop[] {
   if (stops.length <= targetStops) {
     return stops;
   }

@@ -1,0 +1,73 @@
+<div class="lch-sliders space-y-4">
+  <!-- Lightness Slider -->
+  <div class="slider-group">
+    <div class="flex justify-between items-center mb-2">
+      <label class="text-sm font-medium text-gray-700 dark:text-gray-300">
+        Lightness
+      </label>
+      <span class="text-sm text-gray-600 dark:text-gray-400 font-mono">
+        {{ Math.round(l) }}
+      </span>
+    </div>
+    <input
+      type="range"
+      [(ngModel)]="l"
+      (input)="onLInput()"
+      (change)="onLChange()"
+      min="0"
+      max="100"
+      step="0.1"
+      class="slider"
+      [style.background]="lGradient"
+      data-testid="lch-l-slider"
+    />
+  </div>
+
+  <!-- Chroma Slider -->
+  <div class="slider-group">
+    <div class="flex justify-between items-center mb-2">
+      <label class="text-sm font-medium text-gray-700 dark:text-gray-300">
+        Chroma
+      </label>
+      <span class="text-sm text-gray-600 dark:text-gray-400 font-mono">
+        {{ Math.round(c) }}
+      </span>
+    </div>
+    <input
+      type="range"
+      [(ngModel)]="c"
+      (input)="onCInput()"
+      (change)="onCChange()"
+      min="0"
+      max="150"
+      step="0.1"
+      class="slider"
+      [style.background]="cGradient"
+      data-testid="lch-c-slider"
+    />
+  </div>
+
+  <!-- Hue Slider -->
+  <div class="slider-group">
+    <div class="flex justify-between items-center mb-2">
+      <label class="text-sm font-medium text-gray-700 dark:text-gray-300">
+        Hue
+      </label>
+      <span class="text-sm text-gray-600 dark:text-gray-400 font-mono">
+        {{ Math.round(h) }}°
+      </span>
+    </div>
+    <input
+      type="range"
+      [(ngModel)]="h"
+      (input)="onHInput()"
+      (change)="onHChange()"
+      min="0"
+      max="360"
+      step="0.1"
+      class="slider"
+      [style.background]="hGradient"
+      data-testid="lch-h-slider"
+    />
+  </div>
+</div>
