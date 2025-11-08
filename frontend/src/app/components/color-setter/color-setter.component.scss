@@ -166,3 +166,35 @@
     }
   }
 }
+
+// Color Name Display Styles (T080)
+.color-name {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  margin-top: 0.25rem;
+  font-size: 0.875rem;
+
+  .color-name-label {
+    font-weight: 600;
+    color: #374151;
+  }
+
+  .color-name-confidence {
+    color: #6b7280;
+    font-size: 0.75rem;
+  }
+}
+
+// Dark mode support for color name
+@media (prefers-color-scheme: dark) {
+  .color-name {
+    .color-name-label {
+      color: #d1d5db;
+    }
+
+    .color-name-confidence {
+      color: #9ca3af;
+    }
+  }
+}

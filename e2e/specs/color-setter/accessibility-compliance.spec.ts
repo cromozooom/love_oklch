@@ -78,7 +78,7 @@ test.describe('User Story 2: Accessibility Compliance Checking', () => {
 
       // Verify contrast ratio value is displayed
       const contrastDisplay = page.locator(
-        '[data-testid="wcag-contrast-value"]'
+        '[data-testid="wcag-white-contrast-value"]'
       );
       await expect(contrastDisplay).toBeVisible({ timeout: 10000 });
 
@@ -102,10 +102,12 @@ test.describe('User Story 2: Accessibility Compliance Checking', () => {
       await page.waitForTimeout(300);
 
       // Get both contrast values
-      const whiteContrast = page
-        .locator('[data-testid="wcag-contrast-value"]')
-        .first();
-      const blackContrast = page.locator('[data-testid="wcag-contrast-black"]');
+      const whiteContrast = page.locator(
+        '[data-testid="wcag-white-contrast-value"]'
+      );
+      const blackContrast = page.locator(
+        '[data-testid="wcag-black-contrast-value"]'
+      );
 
       await expect(whiteContrast).toBeVisible({ timeout: 10000 });
       await expect(blackContrast).toBeVisible({ timeout: 10000 });
@@ -134,8 +136,8 @@ test.describe('User Story 2: Accessibility Compliance Checking', () => {
       // Verify all 4 threshold indicators are present
       const normalTextAA = page.locator('[data-testid="wcag-normal-aa"]');
       const normalTextAAA = page.locator('[data-testid="wcag-normal-aaa"]');
-      const largeTextAA = page.locator('[data-testid="wcag-large-aa"]');
-      const largeTextAAA = page.locator('[data-testid="wcag-large-aaa"]');
+      const largeTextAA = page.locator('[data-testid="wcag-white-large-aa"]');
+      const largeTextAAA = page.locator('[data-testid="wcag-white-large-aaa"]');
 
       await expect(normalTextAA).toBeVisible({ timeout: 10000 });
       await expect(normalTextAAA).toBeVisible({ timeout: 10000 });
@@ -198,22 +200,22 @@ test.describe('User Story 2: Accessibility Compliance Checking', () => {
       // Get the compliance items and check their threshold values
       const normalAAItem = page.locator('[data-testid="wcag-normal-aa"]');
       const normalAAAItem = page.locator('[data-testid="wcag-normal-aaa"]');
-      const largeAAItem = page.locator('[data-testid="wcag-large-aa"]');
-      const largeAAAItem = page.locator('[data-testid="wcag-large-aaa"]');
+      const largeAAItem = page.locator('[data-testid="wcag-white-large-aa"]');
+      const largeAAAItem = page.locator('[data-testid="wcag-white-large-aaa"]');
 
       // Check threshold values within each compliance item
-      await expect(normalAAItem.locator('.threshold-value')).toContainText(
-        '4.5:1'
-      );
-      await expect(normalAAAItem.locator('.threshold-value')).toContainText(
-        '7:1'
-      );
-      await expect(largeAAItem.locator('.threshold-value')).toContainText(
-        '3:1'
-      );
-      await expect(largeAAAItem.locator('.threshold-value')).toContainText(
-        '4.5:1'
-      );
+      await expect(
+        normalAAItem.locator('[data-testid="wcag-threshold-value"]')
+      ).toContainText('4.5:1');
+      await expect(
+        normalAAAItem.locator('[data-testid="wcag-threshold-value"]')
+      ).toContainText('7:1');
+      await expect(
+        largeAAItem.locator('[data-testid="wcag-threshold-value"]')
+      ).toContainText('3:1');
+      await expect(
+        largeAAAItem.locator('[data-testid="wcag-threshold-value"]')
+      ).toContainText('4.5:1');
     });
 
     test('should display indicators with visual pass/fail styling', async () => {
@@ -226,10 +228,10 @@ test.describe('User Story 2: Accessibility Compliance Checking', () => {
 
       const passIndicator = page.locator('[data-testid="wcag-normal-aa"]');
 
-      // Pass indicators should have specific styling (pass class on inner status div)
+      // Pass indicators should have data-status="pass"
       const statusDiv = passIndicator.locator('[data-status]');
-      const classList = await statusDiv.getAttribute('class');
-      expect(classList).toContain('pass');
+      const status = await statusDiv.getAttribute('data-status');
+      expect(status).toBe('pass');
     });
   });
 
@@ -253,9 +255,9 @@ test.describe('User Story 2: Accessibility Compliance Checking', () => {
       await page.waitForLoadState('networkidle');
       await page.waitForTimeout(300);
 
-      const initialContrast = page
-        .locator('[data-testid="wcag-contrast-value"]')
-        .first();
+      const initialContrast = page.locator(
+        '[data-testid="wcag-white-contrast-value"]'
+      );
       const initialValue = await initialContrast.innerText();
 
       // Decrease red brightness to 128
@@ -294,9 +296,9 @@ test.describe('User Story 2: Accessibility Compliance Checking', () => {
       await lightnessSlider.waitFor({ state: 'visible', timeout: 5000 });
 
       // Get initial contrast value (should be around 1.07:1 for yellow on white)
-      let currentContrast = page
-        .locator('[data-testid="wcag-contrast-value"]')
-        .first();
+      let currentContrast = page.locator(
+        '[data-testid="wcag-white-contrast-value"]'
+      );
       let value1 = await currentContrast.innerText();
       const initialValue = parseFloat(value1);
 
@@ -397,9 +399,9 @@ test.describe('User Story 2: Accessibility Compliance Checking', () => {
       await expect(wcagPanel).toBeVisible({ timeout: 10000 });
 
       // Contrast on white background should be 1:1 (no contrast)
-      const contrast = page
-        .locator('[data-testid="wcag-contrast-value"]')
-        .first();
+      const contrast = page.locator(
+        '[data-testid="wcag-white-contrast-value"]'
+      );
       const value = await contrast.innerText();
       expect(value).toMatch(/1\.0+:1/);
     });
@@ -415,9 +417,9 @@ test.describe('User Story 2: Accessibility Compliance Checking', () => {
       await expect(wcagPanel).toBeVisible({ timeout: 10000 });
 
       // Contrast on white background should be 21:1 (maximum)
-      const contrast = page
-        .locator('[data-testid="wcag-contrast-value"]')
-        .first();
+      const contrast = page.locator(
+        '[data-testid="wcag-white-contrast-value"]'
+      );
       const value = await contrast.innerText();
       expect(value).toMatch(/21\.0+:1/);
 

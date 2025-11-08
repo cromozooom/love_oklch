@@ -14,6 +14,14 @@
         <small data-testid="display-value">
           {{ currentFormatValue() }}
         </small>
+        @if(showColorName() && colorName()) {
+        <div class="color-name" data-testid="color-name">
+          <span class="color-name-label">{{ colorName()!.name }}</span>
+          <small class="color-name-confidence">
+            ({{ (colorName()!.confidence * 100).toFixed(0) }}% match)
+          </small>
+        </div>
+        }
       </div>
     </div>
   </div>
@@ -38,8 +46,14 @@
     <main class="grow flex flex-col">
       <div class="editor flex">
         <div class="presets flex flex-col gap-2 p-2 border-r-indigo-500">
-          <div class="w-[13rem] aspect-square rounded bg-red-500"></div>
-          <div class="w-[13rem] min-h-[1rem] rounded bg-red-500"></div>
+          <div
+            class="w-[13rem] aspect-square rounded"
+            [style.backgroundColor]="colorPreview()"
+          ></div>
+          <div
+            class="w-[13rem] min-h-[1rem] rounded"
+            [style.backgroundColor]="colorPreview()"
+          ></div>
         </div>
         <!-- Color Input Controls -->
         <div class="color-controls-section">
@@ -200,7 +214,10 @@
       <div class="acesibility">
         <!-- WCAG Accessibility Panel -->
         <div *ngIf="showWCAG()" class="wcag-section">
-          <app-wcag-panel [analysis]="wcagAnalysis()"></app-wcag-panel>
+          <app-wcag-panel
+            [analysis]="wcagAnalysis()"
+            [color]="colorPreview()"
+          ></app-wcag-panel>
         </div>
       </div>
     </main>
@@ -368,7 +385,10 @@
 
     <!-- WCAG Accessibility Panel -->
     <div *ngIf="showWCAG()" class="wcag-section">
-      <app-wcag-panel [analysis]="wcagAnalysis()"></app-wcag-panel>
+      <app-wcag-panel
+        [analysis]="wcagAnalysis()"
+        [color]="colorPreview()"
+      ></app-wcag-panel>
     </div>
   </div>
 </div>

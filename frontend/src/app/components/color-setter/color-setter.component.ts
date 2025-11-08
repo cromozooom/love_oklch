@@ -17,10 +17,12 @@ import Color from 'colorjs.io';
 import { ColorService } from './services/color.service';
 import { WCAGService } from './services/wcag.service';
 import { GamutService } from './services/gamut.service';
+import { NamingService } from './services/naming.service';
 import { ColorFormat, FORMAT_CONFIGS } from './models/format-config.model';
 import { GamutProfile, GAMUT_PROFILES } from './models/gamut-profile.model';
 import { ColorState } from './models/color-state.model';
 import { WCAGAnalysis } from './models/wcag-contrast.model';
+import { ColorName } from './models/color-name.model';
 import { ColorValidators } from './utils/color-validators';
 import { WCAGPanelComponent } from './subcomponents/wcag-panel/wcag-panel.component';
 import { GamutSelectorComponent } from './subcomponents/gamut-selector/gamut-selector.component';
@@ -108,7 +110,7 @@ export interface ColorChangeEvent {
     WCAGPanelComponent,
     GamutSelectorComponent,
   ],
-  providers: [ColorService, WCAGService, GamutService],
+  providers: [ColorService, WCAGService, GamutService, NamingService],
 })
 export class ColorSetterComponent implements OnInit {
   // ============================================================================
@@ -228,6 +230,9 @@ export class ColorSetterComponent implements OnInit {
     };
   });
 
+  // Color name - computed reactively from color state (with debouncing via Subject)
+  colorName = signal<ColorName | null>(null);
+
   colorPreview = computed(() => {
     const state = this.colorState();
     try {
@@ -263,6 +268,7 @@ export class ColorSetterComponent implements OnInit {
   // ============================================================================
 
   private colorChangeSubject = new Subject<ColorChangeEvent>();
+  private colorNameSubject = new Subject<string>();
 
   // ============================================================================
   // CONSTRUCTOR & LIFECYCLE
@@ -271,11 +277,20 @@ export class ColorSetterComponent implements OnInit {
   constructor(
     private colorService: ColorService,
     private wcagService: WCAGService,
-    private gamutService: GamutService
+    private gamutService: GamutService,
+    private namingService: NamingService
   ) {
     // Setup debounced color change (16ms for 60fps)
     this.colorChangeSubject.pipe(debounceTime(16)).subscribe((event) => {
       this.colorChange.emit(event);
+    });
+
+    // Setup debounced color naming (100ms to avoid excessive lookups)
+    this.colorNameSubject.pipe(debounceTime(100)).subscribe((hexColor) => {
+      if (this.showColorName()) {
+        const name = this.namingService.getName(hexColor);
+        this.colorName.set(name);
+      }
     });
 
     // Effect to sync external gamut signal input with internal state
@@ -584,6 +599,19 @@ export class ColorSetterComponent implements OnInit {
         profile: gamutResult.profile,
         warning: gamutResult.warning,
       };
+    }
+
+    // Add color name if enabled and available
+    if (this.showColorName()) {
+      const nameResult = this.colorName();
+      if (nameResult) {
+        event.name = nameResult.name;
+      }
+    }
+
+    // Trigger debounced color naming lookup
+    if (this.showColorName()) {
+      this.colorNameSubject.next(allFormats.hex);
     }
 
     this.colorChangeSubject.next(event);

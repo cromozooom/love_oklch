@@ -9,7 +9,7 @@
  * Input: Accepts WCAGAnalysis result to display
  */
 
-import { Component, Input } from '@angular/core';
+import { Component, input, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { WCAGAnalysis } from '../../models/wcag-contrast.model';
 
@@ -22,13 +22,14 @@ import { WCAGAnalysis } from '../../models/wcag-contrast.model';
 })
 export class WCAGPanelComponent {
   @Input() analysis: WCAGAnalysis | null = null;
+  color = input<string>('#FF0000');
   public versionBump = 1;
 
   /**
-   * Get CSS class for compliance indicator
+   * Get CSS class for compliance indicator (border only)
    */
   getComplianceClass(passes: boolean): string {
-    return passes ? 'pass' : 'fail';
+    return passes ? 'border-green-500' : 'border-red-500';
   }
 
   /**
@@ -43,6 +44,13 @@ export class WCAGPanelComponent {
    */
   getStatusLabel(passes: boolean): string {
     return passes ? 'PASS' : 'FAIL';
+  }
+
+  /**
+   * Get status value for data-status attribute
+   */
+  getComplianceStatus(passes: boolean): string {
+    return passes ? 'pass' : 'fail';
   }
 
   /**
