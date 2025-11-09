@@ -31,6 +31,7 @@ import { OklchSlidersComponent } from './subcomponents/color-sliders/oklch-slide
 import { LabSlidersComponent } from './subcomponents/color-sliders/lab-sliders.component';
 import { RgbSlidersComponent } from './subcomponents/color-sliders/rgb-sliders.component';
 import { HslSlidersComponent } from './subcomponents/color-sliders/hsl-sliders.component';
+import { HexInputComponent } from './subcomponents/color-sliders/hex-input.component';
 import { GamutAwareSliderComponent } from './subcomponents/gamut-aware-slider/gamut-aware-slider.component';
 
 /**
@@ -120,6 +121,7 @@ export interface ColorChangeEvent {
     LabSlidersComponent,
     RgbSlidersComponent,
     HslSlidersComponent,
+    HexInputComponent,
     GamutAwareSliderComponent,
   ],
   providers: [ColorService, WCAGService, GamutService, NamingService],
@@ -625,6 +627,16 @@ export class ColorSetterComponent implements OnInit {
       this.emitColorChange();
     } catch (error) {
       console.error('Error updating HSL:', error);
+    }
+  }
+
+  onHexColorChange(colorString: string): void {
+    try {
+      const parsed = this.colorService.parse(colorString);
+      this.updateColorState(parsed, 'hex');
+      this.emitColorChange();
+    } catch (error) {
+      console.error('Error updating HEX:', error);
     }
   }
 

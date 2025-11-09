@@ -1,5 +1,5 @@
 <div
-  class="new w-auto flex flex-col border border-gray-300 m-2"
+  class="new w-auto flex flex-col border border-gray-300 m-2 rounded"
   data-testid="color-setter-component"
 >
   <div>
@@ -13,7 +13,10 @@
           ></div>
         </div>
         <div>
-          <small data-testid="display-value">
+          <small
+            class="flex items-center min-w-[10rem]"
+            data-testid="display-value"
+          >
             {{ currentFormatValue() }}
           </small>
           @if(showColorName() && colorName()) {
@@ -54,9 +57,9 @@
       </button>
       <div class="border-r border-r-gray-300 grow"></div>
     </section>
-    <main class="grow flex flex-col">
-      <div class="editor flex">
-        <div class="presets flex flex-col gap-2 p-2 border-r-indigo-500">
+    <main class="grow flex flex-col w-full">
+      <div class="editor grow flex w-full">
+        <!-- <div class="presets flex flex-col gap-2 p-2 border-r-indigo-500">
           <div
             class="w-52 aspect-square rounded"
             [style.backgroundColor]="colorPreview()"
@@ -65,25 +68,21 @@
             class="w-52 min-h-4 rounded"
             [style.backgroundColor]="colorPreview()"
           ></div>
-        </div>
+        </div> -->
         <!-- Color Input Controls -->
-        <div class="color-controls-section min-w-120 py-3">
+        <div class="color-controls-section w-full flex py-3">
           <!-- HEX Input -->
-          <div *ngIf="format() === 'hex'" class="hex-controls">
-            <input
-              type="text"
-              [(ngModel)]="hexInputValue"
-              (change)="onHexChange()"
-              (blur)="onHexChange()"
-              data-testid="hex-input"
-              placeholder="#FF0000"
-              class="hex-input"
-            />
-          </div>
+          <app-hex-input
+            *ngIf="format() === 'hex'"
+            class="flex grow w-full"
+            [hexValue]="currentFormatValue()"
+            (hexChange)="onHexColorChange($event)"
+          ></app-hex-input>
 
           <!-- RGB Sliders -->
           <app-rgb-sliders
             *ngIf="format() === 'rgb'"
+            class="flex grow w-full"
             [color]="currentFormatValue()"
             [gamut]="gamutDisplayName()"
             (colorChange)="onRgbColorChange($event)"
@@ -92,6 +91,7 @@
           <!-- HSL Sliders -->
           <app-hsl-sliders
             *ngIf="format() === 'hsl'"
+            class="flex grow w-full"
             [color]="currentFormatValue()"
             [gamut]="gamutDisplayName()"
             (colorChange)="onHslColorChange($event)"
@@ -100,6 +100,7 @@
           <!-- LCH Sliders -->
           <app-lch-sliders
             *ngIf="format() === 'lch'"
+            class="flex grow w-full"
             [color]="currentFormatValue()"
             [gamut]="gamutDisplayName()"
             (colorChange)="onLchColorChange($event)"
@@ -108,6 +109,7 @@
           <!-- OKLCH Sliders -->
           <app-oklch-sliders
             *ngIf="format() === 'oklch'"
+            class="flex grow w-full"
             [color]="currentFormatValue()"
             [gamut]="gamutDisplayName()"
             (colorChange)="onOklchColorChange($event)"
@@ -116,6 +118,7 @@
           <!-- LAB Sliders -->
           <app-lab-sliders
             *ngIf="format() === 'lab'"
+            class="flex grow w-full"
             [color]="currentFormatValue()"
             [gamut]="gamutDisplayName()"
             (colorChange)="onLabColorChange($event)"
