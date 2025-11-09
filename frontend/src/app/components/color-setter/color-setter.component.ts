@@ -594,6 +594,40 @@ export class ColorSetterComponent implements OnInit, AfterViewInit {
   }
 
   /**
+   * Handle blur event on color input
+   * Try to parse if input has content, but always allow canceling by clicking outside
+   */
+  onColorInputBlur(): void {
+    const input = this.colorInputValue().trim();
+    
+    // If input is empty, just cancel editing mode
+    if (!input) {
+      this.cancelEditingColorValue();
+      return;
+    }
+    
+    // If input has content, try to parse it
+    try {
+      const parsed = this.colorService.parse(input);
+      
+      // If parsing succeeds, update the color
+      let detectedFormat = this.detectFormatFromInput(input);
+      if (!detectedFormat) {
+        detectedFormat = 'hex'; // Named colors default to hex
+      }
+      
+      this.format.set(detectedFormat);
+      this.updateColorState(parsed, detectedFormat);
+      this.cancelEditingColorValue(); // Exit edit mode on success
+      
+    } catch (error) {
+      // If parsing fails, still cancel editing mode when clicking outside
+      // This allows users to escape from invalid input by clicking elsewhere
+      this.cancelEditingColorValue();
+    }
+  }
+
+  /**
    * Detect color format from input string using simple pattern matching
    * This is more flexible than validators and works after colorjs.io has already parsed it
    * @param input Color string to detect format from

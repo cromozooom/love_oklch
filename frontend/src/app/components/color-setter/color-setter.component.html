@@ -7,7 +7,7 @@
       <div class="flex items-center gap-2 py-2">
         <div class="flex items-center pl-2">
           <div
-            class="w-6 aspect-square rounded"
+            class="w-7 aspect-square rounded"
             [style.backgroundColor]="colorPreview()"
             data-testid="color-preview"
           ></div>
@@ -34,7 +34,7 @@
               [class.border-red-500]="colorInputError()"
               [ngModel]="colorInputValue()"
               (ngModelChange)="colorInputValue.set($event)"
-              (blur)="onColorInputChange()"
+              (blur)="onColorInputBlur()"
               (keyup.enter)="onColorInputChange()"
               (keyup.escape)="cancelEditingColorValue()"
               placeholder="Paste color (hex, rgb, hsl, lch, oklch, lab, or named colors like 'red')"
