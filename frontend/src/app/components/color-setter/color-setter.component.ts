@@ -8,6 +8,9 @@ import {
   effect,
   OnInit,
   input,
+  ViewChild,
+  ElementRef,
+  AfterViewInit,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -126,7 +129,7 @@ export interface ColorChangeEvent {
   ],
   providers: [ColorService, WCAGService, GamutService, NamingService],
 })
-export class ColorSetterComponent implements OnInit {
+export class ColorSetterComponent implements OnInit, AfterViewInit {
   // ============================================================================
   // INPUTS
   // ============================================================================
@@ -263,6 +266,18 @@ export class ColorSetterComponent implements OnInit {
 
   // HEX input value
   hexInputValue = signal<string>('#FF0000');
+
+  // Color input value for manual entry
+  colorInputValue = signal<string>('');
+
+  // Color input error message
+  colorInputError = signal<string>('');
+
+  // Track if we're in editing mode (showing input instead of display value)
+  isEditingColorValue = signal<boolean>(false);
+
+  // ViewChild to access the color input element for focusing
+  @ViewChild('colorInput') colorInputRef?: ElementRef<HTMLInputElement>;
 
   // Available formats for selection
   availableFormats: ColorFormat[] = [
@@ -462,6 +477,11 @@ export class ColorSetterComponent implements OnInit {
     }
   }
 
+  ngAfterViewInit(): void {
+    // This is called after the view has been fully initialized
+    // ViewChild references are available here
+  }
+
   // ============================================================================
   // EVENT HANDLERS
   // ============================================================================
@@ -494,6 +514,141 @@ export class ColorSetterComponent implements OnInit {
         this.colorService.convert(state.internalValue, 'hex')
       );
     }
+  }
+
+  /**
+   * Handle color input change - validates and switches to appropriate editor
+   * Uses colorjs.io directly to parse and detect format
+   */
+  onColorInputChange(): void {
+    // Step 1 & 2: Remove spaces before and after if they are made by mistake
+    const input = this.colorInputValue().trim();
+
+    if (!input) {
+      this.colorInputError.set(''); // Clear error for empty input
+      return; // Empty input, do nothing
+    }
+
+    try {
+      // Clear any previous error
+      this.colorInputError.set('');
+
+      // Step 3: Try to convert with colorjs.io
+      const parsed = this.colorService.parse(input);
+
+      // Step 4: Check the type and detect format from original input
+      const detectedFormat = this.detectFormatFromInput(input);
+
+      if (!detectedFormat) {
+        this.colorInputError.set(
+          `Unrecognized color format. Supported formats: hex (#ff0000), rgb (rgb(255,0,0)), hsl (hsl(0,100%,50%)), lch (lch(50 80 30)), oklch (oklch(70% 0.25 180)), lab (lab(50 20 -30))`
+        );
+        return;
+      }
+
+      // Step 5: Switch to the detected format editor and set the value
+      this.format.set(detectedFormat);
+
+      // Update color state
+      this.updateColorState(parsed, detectedFormat);
+
+      // Clear the input field and any errors after successful parsing
+      this.colorInputValue.set('');
+      this.colorInputError.set('');
+      // Exit editing mode after successful input
+      this.isEditingColorValue.set(false);
+    } catch (error) {
+      // Handle parsing errors from colorjs.io
+      const errorMessage =
+        error instanceof Error ? error.message : 'Invalid color format';
+      this.colorInputError.set(`Cannot parse color: ${errorMessage}`);
+      console.error('Invalid color input:', error);
+    }
+  }
+
+  /**
+   * Start editing mode - show input field instead of display value
+   */
+  startEditingColorValue(): void {
+    this.isEditingColorValue.set(true);
+    this.colorInputError.set(''); // Clear any previous errors
+    // Optionally pre-fill with current value
+    // this.colorInputValue.set(this.currentFormatValue());
+    
+    // Focus the input field after the view updates
+    setTimeout(() => {
+      this.colorInputRef?.nativeElement?.focus();
+    }, 0);
+  }
+
+  /**
+   * Cancel editing mode - go back to display value
+   */
+  cancelEditingColorValue(): void {
+    this.isEditingColorValue.set(false);
+    this.colorInputValue.set('');
+    this.colorInputError.set('');
+  }
+
+  /**
+   * Detect color format from input string using simple pattern matching
+   * This is more flexible than validators and works after colorjs.io has already parsed it
+   * @param input Color string to detect format from
+   * @returns Detected format or null if unrecognized
+   */
+  private detectFormatFromInput(input: string): ColorFormat | null {
+    const cleanInput = input.toLowerCase().trim();
+
+    // Check for hex (starts with # or is 3/6 hex chars)
+    if (
+      cleanInput.startsWith('#') ||
+      /^[0-9a-f]{3}$|^[0-9a-f]{6}$/i.test(cleanInput)
+    ) {
+      return 'hex';
+    }
+
+    // Check for rgb/rgba
+    if (cleanInput.startsWith('rgb')) {
+      return 'rgb';
+    }
+
+    // Check for hsl/hsla
+    if (cleanInput.startsWith('hsl')) {
+      return 'hsl';
+    }
+
+    // Check for oklch
+    if (cleanInput.startsWith('oklch')) {
+      return 'oklch';
+    }
+
+    // Check for lch
+    if (cleanInput.startsWith('lch')) {
+      return 'lch';
+    }
+
+    // Check for lab
+    if (cleanInput.startsWith('lab')) {
+      return 'lab';
+    }
+
+    return null;
+  }
+
+  /**
+   * Detect color format from input string
+   * Returns the format if valid, null if unrecognized
+   */
+  private detectColorFormat(input: string): ColorFormat | null {
+    const formats: ColorFormat[] = ['hex', 'rgb', 'hsl', 'lch', 'oklch', 'lab'];
+
+    for (const format of formats) {
+      if (ColorValidators.isValidForFormat(input, format)) {
+        return format;
+      }
+    }
+
+    return null;
   }
 
   // RGB slider input handlers for signal updates

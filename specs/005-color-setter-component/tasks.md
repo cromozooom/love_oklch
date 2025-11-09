@@ -79,7 +79,7 @@
 - [x] T022 [US1] Implement component output (colorChange event) in `frontend/src/app/components/color-setter/color-setter.component.ts` [Est: 1h]
 - [x] T023 [P] [US1] Create format selector subcomponent UI in `frontend/src/app/components/color-setter/subcomponents/format-selector/format-selector.component.ts` [Est: 2h]
 - [x] T024 [P] [US1] Create color preview subcomponent in `frontend/src/app/components/color-setter/subcomponents/color-preview/color-preview.component.ts` [Est: 2h]
-- [x] T025 [US1] Create HEX text input control with validation in `frontend/src/app/components/color-setter/subcomponents/color-sliders/hex-input.component.ts` [Est: 2h]
+- [x] T025 [US1] Create enhanced HEX color picker with 2D canvas, saturation/lightness picker, hue slider integration, mouse interaction, PrimeNG-style drag handling, and real-time preview in `frontend/src/app/components/color-setter/subcomponents/color-sliders/hex-input.component.ts` [Est: 8h]
 - [x] T026 [US1] Create RGB sliders subcomponent using Angular CDK in `frontend/src/app/components/color-setter/subcomponents/color-sliders/rgb-sliders.component.ts` [Est: 3h]
 - [x] T027 [US1] Create HSL sliders subcomponent using Angular CDK in `frontend/src/app/components/color-setter/subcomponents/color-sliders/hsl-sliders.component.ts` [Est: 3h]
 - [x] T028 [US1] Implement main component template with format switching logic in `frontend/src/app/components/color-setter/color-setter.component.html` [Est: 2h]
@@ -171,17 +171,17 @@
 **Purpose**: Add human-readable color names using ~150 curated names  
 **Phase Total**: 16-20 hours
 
-- [ ] T073 [P] Create ColorName interface in `frontend/src/app/components/color-setter/models/color-name.model.ts` [Est: 0.5h]
-- [ ] T074 [P] Create ColorNameEntry interface in `frontend/src/app/components/color-setter/models/color-name.model.ts` [Est: 0.5h]
-- [ ] T075 Create color name dataset (~150 entries) in `frontend/src/app/components/color-setter/data/color-names.data.ts` [Est: 4h]
-- [ ] T076 Implement NamingService with Delta-E matching in `frontend/src/app/components/color-setter/services/naming.service.ts` [Est: 3h]
-- [ ] T077 Implement NamingService.getName() with confidence calculation in `frontend/src/app/components/color-setter/services/naming.service.ts` [Est: 2h]
-- [ ] T078 Implement NamingService.findClosestName() with LRU cache (size 50) in `frontend/src/app/components/color-setter/services/naming.service.ts` [Est: 2.5h]
-- [ ] T079 Integrate color naming into main component with debouncing (100ms) in `frontend/src/app/components/color-setter/color-setter.component.ts` [Est: 1h]
-- [ ] T080 Add color name display to UI in `frontend/src/app/components/color-setter/color-setter.component.html` [Est: 1h]
-- [ ] T081 Add showColorName input property in `frontend/src/app/components/color-setter/color-setter.component.ts` [Est: 0.5h]
-- [ ] T082 Add name to colorChange event payload in `frontend/src/app/components/color-setter/color-setter.component.ts` [Est: 0.5h]
-- [ ] T083 [P] Create unit test for NamingService in `frontend/src/app/components/color-setter/services/__tests__/naming.service.spec.ts` [Est: 2h]
+- [x] T073 [P] Create ColorName interface in `frontend/src/app/components/color-setter/models/color-name.model.ts` [Est: 0.5h]
+- [x] T074 [P] Create ColorNameEntry interface in `frontend/src/app/components/color-setter/models/color-name.model.ts` [Est: 0.5h]
+- [x] T075 Create color name dataset (~150 entries) in `frontend/src/app/components/color-setter/data/color-names.data.ts` [Est: 4h]
+- [x] T076 Implement NamingService with Delta-E matching in `frontend/src/app/components/color-setter/services/naming.service.ts` [Est: 3h]
+- [x] T077 Implement NamingService.getName() with confidence calculation in `frontend/src/app/components/color-setter/services/naming.service.ts` [Est: 2h]
+- [x] T078 Implement NamingService.findClosestName() with LRU cache (size 50) in `frontend/src/app/components/color-setter/services/naming.service.ts` [Est: 2.5h]
+- [x] T079 Integrate color naming into main component with debouncing (100ms) in `frontend/src/app/components/color-setter/color-setter.component.ts` [Est: 1h]
+- [x] T080 Add color name display to UI in `frontend/src/app/components/color-setter/color-setter.component.html` [Est: 1h]
+- [x] T081 Add showColorName input property in `frontend/src/app/components/color-setter/color-setter.component.ts` [Est: 0.5h]
+- [x] T082 Add name to colorChange event payload in `frontend/src/app/components/color-setter/color-setter.component.ts` [Est: 0.5h]
+- [x] T083 [P] Create unit test for NamingService in `frontend/src/app/components/color-setter/services/__tests__/naming.service.spec.ts` [Est: 2h]
 
 ---
 

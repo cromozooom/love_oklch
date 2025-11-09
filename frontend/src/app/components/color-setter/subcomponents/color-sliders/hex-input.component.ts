@@ -42,11 +42,14 @@ export class HexInputComponent implements AfterViewInit, OnDestroy {
   @ViewChild('colorCanvas', { static: false })
   canvasRef!: ElementRef<HTMLCanvasElement>;
 
-  // Color state
+  @ViewChild('colorIndicator', { static: false })
+  indicatorRef!: ElementRef<HTMLDivElement>;
+
+  // Color state (using HSB model like PrimeNG)
   internalHexValue = signal('#FF0000');
   hue: number = 0; // 0-360
   saturation: number = 100; // 0-100
-  lightness: number = 50; // 0-100
+  brightness: number = 100; // 0-100 (HSB brightness, not HSL lightness)
 
   // Canvas interaction state
   private ctx?: CanvasRenderingContext2D | null;
@@ -74,7 +77,7 @@ export class HexInputComponent implements AfterViewInit, OnDestroy {
     effect(() => {
       const currentHex = this.hexValue();
       this.internalHexValue.set(currentHex);
-      this.parseHexToHSL(currentHex);
+      this.parseHexToHSB(currentHex);
       this.updateIndicatorPosition();
     });
 
@@ -86,14 +89,14 @@ export class HexInputComponent implements AfterViewInit, OnDestroy {
     // Initialize the color and position after canvas is ready
     const initialHex = this.hexValue();
     console.log('Initial hex:', initialHex);
-    this.parseHexToHSL(initialHex);
+    this.parseHexToHSB(initialHex);
     console.log(
       'After parsing - Hue:',
       this.hue,
       'Sat:',
       this.saturation,
-      'Light:',
-      this.lightness
+      'Brightness:',
+      this.brightness
     );
     this.updateIndicatorPosition();
     console.log('Indicator position:', this.indicatorX, this.indicatorY);
@@ -130,7 +133,7 @@ export class HexInputComponent implements AfterViewInit, OnDestroy {
   }
 
   /**
-   * Paint the saturation/lightness canvas based on current hue
+   * Paint the saturation/brightness canvas based on current hue (HSB model like PrimeNG)
    */
   private paintCanvas(): void {
     if (!this.ctx) return;
@@ -148,13 +151,14 @@ export class HexInputComponent implements AfterViewInit, OnDestroy {
     this.ctx.fillStyle = saturationGradient;
     this.ctx.fillRect(0, 0, width, height);
 
-    // Create lightness gradient (top to bottom: transparent to black)
-    const lightnessGradient = this.ctx.createLinearGradient(0, 0, 0, height);
-    lightnessGradient.addColorStop(0, 'rgba(0, 0, 0, 0)');
-    lightnessGradient.addColorStop(1, 'rgba(0, 0, 0, 1)');
+    // Create brightness gradient (top to bottom: transparent to black)
+    // Top = full brightness, Bottom = no brightness (black)
+    const brightnessGradient = this.ctx.createLinearGradient(0, 0, 0, height);
+    brightnessGradient.addColorStop(0, 'rgba(0, 0, 0, 0)');
+    brightnessGradient.addColorStop(1, 'rgba(0, 0, 0, 1)');
 
-    // Overlay lightness gradient
-    this.ctx.fillStyle = lightnessGradient;
+    // Overlay brightness gradient
+    this.ctx.fillStyle = brightnessGradient;
     this.ctx.fillRect(0, 0, width, height);
   }
 
@@ -172,6 +176,11 @@ export class HexInputComponent implements AfterViewInit, OnDestroy {
     this.colorDragging = true;
     this.bindDocumentMouseMoveListener();
     this.bindDocumentMouseUpListener();
+
+    // Add dragging class for smooth movement
+    if (this.indicatorRef?.nativeElement) {
+      this.indicatorRef.nativeElement.classList.add('dragging');
+    }
 
     // Start picking color immediately
     this.pickColor(event);
@@ -211,6 +220,12 @@ export class HexInputComponent implements AfterViewInit, OnDestroy {
           () => {
             this.ngZone.run(() => {
               this.colorDragging = false;
+
+              // Remove dragging class to restore transition
+              if (this.indicatorRef?.nativeElement) {
+                this.indicatorRef.nativeElement.classList.remove('dragging');
+              }
+
               this.unbindDocumentMouseMoveListener();
               this.unbindDocumentMouseUpListener();
             });
@@ -247,28 +262,36 @@ export class HexInputComponent implements AfterViewInit, OnDestroy {
     const canvas = this.canvasRef.nativeElement;
     const rect = canvas.getBoundingClientRect();
 
-    // Calculate position relative to canvas
-    const canvasX = Math.max(
-      0,
-      Math.min(canvas.width, event.clientX - rect.left)
-    );
-    const canvasY = Math.max(
-      0,
-      Math.min(canvas.height, event.clientY - rect.top)
+    // Calculate position relative to canvas, following PrimeNG's approach
+    // They use Math.max(0, Math.min(canvasSize, mousePos - offset)) pattern
+    const relativeX = event.clientX - rect.left;
+    const relativeY = event.clientY - rect.top;
+
+    // For color calculation, use the full canvas range
+    const colorX = Math.max(0, Math.min(canvas.width - 1, relativeX));
+    const colorY = Math.max(0, Math.min(canvas.height - 1, relativeY));
+
+    // Update color values with proper bounds checking (HSB model)
+    const newSaturation = Math.floor((colorX / (canvas.width - 1)) * 100);
+    const newBrightness = Math.floor(
+      100 - (colorY / (canvas.height - 1)) * 100
     );
 
-    // Update color values
-    this.saturation = (canvasX / canvas.width) * 100;
-    this.lightness = 100 - (canvasY / canvas.height) * 100;
+    this.saturation = newSaturation;
+    this.brightness = newBrightness;
 
-    // Update indicator position
-    this.indicatorX = canvasX;
-    this.indicatorY = canvasY;
+    // IMPORTANT: Don't update hue when saturation is 0 (achromatic colors)
+    // This preserves the current hue for pure white, gray, and black
+    // and prevents the hue from jumping to random values
+
+    // Update indicator position to match the color position
+    // Allow indicator center to reach full canvas area for pure white selection
+    this.indicatorX = colorX;
+    this.indicatorY = colorY;
 
     // Convert to HEX and update
-    this.updateHexFromHSL();
+    this.updateHexFromHSB();
   }
-
   /**
    * Update color based on canvas click position
    */
@@ -283,29 +306,33 @@ export class HexInputComponent implements AfterViewInit, OnDestroy {
     const canvas = this.canvasRef.nativeElement;
     const rect = canvas.getBoundingClientRect();
 
-    // Get position relative to canvas
-    const canvasX = Math.max(0, Math.min(canvas.width, clientX - rect.left));
-    const canvasY = Math.max(0, Math.min(canvas.height, clientY - rect.top));
+    // Get position relative to canvas, following PrimeNG's clamping approach
+    const relativeX = clientX - rect.left;
+    const relativeY = clientY - rect.top;
 
-    // Convert to saturation/lightness values
-    this.saturation = (canvasX / canvas.width) * 100;
-    this.lightness = 100 - (canvasY / canvas.height) * 100;
+    // For color calculation, use the full canvas range
+    const colorX = Math.max(0, Math.min(canvas.width - 1, relativeX));
+    const colorY = Math.max(0, Math.min(canvas.height - 1, relativeY));
 
-    // Update indicator position
-    this.indicatorX = canvasX;
-    this.indicatorY = canvasY;
+    // Convert to saturation/brightness values with proper bounds (HSB model)
+    this.saturation = Math.floor((colorX / (canvas.width - 1)) * 100);
+    this.brightness = Math.floor(100 - (colorY / (canvas.height - 1)) * 100);
+
+    // Update indicator position to match the color position
+    // Allow indicator center to reach full canvas area for pure white selection
+    this.indicatorX = colorX;
+    this.indicatorY = colorY;
 
     // Convert to HEX and update
-    this.updateHexFromHSL();
+    this.updateHexFromHSB();
   }
-
   /**
    * Handle hue slider input
    */
   onHueInput(value: number): void {
     this.hue = value;
     this.paintCanvas(); // Repaint canvas with new hue
-    this.updateHexFromHSL();
+    this.updateHexFromHSB();
   }
 
   /**
@@ -314,7 +341,7 @@ export class HexInputComponent implements AfterViewInit, OnDestroy {
   onHueChange(value: number): void {
     this.hue = value;
     this.paintCanvas(); // Repaint canvas with new hue
-    this.updateHexFromHSL();
+    this.updateHexFromHSB();
   }
 
   /**
@@ -325,7 +352,7 @@ export class HexInputComponent implements AfterViewInit, OnDestroy {
 
     // Validate HEX format
     if (this.isValidHex(hexValue)) {
-      this.parseHexToHSL(hexValue);
+      this.parseHexToHSB(hexValue);
       this.paintCanvas(); // Repaint canvas with new hue
       this.updateIndicatorPosition();
       this.emitChange();
@@ -333,39 +360,43 @@ export class HexInputComponent implements AfterViewInit, OnDestroy {
   }
 
   /**
-   * Convert current HSL values to HEX and update internal value
+   * Convert current HSB values to HEX and update internal value
    */
-  private updateHexFromHSL(): void {
-    const hex = this.hslToHex(this.hue, this.saturation, this.lightness);
+  private updateHexFromHSB(): void {
+    const hex = this.hsbToHex(this.hue, this.saturation, this.brightness);
     this.internalHexValue.set(hex);
     this.emitChange();
   }
 
   /**
-   * Parse HEX color to HSL values
+   * Parse HEX color to HSB values
+   * Preserve current hue when saturation is 0 (achromatic colors)
    */
-  private parseHexToHSL(hex: string): void {
-    const hsl = this.hexToHsl(hex);
-    if (hsl) {
-      this.hue = hsl.h;
-      this.saturation = hsl.s;
-      this.lightness = hsl.l;
+  private parseHexToHSB(hex: string): void {
+    const hsb = this.hexToHsb(hex);
+    if (hsb) {
+      // Only update hue if the color has saturation (chromatic)
+      // This prevents hue jumping when dealing with white/gray/black
+      if (hsb.s > 0) {
+        this.hue = hsb.h;
+      }
+      // Always update saturation and brightness
+      this.saturation = hsb.s;
+      this.brightness = hsb.b;
     }
   }
 
   /**
-   * Update indicator position based on current saturation/lightness
+   * Update indicator position based on current saturation/brightness
+   * Allow indicator center to cover full canvas area (including edges for pure white)
    */
   private updateIndicatorPosition(): void {
     const canvas = this.canvasRef?.nativeElement;
     if (canvas) {
-      const canvasRect = canvas.getBoundingClientRect();
-      const canvasX = (this.saturation / 100) * canvas.width;
-      const canvasY = ((100 - this.lightness) / 100) * canvas.height;
-
-      // Update indicator position
-      this.indicatorX = canvasX;
-      this.indicatorY = canvasY;
+      // Calculate indicator center position to cover full canvas area
+      // This allows reaching pure white at the edges
+      this.indicatorX = (this.saturation / 100) * (canvas.width - 1);
+      this.indicatorY = ((100 - this.brightness) / 100) * (canvas.height - 1);
     }
   }
 
@@ -386,81 +417,106 @@ export class HexInputComponent implements AfterViewInit, OnDestroy {
   }
 
   /**
-   * Convert HEX to HSL
+   * Convert HEX to HSB (following PrimeNG's approach)
    */
-  private hexToHsl(hex: string): { h: number; s: number; l: number } | null {
+  private hexToHsb(hex: string): { h: number; s: number; b: number } | null {
     if (!this.isValidHex(hex)) return null;
 
-    const r = parseInt(hex.slice(1, 3), 16) / 255;
-    const g = parseInt(hex.slice(3, 5), 16) / 255;
-    const b = parseInt(hex.slice(5, 7), 16) / 255;
+    const r = parseInt(hex.slice(1, 3), 16);
+    const g = parseInt(hex.slice(3, 5), 16);
+    const b = parseInt(hex.slice(5, 7), 16);
 
     const max = Math.max(r, g, b);
     const min = Math.min(r, g, b);
+    const delta = max - min;
+
     let h = 0;
     let s = 0;
-    const l = (max + min) / 2;
+    const brightness = max;
 
-    if (max !== min) {
-      const d = max - min;
-      s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+    if (max !== 0) {
+      s = (delta / max) * 255;
+    }
 
-      switch (max) {
-        case r:
-          h = (g - b) / d + (g < b ? 6 : 0);
-          break;
-        case g:
-          h = (b - r) / d + 2;
-          break;
-        case b:
-          h = (r - g) / d + 4;
-          break;
+    if (delta !== 0) {
+      if (r === max) {
+        h = (g - b) / delta;
+      } else if (g === max) {
+        h = 2 + (b - r) / delta;
+      } else {
+        h = 4 + (r - g) / delta;
       }
-      h /= 6;
+    } else {
+      h = -1;
+    }
+
+    h *= 60;
+    if (h < 0) {
+      h += 360;
     }
 
     return {
-      h: Math.round(h * 360),
-      s: Math.round(s * 100),
-      l: Math.round(l * 100),
+      h: Math.round(h),
+      s: Math.round((s * 100) / 255),
+      b: Math.round((brightness * 100) / 255),
     };
   }
 
   /**
-   * Convert HSL to HEX
+   * Convert HSB to HEX (following PrimeNG's approach)
    */
-  private hslToHex(h: number, s: number, l: number): string {
-    const hNorm = h / 360;
-    const sNorm = s / 100;
-    const lNorm = l / 100;
+  private hsbToHex(h: number, s: number, b: number): string {
+    const hNorm = h;
+    const sNorm = (s * 255) / 100;
+    const bNorm = (b * 255) / 100;
 
-    const hue2rgb = (p: number, q: number, t: number): number => {
-      if (t < 0) t += 1;
-      if (t > 1) t -= 1;
-      if (t < 1 / 6) return p + (q - p) * 6 * t;
-      if (t < 1 / 2) return q;
-      if (t < 2 / 3) return p + (q - p) * (2 / 3 - t) * 6;
-      return p;
-    };
-
-    let r: number, g: number, b: number;
+    let r: number, g: number, b_rgb: number;
 
     if (sNorm === 0) {
-      r = g = b = lNorm; // achromatic
+      r = g = b_rgb = bNorm;
     } else {
-      const q =
-        lNorm < 0.5 ? lNorm * (1 + sNorm) : lNorm + sNorm - lNorm * sNorm;
-      const p = 2 * lNorm - q;
-      r = hue2rgb(p, q, hNorm + 1 / 3);
-      g = hue2rgb(p, q, hNorm);
-      b = hue2rgb(p, q, hNorm - 1 / 3);
+      const t1 = bNorm;
+      const t2 = ((255 - sNorm) * bNorm) / 255;
+      const t3 = ((t1 - t2) * (hNorm % 60)) / 60;
+
+      if (hNorm === 360) h = 0;
+
+      if (hNorm < 60) {
+        r = t1;
+        b_rgb = t2;
+        g = t2 + t3;
+      } else if (hNorm < 120) {
+        g = t1;
+        b_rgb = t2;
+        r = t1 - t3;
+      } else if (hNorm < 180) {
+        g = t1;
+        r = t2;
+        b_rgb = t2 + t3;
+      } else if (hNorm < 240) {
+        b_rgb = t1;
+        r = t2;
+        g = t1 - t3;
+      } else if (hNorm < 300) {
+        b_rgb = t1;
+        g = t2;
+        r = t2 + t3;
+      } else if (hNorm < 360) {
+        r = t1;
+        g = t2;
+        b_rgb = t1 - t3;
+      } else {
+        r = 0;
+        g = 0;
+        b_rgb = 0;
+      }
     }
 
     const toHex = (c: number): string => {
-      const hex = Math.round(c * 255).toString(16);
+      const hex = Math.round(c).toString(16);
       return hex.length === 1 ? '0' + hex : hex;
     };
 
-    return `#${toHex(r)}${toHex(g)}${toHex(b)}`.toUpperCase();
+    return `#${toHex(r)}${toHex(g)}${toHex(b_rgb)}`.toUpperCase();
   }
 }

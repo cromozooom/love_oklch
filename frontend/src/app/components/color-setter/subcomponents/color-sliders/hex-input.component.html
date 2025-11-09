@@ -19,25 +19,32 @@
   </div>
 
   <div class="flex">
-    <div class="color-canvas-container relative w-full">
-      <canvas
-        #colorCanvas
-        class="xcolor-canvas cursor-crosshair border border-gray-300 rounded"
-        width="256"
-        height="256"
-        (click)="onCanvasClick($event)"
-        data-testid="color-canvas"
-      ></canvas>
+    <div class="p-[1rem]">
+      <div class="color-canvas-container relative w-full">
+        <canvas
+          #colorCanvas
+          class="xcolor-canvas cursor-crosshair border border-gray-300 rounded"
+          width="256"
+          height="256"
+          (click)="onCanvasClick($event)"
+          data-testid="color-canvas"
+        ></canvas>
 
-      <!-- Color indicator dot with mouse drag (PrimeNG pattern) -->
-      <div
-        class="color-indicator absolute w-3 h-3 border-2 border-white rounded-full shadow-lg cursor-grab select-none"
-        [style.left.px]="indicatorX"
-        [style.top.px]="indicatorY"
-        [style.transform]="'translate(-50%, -50%)'"
-        (mousedown)="onColorMousedown($event)"
-        data-testid="color-indicator"
-      ></div>
+        <!-- Color indicator dot with mouse drag (PrimeNG pattern) -->
+        <div
+          #colorIndicator
+          class="color-indicator absolute w-6 h-6 select-none"
+          [style.left.px]="indicatorX"
+          [style.top.px]="indicatorY"
+          (mousedown)="onColorMousedown($event)"
+          data-testid="color-indicator"
+        >
+          <!-- <div class="w-full h-full relative">
+            <div
+            ></div>
+          </div> -->
+        </div>
+      </div>
     </div>
 
     <!-- Hue Slider -->
