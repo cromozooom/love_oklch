@@ -83,14 +83,6 @@ export class GamutAwareSliderComponent implements AfterViewInit, OnDestroy {
       const currentMin = this.min();
       const currentMax = this.max();
 
-      // Debug logging for gamut changes
-      if (currentGamut.toLowerCase().includes('rec2020')) {
-        console.log(
-          `[Canvas Effect] Gamut changed to: ${currentGamut}, ctx exists: ${!!this
-            .ctx}`
-        );
-      }
-
       // Repaint if context exists, otherwise it will paint when canvas initializes
       if (this.ctx) {
         // Use requestAnimationFrame for smooth, properly timed repaints
@@ -106,13 +98,25 @@ export class GamutAwareSliderComponent implements AfterViewInit, OnDestroy {
     effect(() => {
       const currentValue = this.value();
       this.internalValue.set(currentValue);
-      this.directInputValue = currentValue.toFixed(2);
+      const newInputValue = currentValue.toFixed(2);
+      console.log(
+        `🔄 ${this.label()} EFFECT 1: Syncing directInputValue from ${
+          this.directInputValue
+        } to ${newInputValue}`
+      );
+      this.directInputValue = newInputValue;
     });
 
     // Sync direct input display value when internal value changes
     effect(() => {
       const currentInternal = this.internalValue();
-      this.directInputValue = currentInternal.toFixed(2);
+      const newInputValue = currentInternal.toFixed(2);
+      console.log(
+        `🔄 ${this.label()} EFFECT 2: Syncing directInputValue from ${
+          this.directInputValue
+        } to ${newInputValue}`
+      );
+      this.directInputValue = newInputValue;
     });
   }
 
@@ -144,11 +148,6 @@ export class GamutAwareSliderComponent implements AfterViewInit, OnDestroy {
     // Initial paint
     this.updateCanvasSize();
     this.paintCanvas();
-
-    // Log that canvas is ready
-    console.log(
-      `[Canvas Init] Canvas initialized with gamut: ${this.currentGamut()}`
-    );
   }
 
   /**
@@ -175,14 +174,8 @@ export class GamutAwareSliderComponent implements AfterViewInit, OnDestroy {
     const selectedGamut = this.currentGamut();
 
     if (!this.ctx || !generator) {
-      console.log(
-        `[Canvas Paint] Skipping paint - ctx: ${!!this
-          .ctx}, generator: ${!!generator}`
-      );
       return;
     }
-
-    console.log(`[Canvas Paint] Painting with gamut: ${selectedGamut}`);
 
     const canvas = this.canvasRef.nativeElement;
     const rect = canvas.getBoundingClientRect();
@@ -354,13 +347,6 @@ export class GamutAwareSliderComponent implements AfterViewInit, OnDestroy {
     if (validPos.length > 0) {
       value = this.snapToValidPosition(value, validPos);
       (event.target as HTMLInputElement).value = value.toString();
-
-      console.log(`[${this.label()}] Snapping:`, {
-        original: originalValue,
-        snapped: value,
-        validPositions: validPos,
-        validCount: validPos.length,
-      });
     }
 
     this.internalValue.set(value);
@@ -372,6 +358,7 @@ export class GamutAwareSliderComponent implements AfterViewInit, OnDestroy {
    * Handle direct input model changes (ngModel binding)
    */
   onDirectInputModelChange(value: string): void {
+    console.log(`🔢 HUE INPUT CHANGED: ${value}`);
     const numValue = parseFloat(value);
 
     // Only update if it's a valid number
@@ -481,6 +468,11 @@ export class GamutAwareSliderComponent implements AfterViewInit, OnDestroy {
     const clampedValue = Math.max(this.min(), Math.min(this.max(), value));
 
     // Update the model value which will sync with internal value
+    console.log(
+      `📋 ${this.label()} PASTE: Setting directInputValue to ${clampedValue.toFixed(
+        2
+      )}`
+    );
     this.directInputValue = clampedValue.toFixed(2);
     this.internalValue.set(clampedValue);
     this.valueInput.emit(clampedValue);
@@ -506,16 +498,14 @@ export class GamutAwareSliderComponent implements AfterViewInit, OnDestroy {
     if (validPos.length > 0) {
       const originalValue = value;
       value = this.snapToValidPosition(value, validPos);
-
-      console.log(`[${this.label()}] Direct input snapping:`, {
-        original: originalValue,
-        snapped: value,
-        validPositions: validPos,
-        validCount: validPos.length,
-      });
     }
 
     // Update both values
+    console.log(
+      `⌨️ ${this.label()} DIRECT INPUT: Setting directInputValue to ${value.toFixed(
+        2
+      )}`
+    );
     this.directInputValue = value.toFixed(2);
     this.internalValue.set(value);
     this.valueChange.emit(value);

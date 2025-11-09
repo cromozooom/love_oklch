@@ -20,12 +20,12 @@ import {
   input,
   signal,
   effect,
-  computed,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Renderer2, NgZone } from '@angular/core';
 import { GamutAwareSliderComponent } from '../gamut-aware-slider/gamut-aware-slider.component';
+import Color from 'colorjs.io';
 
 @Component({
   selector: 'app-hex-input',
@@ -49,7 +49,10 @@ export class HexInputComponent implements AfterViewInit, OnDestroy {
   internalHexValue = signal('#FF0000');
   hue: number = 0; // 0-360
   saturation: number = 100; // 0-100
-  brightness: number = 100; // 0-100 (HSB brightness, not HSL lightness)
+  brightness: number = 100; // 0-100
+
+  // Flag to prevent hue updates during internal operations
+  private isInternalUpdate = false;
 
   // Canvas interaction state
   private ctx?: CanvasRenderingContext2D | null;
@@ -64,21 +67,25 @@ export class HexInputComponent implements AfterViewInit, OnDestroy {
   indicatorX: number = 0;
   indicatorY: number = 0;
 
-  // Color generator for hue slider
-  hueColorGenerator = computed(() => {
-    return (position: number) => `hsl(${Math.round(position)}, 100%, 50%)`;
-  });
-
-  // Hue formatter
-  formatHue = (v: number) => Math.round(v).toString() + '°';
-
   constructor(private renderer: Renderer2, private ngZone: NgZone) {
     // Sync internal value with input
     effect(() => {
-      const currentHex = this.hexValue();
-      this.internalHexValue.set(currentHex);
-      this.parseHexToHSB(currentHex);
-      this.updateIndicatorPosition();
+      if (!this.isInternalUpdate && !this.colorDragging) {
+        const currentHex = this.hexValue();
+        console.log(
+          `🔄 EXTERNAL HEX CHANGE: ${currentHex} -> parsing to HSB and updating hue`
+        );
+        this.internalHexValue.set(currentHex);
+        this.parseHexToHSB(currentHex);
+        this.updateIndicatorPosition();
+      } else {
+        const reason = this.isInternalUpdate
+          ? 'internal update'
+          : 'canvas dragging';
+        console.log(
+          `🚫 SKIPPING parseHexToHSB due to ${reason} - preserving hue at ${this.hue}`
+        );
+      }
     });
 
     // Note: Canvas repainting is now handled explicitly in hue change handlers
@@ -88,18 +95,8 @@ export class HexInputComponent implements AfterViewInit, OnDestroy {
     this.initCanvas();
     // Initialize the color and position after canvas is ready
     const initialHex = this.hexValue();
-    console.log('Initial hex:', initialHex);
     this.parseHexToHSB(initialHex);
-    console.log(
-      'After parsing - Hue:',
-      this.hue,
-      'Sat:',
-      this.saturation,
-      'Brightness:',
-      this.brightness
-    );
     this.updateIndicatorPosition();
-    console.log('Indicator position:', this.indicatorX, this.indicatorY);
     this.paintCanvas();
   }
 
@@ -321,14 +318,16 @@ export class HexInputComponent implements AfterViewInit, OnDestroy {
 
     // Convert to saturation/brightness values with proper bounds (HSB model)
     const newSaturation = Math.floor((colorX / (canvas.width - 1)) * 100);
-    const newBrightness = Math.floor(100 - (colorY / (canvas.height - 1)) * 100);
-    
+    const newBrightness = Math.floor(
+      100 - (colorY / (canvas.height - 1)) * 100
+    );
+
     // Store the current hue before updating saturation/brightness
     const originalHue = this.hue;
-    
+
     this.saturation = newSaturation;
     this.brightness = newBrightness;
-    
+
     // Preserve hue when saturation is 0 (achromatic colors)
     if (newSaturation === 0) {
       this.hue = originalHue;
@@ -377,11 +376,28 @@ export class HexInputComponent implements AfterViewInit, OnDestroy {
 
   /**
    * Convert current HSB values to HEX and update internal value
+   * This should ONLY be called when we have definitive HSB values (canvas drag, hue slider)
+   * and should NOT trigger parseHexToHSB to avoid hue drift from conversion rounding
    */
   private updateHexFromHSB(): void {
     const hex = this.hsbToHex(this.hue, this.saturation, this.brightness);
+    console.log(
+      `🎨 INTERNAL UPDATE: Setting hex to ${hex} (HSB: ${this.hue}, ${this.saturation}, ${this.brightness}) - should NOT trigger parseHexToHSB`
+    );
+
+    // Set the flag before any signal updates
+    this.isInternalUpdate = true;
+
+    // Update internal hex value
     this.internalHexValue.set(hex);
+
+    // Emit changes
     this.emitChange();
+
+    // Clear flag after a microtask to ensure all effects have processed
+    Promise.resolve().then(() => {
+      this.isInternalUpdate = false;
+    });
   }
 
   /**
@@ -391,6 +407,7 @@ export class HexInputComponent implements AfterViewInit, OnDestroy {
   private parseHexToHSB(hex: string): void {
     const hsb = this.hexToHsb(hex);
     if (hsb) {
+      const oldHue = this.hue;
       // Only update hue if the color has saturation (chromatic)
       // This prevents hue jumping when dealing with white/gray/black
       if (hsb.s > 0) {
@@ -424,6 +441,19 @@ export class HexInputComponent implements AfterViewInit, OnDestroy {
     this.hexValueChange.emit(hexValue);
     this.hexChange.emit(hexValue);
   }
+
+  /**
+   * Generate color function for hue slider
+   */
+  hueColorGenerator = (value: number): string => {
+    try {
+      // Convert HSB to RGB for the hue slider
+      const color = new Color('hsl', [value, 100, 50]);
+      return color.to('srgb').toString({ format: 'hex' });
+    } catch {
+      return '#ff0000'; // Fallback to red
+    }
+  };
 
   /**
    * Validate HEX color format

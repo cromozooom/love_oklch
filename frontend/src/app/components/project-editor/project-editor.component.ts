@@ -18,7 +18,6 @@ import { ProjectModification } from '../../models/project-modification.interface
     ProjectFormComponent,
     UndoRedoControlsComponent,
     ModificationHistoryComponent,
-    ColorSetterComponent,
   ],
   templateUrl: './project-editor.component.html',
   styleUrl: './project-editor.component.scss',

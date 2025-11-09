@@ -125,7 +125,6 @@ export interface ColorChangeEvent {
     RgbSlidersComponent,
     HslSlidersComponent,
     HexInputComponent,
-    GamutAwareSliderComponent,
   ],
   providers: [ColorService, WCAGService, GamutService, NamingService],
 })

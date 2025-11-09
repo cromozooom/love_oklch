@@ -1,16 +1,13 @@
 <div class="hex-color-picker flex flex-col w-full">
   <div class="w-full pb-4">
     <app-gamut-aware-slider
-      label="Hue"
       [value]="hue"
       [min]="0"
       [max]="360"
       [step]="1"
-      [colorGenerator]="hueColorGenerator()"
-      [validPositions]="[]"
-      [formatValue]="formatHue"
-      [currentGamut]="'sRGB'"
-      [debugGradient]="''"
+      [colorGenerator]="hueColorGenerator"
+      [currentGamut]="'srgb'"
+      label="Hue"
       testId="hex-hue-slider"
       (valueInput)="onHueInput($event)"
       (valueCommit)="onHueChange($event)"
@@ -19,7 +16,7 @@
   </div>
 
   <div class="flex">
-    <div class="p-[1rem]">
+    <div class="p-4">
       <div class="color-canvas-container relative w-full">
         <canvas
           #colorCanvas
