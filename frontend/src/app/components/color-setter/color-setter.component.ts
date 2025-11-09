@@ -367,9 +367,11 @@ export class ColorSetterComponent implements OnInit, AfterViewInit {
         }
         case 'oklch': {
           const oklch = color.to('oklch');
-          return `oklch(${oklch.coords[0].toFixed(3)} ${oklch.coords[1].toFixed(
-            3
-          )} ${oklch.coords[2].toFixed(1)})`;
+          const lightness = oklch.coords[0].toFixed(3);
+          const chroma = oklch.coords[1].toFixed(3);
+          // Handle NaN hue for achromatic colors (grey colors with no hue)
+          const hue = isNaN(oklch.coords[2]) ? 0 : oklch.coords[2].toFixed(1);
+          return `oklch(${lightness} ${chroma} ${hue})`;
         }
         case 'lab': {
           const lab = color.to('lab');
@@ -599,27 +601,26 @@ export class ColorSetterComponent implements OnInit, AfterViewInit {
    */
   onColorInputBlur(): void {
     const input = this.colorInputValue().trim();
-    
+
     // If input is empty, just cancel editing mode
     if (!input) {
       this.cancelEditingColorValue();
       return;
     }
-    
+
     // If input has content, try to parse it
     try {
       const parsed = this.colorService.parse(input);
-      
+
       // If parsing succeeds, update the color
       let detectedFormat = this.detectFormatFromInput(input);
       if (!detectedFormat) {
         detectedFormat = 'hex'; // Named colors default to hex
       }
-      
+
       this.format.set(detectedFormat);
       this.updateColorState(parsed, detectedFormat);
       this.cancelEditingColorValue(); // Exit edit mode on success
-      
     } catch (error) {
       // If parsing fails, still cancel editing mode when clicking outside
       // This allows users to escape from invalid input by clicking elsewhere

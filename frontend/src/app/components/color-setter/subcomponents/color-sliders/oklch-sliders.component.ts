@@ -139,7 +139,9 @@ export class OklchSlidersComponent implements OnInit, OnDestroy {
       if (match) {
         this.l = parseFloat(match[1]);
         this.c = parseFloat(match[2]);
-        this.h = parseFloat(match[3]);
+        // Handle NaN hue for achromatic colors
+        const parsedH = parseFloat(match[3]);
+        this.h = isNaN(parsedH) ? 0 : parsedH;
 
         // Update signals for reactive canvas updates
         this.lSignal.set(this.l);
@@ -187,7 +189,9 @@ export class OklchSlidersComponent implements OnInit, OnDestroy {
    * Generate gradients for all sliders based on baseline values (prevents feedback loop)
    */
   private generateGradients() {
-    const baselineColor = `oklch(${this.baselineL} ${this.baselineC} ${this.baselineH})`;
+    // Handle NaN hue for achromatic colors
+    const baselineHue = isNaN(this.baselineH) ? 0 : this.baselineH;
+    const baselineColor = `oklch(${this.baselineL} ${this.baselineC} ${baselineHue})`;
     const currentGamut = this.gamut();
 
     console.log('[OklchSliders] Generating gradients:', {
@@ -383,9 +387,11 @@ export class OklchSlidersComponent implements OnInit, OnDestroy {
    * Emit color change event
    */
   private emitColorChange() {
-    const oklchColor = `oklch(${this.l.toFixed(3)} ${this.c.toFixed(3)} ${
-      this.h
-    })`;
+    // Handle NaN hue for achromatic colors (grey colors with no hue)
+    const hueValue = isNaN(this.h) ? 0 : this.h;
+    const oklchColor = `oklch(${this.l.toFixed(3)} ${this.c.toFixed(
+      3
+    )} ${hueValue})`;
     this.colorChange.emit(oklchColor);
   }
 }
