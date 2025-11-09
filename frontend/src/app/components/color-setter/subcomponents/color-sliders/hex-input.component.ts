@@ -277,12 +277,17 @@ export class HexInputComponent implements AfterViewInit, OnDestroy {
       100 - (colorY / (canvas.height - 1)) * 100
     );
 
+    // Store the current hue before updating saturation/brightness
+    const originalHue = this.hue;
+
     this.saturation = newSaturation;
     this.brightness = newBrightness;
 
-    // IMPORTANT: Don't update hue when saturation is 0 (achromatic colors)
-    // This preserves the current hue for pure white, gray, and black
-    // and prevents the hue from jumping to random values
+    // IMPORTANT: Preserve hue when saturation is 0 (achromatic colors)
+    // This prevents the hue from jumping to random values for white/gray/black
+    if (newSaturation === 0) {
+      this.hue = originalHue;
+    }
 
     // Update indicator position to match the color position
     // Allow indicator center to reach full canvas area for pure white selection
@@ -315,8 +320,19 @@ export class HexInputComponent implements AfterViewInit, OnDestroy {
     const colorY = Math.max(0, Math.min(canvas.height - 1, relativeY));
 
     // Convert to saturation/brightness values with proper bounds (HSB model)
-    this.saturation = Math.floor((colorX / (canvas.width - 1)) * 100);
-    this.brightness = Math.floor(100 - (colorY / (canvas.height - 1)) * 100);
+    const newSaturation = Math.floor((colorX / (canvas.width - 1)) * 100);
+    const newBrightness = Math.floor(100 - (colorY / (canvas.height - 1)) * 100);
+    
+    // Store the current hue before updating saturation/brightness
+    const originalHue = this.hue;
+    
+    this.saturation = newSaturation;
+    this.brightness = newBrightness;
+    
+    // Preserve hue when saturation is 0 (achromatic colors)
+    if (newSaturation === 0) {
+      this.hue = originalHue;
+    }
 
     // Update indicator position to match the color position
     // Allow indicator center to reach full canvas area for pure white selection
