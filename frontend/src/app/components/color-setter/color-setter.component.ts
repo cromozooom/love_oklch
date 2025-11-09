@@ -537,13 +537,16 @@ export class ColorSetterComponent implements OnInit, AfterViewInit {
       const parsed = this.colorService.parse(input);
 
       // Step 4: Check the type and detect format from original input
-      const detectedFormat = this.detectFormatFromInput(input);
+      let detectedFormat = this.detectFormatFromInput(input);
 
+      // Special case: if no format detected, it might be a named color
+      // Named colors should be treated as HEX since they convert to HEX values
       if (!detectedFormat) {
-        this.colorInputError.set(
-          `Unrecognized color format. Supported formats: hex (#ff0000), rgb (rgb(255,0,0)), hsl (hsl(0,100%,50%)), lch (lch(50 80 30)), oklch (oklch(70% 0.25 180)), lab (lab(50 20 -30))`
-        );
-        return;
+        // If colorjs.io successfully parsed it but we couldn't detect format,
+        // it's likely a named color (like "red", "blue", "crimson", etc.)
+        // Convert to HEX and treat as HEX input
+        detectedFormat = 'hex';
+        console.log(`Named color detected: "${input}" -> treating as HEX`);
       }
 
       // Step 5: Switch to the detected format editor and set the value
@@ -574,7 +577,7 @@ export class ColorSetterComponent implements OnInit, AfterViewInit {
     this.colorInputError.set(''); // Clear any previous errors
     // Optionally pre-fill with current value
     // this.colorInputValue.set(this.currentFormatValue());
-    
+
     // Focus the input field after the view updates
     setTimeout(() => {
       this.colorInputRef?.nativeElement?.focus();

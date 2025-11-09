@@ -4,7 +4,7 @@
   <div class="gamut-options flex gap-2 items-center">
     <div
       *ngFor="let gamutDef of availableGamuts()"
-      class="flex items-center gap-2 border border-gary-300 rounded px-2 py-1 cursor-pointer"
+      class="flex items-center gap-2 border border-gray-300 rounded px-2 py-1 cursor-pointer"
       [class.selected]="isSelected(gamutDef.profile)"
       (click)="onGamutChange(gamutDef.profile)"
       [attr.data-testid]="'gamut-option-' + gamutDef.profile"
