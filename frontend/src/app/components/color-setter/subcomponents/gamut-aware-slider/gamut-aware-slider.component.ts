@@ -69,6 +69,7 @@ export class GamutAwareSliderComponent implements AfterViewInit, OnDestroy {
   canvasRef!: ElementRef<HTMLCanvasElement>;
 
   internalValue = signal<number>(0);
+  directInputValue: string = '0.00';
   private ctx?: CanvasRenderingContext2D | null;
   private resizeObserver?: ResizeObserver;
 
@@ -103,7 +104,15 @@ export class GamutAwareSliderComponent implements AfterViewInit, OnDestroy {
 
     // Sync internal value with input value
     effect(() => {
-      this.internalValue.set(this.value());
+      const currentValue = this.value();
+      this.internalValue.set(currentValue);
+      this.directInputValue = currentValue.toFixed(2);
+    });
+
+    // Sync direct input display value when internal value changes
+    effect(() => {
+      const currentInternal = this.internalValue();
+      this.directInputValue = currentInternal.toFixed(2);
     });
   }
 
@@ -354,6 +363,160 @@ export class GamutAwareSliderComponent implements AfterViewInit, OnDestroy {
       });
     }
 
+    this.internalValue.set(value);
+    this.valueChange.emit(value);
+    this.valueCommit.emit(value);
+  }
+
+  /**
+   * Handle direct input model changes (ngModel binding)
+   */
+  onDirectInputModelChange(value: string): void {
+    const numValue = parseFloat(value);
+
+    // Only update if it's a valid number
+    if (!isNaN(numValue)) {
+      // Clamp the value to min/max bounds
+      const clampedValue = Math.max(this.min(), Math.min(this.max(), numValue));
+
+      this.internalValue.set(clampedValue);
+
+      // Update canvas immediately
+      if (this.ctx) {
+        requestAnimationFrame(() => {
+          if (this.ctx) {
+            this.paintCanvas();
+          }
+        });
+      }
+
+      this.valueInput.emit(clampedValue); // Live updates for gradients
+    }
+  }
+
+  /**
+   * Handle keydown events to prevent invalid input
+   */
+  onDirectInputKeydown(event: KeyboardEvent): void {
+    const input = event.target as HTMLInputElement;
+    const key = event.key;
+    const currentValue = input.value;
+    const selectionStart = input.selectionStart || 0;
+    const selectionEnd = input.selectionEnd || 0;
+
+    // Allow control keys
+    if (
+      [
+        'Backspace',
+        'Delete',
+        'Tab',
+        'Escape',
+        'Enter',
+        'Home',
+        'End',
+        'ArrowLeft',
+        'ArrowRight',
+        'ArrowUp',
+        'ArrowDown',
+      ].includes(key)
+    ) {
+      return;
+    }
+
+    // Allow Ctrl+A, Ctrl+C, Ctrl+V, Ctrl+X, Ctrl+Z
+    if (
+      event.ctrlKey &&
+      ['a', 'c', 'v', 'x', 'z'].includes(key.toLowerCase())
+    ) {
+      return;
+    }
+
+    // Allow digits, decimal point, and minus sign
+    if (!/[0-9\.\-]/.test(key)) {
+      event.preventDefault();
+      return;
+    }
+
+    // Simulate the input to check if it would be valid
+    const newValue =
+      currentValue.substring(0, selectionStart) +
+      key +
+      currentValue.substring(selectionEnd);
+
+    // Check if the new value would be a valid number
+    const numValue = parseFloat(newValue);
+    if (
+      newValue !== '' &&
+      newValue !== '.' &&
+      newValue !== '-' &&
+      newValue !== '-.' &&
+      isNaN(numValue)
+    ) {
+      event.preventDefault();
+      return;
+    }
+
+    // Check if it would exceed bounds (only if it's a complete number)
+    if (!isNaN(numValue)) {
+      if (numValue < this.min() || numValue > this.max()) {
+        event.preventDefault();
+        return;
+      }
+    }
+  }
+
+  /**
+   * Handle paste events to validate pasted content
+   */
+  onDirectInputPaste(event: ClipboardEvent): void {
+    event.preventDefault();
+
+    const paste = event.clipboardData?.getData('text');
+    if (!paste) return;
+
+    const value = parseFloat(paste);
+    if (isNaN(value)) return;
+
+    // Clamp the pasted value
+    const clampedValue = Math.max(this.min(), Math.min(this.max(), value));
+
+    // Update the model value which will sync with internal value
+    this.directInputValue = clampedValue.toFixed(2);
+    this.internalValue.set(clampedValue);
+    this.valueInput.emit(clampedValue);
+  }
+
+  /**
+   * Handle direct input commit (on blur or enter)
+   */
+  onDirectInput(event: Event): void {
+    let value = parseFloat(this.directInputValue);
+
+    // Validate and clamp the input
+    if (isNaN(value)) {
+      // Reset to current value if invalid
+      value = this.internalValue();
+    } else {
+      // Clamp to min/max bounds
+      value = Math.max(this.min(), Math.min(this.max(), value));
+    }
+
+    // Snap to valid positions if we have gamut constraints
+    const validPos = this.validPositions();
+    if (validPos.length > 0) {
+      const originalValue = value;
+      value = this.snapToValidPosition(value, validPos);
+
+      console.log(`[${this.label()}] Direct input snapping:`, {
+        original: originalValue,
+        snapped: value,
+        validPositions: validPos,
+        validCount: validPos.length,
+      });
+    }
+
+    // Update both values
+    this.directInputValue = value.toFixed(2);
     this.internalValue.set(value);
     this.valueChange.emit(value);
     this.valueCommit.emit(value);

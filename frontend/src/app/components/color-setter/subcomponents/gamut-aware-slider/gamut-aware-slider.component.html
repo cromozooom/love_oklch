@@ -3,9 +3,22 @@
     <label class="text-sm font-medium text-gray-700 dark:text-gray-300">
       {{ label() }}
     </label>
-    <span class="text-sm text-gray-600 dark:text-gray-400 font-mono">
-      {{ formatValue()(internalValue()) }}
-    </span>
+    <!-- Editable input with clamping and 2 decimal precision -->
+    <input
+      type="number"
+      class="text-sm text-gray-600 dark:text-gray-400 font-mono bg-transparent border border-gray-300 dark:border-gray-600 rounded px-2 py-1 w-20 text-right hover:border-blue-400 focus:border-blue-500 focus:outline-none transition-colors"
+      [(ngModel)]="directInputValue"
+      [min]="min()"
+      [max]="max()"
+      [step]="step()"
+      [attr.aria-label]="label() + ' value input'"
+      [title]="'Enter value between ' + min() + ' and ' + max()"
+      (blur)="onDirectInput($event)"
+      (keydown.enter)="onDirectInput($event)"
+      (keydown)="onDirectInputKeydown($event)"
+      (ngModelChange)="onDirectInputModelChange($event)"
+      (paste)="onDirectInputPaste($event)"
+    />
   </div>
 
   <!-- Native range input with canvas background -->
