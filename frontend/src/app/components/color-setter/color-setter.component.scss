@@ -106,95 +106,95 @@
 } */
 
 // Gamut Section Styles (T068)
-.gamut-section {
-  margin-top: 1.5rem;
-  padding-top: 1.5rem;
-  border-top: 1px solid #e5e7eb;
-}
+// .gamut-section {
+//   margin-top: 1.5rem;
+//   padding-top: 1.5rem;
+//   border-top: 1px solid #e5e7eb;
+// }
 
-.gamut-warning {
-  display: flex;
-  gap: 0.75rem;
-  padding: 1rem;
-  margin-top: 1rem;
-  background-color: #fef3c7;
-  border: 1px solid #fbbf24;
-  border-radius: 0.5rem;
-  color: #92400e;
+// .gamut-warning {
+//   display: flex;
+//   gap: 0.75rem;
+//   padding: 1rem;
+//   margin-top: 1rem;
+//   background-color: #fef3c7;
+//   border: 1px solid #fbbf24;
+//   border-radius: 0.5rem;
+//   color: #92400e;
 
-  .warning-icon {
-    font-size: 1.5rem;
-    line-height: 1;
-  }
+//   .warning-icon {
+//     font-size: 1.5rem;
+//     line-height: 1;
+//   }
 
-  .warning-content {
-    flex: 1;
+//   .warning-content {
+//     flex: 1;
 
-    strong {
-      display: block;
-      font-weight: 600;
-      margin-bottom: 0.25rem;
-    }
+//     strong {
+//       display: block;
+//       font-weight: 600;
+//       margin-bottom: 0.25rem;
+//     }
 
-    p {
-      margin: 0.25rem 0;
-      font-size: 0.875rem;
-    }
+//     p {
+//       margin: 0.25rem 0;
+//       font-size: 0.875rem;
+//     }
 
-    small {
-      display: block;
-      margin-top: 0.5rem;
-      font-size: 0.75rem;
-      color: #78350f;
-    }
-  }
-}
+//     small {
+//       display: block;
+//       margin-top: 0.5rem;
+//       font-size: 0.75rem;
+//       color: #78350f;
+//     }
+//   }
+// }
 
-// Dark mode support for gamut warning
-@media (prefers-color-scheme: dark) {
-  .gamut-section {
-    border-top-color: #374151;
-  }
+// // Dark mode support for gamut warning
+// @media (prefers-color-scheme: dark) {
+//   .gamut-section {
+//     border-top-color: #374151;
+//   }
 
-  .gamut-warning {
-    background-color: #422006;
-    border-color: #92400e;
-    color: #fbbf24;
+//   .gamut-warning {
+//     background-color: #422006;
+//     border-color: #92400e;
+//     color: #fbbf24;
 
-    .warning-content small {
-      color: #fcd34d;
-    }
-  }
-}
+//     .warning-content small {
+//       color: #fcd34d;
+//     }
+//   }
+// }
 
-// Color Name Display Styles (T080)
-.color-name {
-  display: flex;
-  align-items: baseline;
-  gap: 0.5rem;
-  margin-top: 0.25rem;
-  font-size: 0.875rem;
+// // Color Name Display Styles (T080)
+// .color-name {
+//   display: flex;
+//   align-items: baseline;
+//   gap: 0.5rem;
+//   margin-top: 0.25rem;
+//   font-size: 0.875rem;
 
-  .color-name-label {
-    font-weight: 600;
-    color: #374151;
-  }
+//   .color-name-label {
+//     font-weight: 600;
+//     color: #374151;
+//   }
 
-  .color-name-confidence {
-    color: #6b7280;
-    font-size: 0.75rem;
-  }
-}
+//   .color-name-confidence {
+//     color: #6b7280;
+//     font-size: 0.75rem;
+//   }
+// }
 
-// Dark mode support for color name
-@media (prefers-color-scheme: dark) {
-  .color-name {
-    .color-name-label {
-      color: #d1d5db;
-    }
+// // Dark mode support for color name
+// @media (prefers-color-scheme: dark) {
+//   .color-name {
+//     .color-name-label {
+//       color: #d1d5db;
+//     }
 
-    .color-name-confidence {
-      color: #9ca3af;
-    }
-  }
-}
+//     .color-name-confidence {
+//       color: #9ca3af;
+//     }
+//   }
+// }

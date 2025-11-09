@@ -16,17 +16,20 @@ import {
   SimpleChanges,
   input,
   effect,
+  computed,
+  signal,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Subject, debounceTime, takeUntil } from 'rxjs';
 import { GamutService } from '../../services/gamut.service';
 import Color from 'colorjs.io';
+import { GamutAwareSliderComponent } from '../gamut-aware-slider/gamut-aware-slider.component';
 
 @Component({
   selector: 'app-lch-sliders',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, GamutAwareSliderComponent],
   templateUrl: './lch-sliders.component.html',
   styleUrls: ['./lch-sliders.component.scss'],
 })
@@ -35,10 +38,15 @@ export class LchSlidersComponent implements OnInit, OnDestroy {
   gamut = input<string>('sRGB');
   @Output() colorChange = new EventEmitter<string>();
 
-  // LCH values
+  // LCH values (normalized) - current actual values
   l: number = 50;
   c: number = 50;
   h: number = 180;
+
+  // LCH baseline values for gradient generation (don't change during dragging)
+  baselineL: number = 50;
+  baselineC: number = 50;
+  baselineH: number = 180;
 
   // Gradient backgrounds for sliders (deprecated, kept for compatibility)
   lGradient: string = '';
@@ -50,13 +58,29 @@ export class LchSlidersComponent implements OnInit, OnDestroy {
   validCPositions: number[] = [];
   validHPositions: number[] = [];
 
-  // Color generator functions for canvas rendering
-  lColorGenerator = (position: number) =>
-    `lch(${position} ${this.c} ${this.h})`;
-  cColorGenerator = (position: number) =>
-    `lch(${this.l} ${position} ${this.h})`;
-  hColorGenerator = (position: number) =>
-    `lch(${this.l} ${this.c} ${position})`;
+  // Signals for L/C/H values to make them reactive
+  lSignal = signal(50);
+  cSignal = signal(50);
+  hSignal = signal(180);
+
+  // Color generator functions for canvas rendering - computed to trigger changes
+  lColorGenerator = computed(() => {
+    const c = this.cSignal();
+    const h = this.hSignal();
+    return (position: number) => `lch(${position} ${c} ${h})`;
+  });
+
+  cColorGenerator = computed(() => {
+    const l = this.lSignal();
+    const h = this.hSignal();
+    return (position: number) => `lch(${l} ${position} ${h})`;
+  });
+
+  hColorGenerator = computed(() => {
+    const l = this.lSignal();
+    const c = this.cSignal();
+    return (position: number) => `lch(${l} ${c} ${position})`;
+  });
 
   // Debounced update subjects
   private lUpdate$ = new Subject<number>();
@@ -67,25 +91,32 @@ export class LchSlidersComponent implements OnInit, OnDestroy {
   // Math for template
   Math = Math;
 
-  constructor(private gamutService: GamutService) {}
+  // Dev flag to show/hide CSS gradient divs
+  showDebugGradients = false; // Set to true for development debugging
 
-  ngOnInit() {
-    this.parseColor();
-    this.generateGradients();
-    this.setupDebouncing();
+  // Value formatters for display
+  formatL = (v: number) => v.toFixed(2);
+  formatC = (v: number) => v.toFixed(2);
+  formatH = (v: number) => `${Math.round(v)}°`;
 
-    // Effect to handle color changes
+  constructor(private gamutService: GamutService) {
+    // Effect to handle color changes - updates baseline values
     effect(() => {
       const currentColor = this.color();
-      this.parseColor();
-      this.generateGradients();
-    });
-
-    // Effect to handle gamut changes
+      if (currentColor && currentColor.trim()) {
+        this.parseColor(); // This updates baseline values
+        this.generateGradients();
+      }
+    }); // Effect to handle gamut changes - regenerates gradients with new gamut
     effect(() => {
       const currentGamut = this.gamut();
+      console.log('[LchSliders] Gamut changed to:', currentGamut);
       this.generateGradients();
     });
+  }
+
+  ngOnInit() {
+    this.setupDebouncing();
   }
 
   ngOnDestroy() {
@@ -99,6 +130,7 @@ export class LchSlidersComponent implements OnInit, OnDestroy {
   private parseColor() {
     try {
       const colorValue = this.color();
+      console.log('[LchSliders] Parsing color:', colorValue);
       const match = colorValue.match(
         /lch\((\d+\.?\d*)\s+(\d+\.?\d*)\s+(\d+\.?\d*)\)/
       );
@@ -106,6 +138,24 @@ export class LchSlidersComponent implements OnInit, OnDestroy {
         this.l = parseFloat(match[1]);
         this.c = parseFloat(match[2]);
         this.h = parseFloat(match[3]);
+
+        console.log('[LchSliders] Parsed values:', {
+          l: this.l,
+          c: this.c,
+          h: this.h,
+        });
+
+        // Update signals for reactive canvas updates
+        this.lSignal.set(this.l);
+        this.cSignal.set(this.c);
+        this.hSignal.set(this.h);
+
+        // Update baseline values for gradient generation
+        this.baselineL = this.l;
+        this.baselineC = this.c;
+        this.baselineH = this.h;
+      } else {
+        console.log('[LchSliders] Failed to parse color:', colorValue);
       }
     } catch (error) {
       console.error('LCH parse error:', error);
@@ -120,37 +170,43 @@ export class LchSlidersComponent implements OnInit, OnDestroy {
     this.lUpdate$
       .pipe(debounceTime(0), takeUntil(this.destroy$))
       .subscribe(() => {
-        this.generateGradients(); // Regenerate gradients for live updates
+        // Don't regenerate gradients during slider dragging - prevents feedback loop
         this.emitColorChange();
       });
 
     this.cUpdate$
       .pipe(debounceTime(0), takeUntil(this.destroy$))
       .subscribe(() => {
-        this.generateGradients(); // Regenerate gradients for live updates
+        // Don't regenerate gradients during slider dragging - prevents feedback loop
         this.emitColorChange();
       });
 
     this.hUpdate$
       .pipe(debounceTime(0), takeUntil(this.destroy$))
       .subscribe(() => {
-        this.generateGradients(); // Regenerate gradients for live updates
+        // Don't regenerate gradients during slider dragging - prevents feedback loop
         this.emitColorChange();
       });
   }
 
   /**
-   * Generate gradients for all sliders based on current values
+   * Generate gradients for all sliders based on baseline values (prevents feedback loop)
    */
   private generateGradients() {
-    const currentColor = `lch(${this.l} ${this.c} ${this.h})`;
+    const baselineColor = `lch(${this.baselineL} ${this.baselineC} ${this.baselineH})`;
     const currentGamut = this.gamut();
+
+    console.log('[LchSliders] Generating gradients:', {
+      baselineColor,
+      currentGamut,
+      actualValues: { l: this.l, c: this.c, h: this.h },
+    });
 
     // Lightness gradient (0-100) with 100 steps
     const lGradientData = this.gamutService.generateSliderGradient({
       format: 'lch',
       channel: 'l',
-      currentColor,
+      currentColor: baselineColor,
       gamut: currentGamut,
       min: 0,
       max: 100,
@@ -167,7 +223,7 @@ export class LchSlidersComponent implements OnInit, OnDestroy {
     const cGradientData = this.gamutService.generateSliderGradient({
       format: 'lch',
       channel: 'c',
-      currentColor,
+      currentColor: baselineColor,
       gamut: currentGamut,
       min: 0,
       max: 150,
@@ -184,7 +240,7 @@ export class LchSlidersComponent implements OnInit, OnDestroy {
     const hGradientData = this.gamutService.generateSliderGradient({
       format: 'lch',
       channel: 'h',
-      currentColor,
+      currentColor: baselineColor,
       gamut: currentGamut,
       min: 0,
       max: 360,
@@ -269,8 +325,10 @@ export class LchSlidersComponent implements OnInit, OnDestroy {
   /**
    * Handle lightness slider input (live updates)
    */
-  onLInput() {
-    this.lUpdate$.next(this.l);
+  onLInput(value: number) {
+    this.l = value;
+    this.lSignal.set(value);
+    this.lUpdate$.next(value);
   }
 
   /**
@@ -279,6 +337,7 @@ export class LchSlidersComponent implements OnInit, OnDestroy {
   onLChange() {
     // Snap to nearest valid position
     this.l = this.snapToValidPosition(this.l, this.validLPositions);
+    this.lSignal.set(this.l);
     this.generateGradients();
     this.emitColorChange();
   }
@@ -286,8 +345,10 @@ export class LchSlidersComponent implements OnInit, OnDestroy {
   /**
    * Handle chroma slider input (live updates)
    */
-  onCInput() {
-    this.cUpdate$.next(this.c);
+  onCInput(value: number) {
+    this.c = value;
+    this.cSignal.set(value);
+    this.cUpdate$.next(value);
   }
 
   /**
@@ -296,6 +357,7 @@ export class LchSlidersComponent implements OnInit, OnDestroy {
   onCChange() {
     // Snap to nearest valid position
     this.c = this.snapToValidPosition(this.c, this.validCPositions);
+    this.cSignal.set(this.c);
     this.generateGradients();
     this.emitColorChange();
   }
@@ -303,8 +365,10 @@ export class LchSlidersComponent implements OnInit, OnDestroy {
   /**
    * Handle hue slider input (live updates)
    */
-  onHInput() {
-    this.hUpdate$.next(this.h);
+  onHInput(value: number) {
+    this.h = value;
+    this.hSignal.set(value);
+    this.hUpdate$.next(value);
   }
 
   /**
@@ -313,6 +377,7 @@ export class LchSlidersComponent implements OnInit, OnDestroy {
   onHChange() {
     // Snap to nearest valid position
     this.h = this.snapToValidPosition(this.h, this.validHPositions);
+    this.hSignal.set(this.h);
     this.generateGradients();
     this.emitColorChange();
   }

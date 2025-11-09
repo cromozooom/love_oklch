@@ -29,6 +29,8 @@ import { GamutSelectorComponent } from './subcomponents/gamut-selector/gamut-sel
 import { LchSlidersComponent } from './subcomponents/color-sliders/lch-sliders.component';
 import { OklchSlidersComponent } from './subcomponents/color-sliders/oklch-sliders.component';
 import { LabSlidersComponent } from './subcomponents/color-sliders/lab-sliders.component';
+import { RgbSlidersComponent } from './subcomponents/color-sliders/rgb-sliders.component';
+import { HslSlidersComponent } from './subcomponents/color-sliders/hsl-sliders.component';
 import { GamutAwareSliderComponent } from './subcomponents/gamut-aware-slider/gamut-aware-slider.component';
 
 /**
@@ -116,6 +118,8 @@ export interface ColorChangeEvent {
     LchSlidersComponent,
     OklchSlidersComponent,
     LabSlidersComponent,
+    RgbSlidersComponent,
+    HslSlidersComponent,
     GamutAwareSliderComponent,
   ],
   providers: [ColorService, WCAGService, GamutService, NamingService],
@@ -203,8 +207,8 @@ export class ColorSetterComponent implements OnInit {
   // Current gamut
   gamut = signal<GamutProfile>('srgb');
 
-  // Slider values for RGB (0-255) - regular property for ngModel binding
-  rgbValues: [number, number, number] = [255, 0, 0];
+  // Slider values for RGB (0-255) - reactive signal for canvas updates
+  rgbValues = signal<[number, number, number]>([255, 0, 0]);
 
   // RGB gradients
   rGradient = '';
@@ -216,8 +220,44 @@ export class ColorSetterComponent implements OnInit {
   formatG = (v: number) => Math.round(v).toString();
   formatB = (v: number) => Math.round(v).toString();
 
-  // Slider values for HSL (H: 0-360, S: 0-100, L: 0-100) - regular property for ngModel binding
-  hslValues: [number, number, number] = [0, 100, 50];
+  // HSL value formatters (for slider display)
+  formatH = (v: number) => Math.round(v) + '°';
+  formatS = (v: number) => Math.round(v) + '%';
+  formatL = (v: number) => Math.round(v) + '%';
+
+  // RGB color generator functions for canvas rendering - reactive computed signals
+  rColorGenerator = computed(() => {
+    const [, g, b] = this.rgbValues();
+    return (position: number) =>
+      `rgb(${Math.round(position)}, ${Math.round(g)}, ${Math.round(b)})`;
+  });
+  gColorGenerator = computed(() => {
+    const [r, , b] = this.rgbValues();
+    return (position: number) =>
+      `rgb(${Math.round(r)}, ${Math.round(position)}, ${Math.round(b)})`;
+  });
+  bColorGenerator = computed(() => {
+    const [r, g] = this.rgbValues();
+    return (position: number) =>
+      `rgb(${Math.round(r)}, ${Math.round(g)}, ${Math.round(position)})`;
+  });
+
+  // Slider values for HSL (H: 0-360, S: 0-100, L: 0-100) - reactive signal for canvas updates
+  hslValues = signal<[number, number, number]>([0, 100, 50]);
+
+  // HSL color generator functions for canvas rendering - reactive computed signals
+  hColorGenerator = computed(() => {
+    const [, s, l] = this.hslValues();
+    return (position: number) => `hsl(${Math.round(position)}, ${s}%, ${l}%)`;
+  });
+  sColorGenerator = computed(() => {
+    const [h, , l] = this.hslValues();
+    return (position: number) => `hsl(${h}, ${Math.round(position)}%, ${l}%)`;
+  });
+  lColorGenerator = computed(() => {
+    const [h, s] = this.hslValues();
+    return (position: number) => `hsl(${h}, ${s}%, ${Math.round(position)}%)`;
+  });
 
   // HEX input value
   hexInputValue = signal<string>('#FF0000');
@@ -294,15 +334,19 @@ export class ColorSetterComponent implements OnInit {
         case 'hex':
           return this.hexInputValue();
         case 'rgb':
-          return `rgb(${this.rgbValues.map((v) => Math.round(v)).join(', ')})`;
+          return `rgb(${this.rgbValues()
+            .map((v: number) => Math.round(v))
+            .join(', ')})`;
         case 'hsl':
-          const [h, s, l] = this.hslValues;
+          const [h, s, l] = this.hslValues();
           return `hsl(${Math.round(h)}, ${Math.round(s)}%, ${Math.round(l)}%)`;
         case 'lch': {
           const lch = color.to('lch');
-          return `lch(${lch.coords[0].toFixed(1)} ${lch.coords[1].toFixed(
+          const lchString = `lch(${lch.coords[0].toFixed(
             1
-          )} ${lch.coords[2].toFixed(1)})`;
+          )} ${lch.coords[1].toFixed(1)} ${lch.coords[2].toFixed(1)})`;
+          console.log('[ColorSetter] LCH format value:', lchString);
+          return lchString;
         }
         case 'oklch': {
           const oklch = color.to('oklch');
@@ -312,9 +356,11 @@ export class ColorSetterComponent implements OnInit {
         }
         case 'lab': {
           const lab = color.to('lab');
-          return `lab(${lab.coords[0].toFixed(1)} ${lab.coords[1].toFixed(
+          const labString = `lab(${lab.coords[0].toFixed(
             1
-          )} ${lab.coords[2].toFixed(1)})`;
+          )} ${lab.coords[1].toFixed(1)} ${lab.coords[2].toFixed(1)})`;
+          console.log('[ColorSetter] LAB format value:', labString);
+          return labString;
         }
         default:
           return this.hexInputValue();
@@ -448,6 +494,21 @@ export class ColorSetterComponent implements OnInit {
     }
   }
 
+  // RGB slider input handlers for signal updates
+  onRgbSliderInput(index: 0 | 1 | 2, value: number): void {
+    const current = this.rgbValues();
+    const updated: [number, number, number] = [...current];
+    updated[index] = value;
+    this.rgbValues.set(updated);
+  }
+
+  onRgbSliderChange(index: 0 | 1 | 2, value: number): void {
+    const current = this.rgbValues();
+    const updated: [number, number, number] = [...current];
+    updated[index] = value;
+    this.rgbValues.set(updated);
+  }
+
   onRgbInput(): void {
     // Real-time update without debounce
     this.updateRgbFromSliders();
@@ -461,12 +522,27 @@ export class ColorSetterComponent implements OnInit {
     this.emitColorChange();
   }
 
+  // HSL slider input handlers for signal updates
+  onHslSliderInput(index: 0 | 1 | 2, value: number): void {
+    const current = this.hslValues();
+    const updated: [number, number, number] = [...current];
+    updated[index] = value;
+    this.hslValues.set(updated);
+  }
+
+  onHslSliderChange(index: 0 | 1 | 2, value: number): void {
+    const current = this.hslValues();
+    const updated: [number, number, number] = [...current];
+    updated[index] = value;
+    this.hslValues.set(updated);
+  }
+
   /**
    * Generate RGB gradient backgrounds
    * Each gradient shows how changing one channel affects the color
    */
   private generateRgbGradients(): void {
-    const [r, g, b] = this.rgbValues;
+    const [r, g, b] = this.rgbValues();
     const steps = 255; // One step per RGB value
 
     // Red gradient (0-255, keeping G and B constant)
@@ -532,6 +608,26 @@ export class ColorSetterComponent implements OnInit {
     }
   }
 
+  onRgbColorChange(colorString: string): void {
+    try {
+      const parsed = this.colorService.parse(colorString);
+      this.updateColorState(parsed, 'rgb');
+      this.emitColorChange();
+    } catch (error) {
+      console.error('Error updating RGB:', error);
+    }
+  }
+
+  onHslColorChange(colorString: string): void {
+    try {
+      const parsed = this.colorService.parse(colorString);
+      this.updateColorState(parsed, 'hsl');
+      this.emitColorChange();
+    } catch (error) {
+      console.error('Error updating HSL:', error);
+    }
+  }
+
   switchFormat(newFormat: ColorFormat): void {
     try {
       const state = this.colorState();
@@ -556,7 +652,7 @@ export class ColorSetterComponent implements OnInit {
 
   private updateRgbFromSliders(): void {
     try {
-      const [r, g, b] = this.rgbValues;
+      const [r, g, b] = this.rgbValues();
 
       // Clamp values to valid ranges to prevent invalid CSS
       const clampedR = Math.max(0, Math.min(255, r || 0));
@@ -564,7 +660,7 @@ export class ColorSetterComponent implements OnInit {
       const clampedB = Math.max(0, Math.min(255, b || 0));
 
       // Update rgbValues with clamped values
-      this.rgbValues = [clampedR, clampedG, clampedB];
+      this.rgbValues.set([clampedR, clampedG, clampedB]);
 
       const rgbString = `rgb(${Math.round(clampedR)}, ${Math.round(
         clampedG
@@ -579,7 +675,7 @@ export class ColorSetterComponent implements OnInit {
 
   private updateHslFromSliders(): void {
     try {
-      const [h, s, l] = this.hslValues;
+      const [h, s, l] = this.hslValues();
 
       // Clamp values to valid ranges to prevent invalid CSS
       const clampedH = Math.max(0, Math.min(360, h || 0));
@@ -587,7 +683,7 @@ export class ColorSetterComponent implements OnInit {
       const clampedL = Math.max(0, Math.min(100, l || 0));
 
       // Update hslValues with clamped values
-      this.hslValues = [clampedH, clampedS, clampedL];
+      this.hslValues.set([clampedH, clampedS, clampedL]);
 
       const hslString = `hsl(${Math.round(clampedH)}, ${Math.round(
         clampedS
@@ -649,11 +745,11 @@ export class ColorSetterComponent implements OnInit {
           state.internalValue,
           'rgb'
         );
-        this.rgbValues = [
+        this.rgbValues.set([
           Math.max(0, Math.min(255, rgbChannels[0] || 0)),
           Math.max(0, Math.min(255, rgbChannels[1] || 0)),
           Math.max(0, Math.min(255, rgbChannels[2] || 0)),
-        ];
+        ]);
       }
 
       if (format !== 'hsl') {
@@ -661,14 +757,14 @@ export class ColorSetterComponent implements OnInit {
           state.internalValue,
           'hsl'
         );
-        this.hslValues = [
+        this.hslValues.set([
           Math.max(
             0,
             Math.min(360, isNaN(hslChannels[0]) ? 0 : hslChannels[0])
           ),
           Math.max(0, Math.min(100, hslChannels[1] || 0)),
           Math.max(0, Math.min(100, hslChannels[2] || 0)),
-        ];
+        ]);
       }
     }
   }
@@ -685,11 +781,11 @@ export class ColorSetterComponent implements OnInit {
       state.internalValue,
       'rgb'
     );
-    this.rgbValues = [
+    this.rgbValues.set([
       Math.max(0, Math.min(255, rgbChannels[0] || 0)),
       Math.max(0, Math.min(255, rgbChannels[1] || 0)),
       Math.max(0, Math.min(255, rgbChannels[2] || 0)),
-    ];
+    ]);
 
     // Update RGB gradients
     this.generateRgbGradients();
@@ -701,11 +797,11 @@ export class ColorSetterComponent implements OnInit {
       state.internalValue,
       'hsl'
     );
-    this.hslValues = [
+    this.hslValues.set([
       Math.max(0, Math.min(360, isNaN(hslChannels[0]) ? 0 : hslChannels[0])),
       Math.max(0, Math.min(100, hslChannels[1] || 0)),
       Math.max(0, Math.min(100, hslChannels[2] || 0)),
-    ];
+    ]);
   }
 
   private emitColorChange(): void {

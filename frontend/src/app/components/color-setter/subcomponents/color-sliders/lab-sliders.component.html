@@ -1,73 +1,55 @@
-<div class="lab-sliders space-y-4">
+<div class="lab-sliders flex flex-col space-y-4">
   <!-- Lightness Slider -->
-  <div class="slider-group">
-    <div class="flex justify-between items-center mb-2">
-      <label class="text-sm font-medium text-gray-700 dark:text-gray-300">
-        Lightness
-      </label>
-      <span class="text-sm text-gray-600 dark:text-gray-400 font-mono">
-        {{ l.toFixed(2) }}
-      </span>
-    </div>
-    <input
-      type="range"
-      [(ngModel)]="l"
-      (input)="onLInput()"
-      (change)="onLChange()"
-      min="0"
-      max="100"
-      step="0.1"
-      class="slider"
-      [style.background]="lGradient"
-      data-testid="lab-l-slider"
-    />
-  </div>
+  <app-gamut-aware-slider
+    label="Lightness"
+    [value]="lSignal()"
+    [min]="0"
+    [max]="100"
+    [step]="0.1"
+    [colorGenerator]="lColorGenerator()"
+    [validPositions]="validLPositions"
+    [formatValue]="formatL"
+    [currentGamut]="gamut()"
+    [debugGradient]="showDebugGradients ? lGradient : ''"
+    testId="lab-l-slider"
+    (valueInput)="onLInput($event)"
+    (valueCommit)="onLChange()"
+    (valueChange)="lSignal.set($event)"
+  ></app-gamut-aware-slider>
 
   <!-- A Slider (green to red) -->
-  <div class="slider-group">
-    <div class="flex justify-between items-center mb-2">
-      <label class="text-sm font-medium text-gray-700 dark:text-gray-300">
-        A (green ← → red)
-      </label>
-      <span class="text-sm text-gray-600 dark:text-gray-400 font-mono">
-        {{ a.toFixed(2) }}
-      </span>
-    </div>
-    <input
-      type="range"
-      [(ngModel)]="a"
-      (input)="onAInput()"
-      (change)="onAChange()"
-      min="-125"
-      max="125"
-      step="0.1"
-      class="slider"
-      [style.background]="aGradient"
-      data-testid="lab-a-slider"
-    />
-  </div>
+  <app-gamut-aware-slider
+    label="A (green ← → red)"
+    [value]="aSignal()"
+    [min]="-125"
+    [max]="125"
+    [step]="0.1"
+    [colorGenerator]="aColorGenerator()"
+    [validPositions]="validAPositions"
+    [formatValue]="formatA"
+    [currentGamut]="gamut()"
+    [debugGradient]="showDebugGradients ? aGradient : ''"
+    testId="lab-a-slider"
+    (valueInput)="onAInput($event)"
+    (valueCommit)="onAChange()"
+    (valueChange)="aSignal.set($event)"
+  ></app-gamut-aware-slider>
 
   <!-- B Slider (blue to yellow) -->
-  <div class="slider-group">
-    <div class="flex justify-between items-center mb-2">
-      <label class="text-sm font-medium text-gray-700 dark:text-gray-300">
-        B (blue ← → yellow)
-      </label>
-      <span class="text-sm text-gray-600 dark:text-gray-400 font-mono">
-        {{ b.toFixed(2) }}
-      </span>
-    </div>
-    <input
-      type="range"
-      [(ngModel)]="b"
-      (input)="onBInput()"
-      (change)="onBChange()"
-      min="-125"
-      max="125"
-      step="0.1"
-      class="slider"
-      [style.background]="bGradient"
-      data-testid="lab-b-slider"
-    />
-  </div>
+  <app-gamut-aware-slider
+    label="B (blue ← → yellow)"
+    [value]="bSignal()"
+    [min]="-125"
+    [max]="125"
+    [step]="0.1"
+    [colorGenerator]="bColorGenerator()"
+    [validPositions]="validBPositions"
+    [formatValue]="formatB"
+    [currentGamut]="gamut()"
+    [debugGradient]="showDebugGradients ? bGradient : ''"
+    testId="lab-b-slider"
+    (valueInput)="onBInput($event)"
+    (valueCommit)="onBChange()"
+    (valueChange)="bSignal.set($event)"
+  ></app-gamut-aware-slider>
 </div>

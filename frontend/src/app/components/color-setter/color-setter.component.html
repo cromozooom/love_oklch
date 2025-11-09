@@ -3,24 +3,36 @@
   data-testid="color-setter-component"
 >
   <div>
-    <div class="flex gap-2 border-b border-b-gray-300 p-2">
-      <div
-        class="w-6 aspect-square rounded"
-        [style.backgroundColor]="colorPreview()"
-        data-testid="color-preview"
-      ></div>
-      <div>
-        <small data-testid="display-value">
-          {{ currentFormatValue() }}
-        </small>
-        @if(showColorName() && colorName()) {
-        <div class="color-name" data-testid="color-name">
-          <span class="color-name-label">{{ colorName()!.name }}</span>
-          <small class="color-name-confidence">
-            ({{ (colorName()!.confidence * 100).toFixed(0) }}% match)
-          </small>
+    <div class="flex justify-between border-b border-b-gray-300 p-2">
+      <div class="flex items-center gap-2">
+        <div class="flex items-center">
+          <div
+            class="w-6 aspect-square rounded"
+            [style.backgroundColor]="colorPreview()"
+            data-testid="color-preview"
+          ></div>
         </div>
-        }
+        <div>
+          <small data-testid="display-value">
+            {{ currentFormatValue() }}
+          </small>
+          @if(showColorName() && colorName()) {
+          <div class="color-name" data-testid="color-name">
+            <span class="color-name-label">{{ colorName()!.name }}</span>
+            <small class="color-name-confidence">
+              ({{ (colorName()!.confidence * 100).toFixed(0) }}% match)
+            </small>
+          </div>
+          }
+        </div>
+      </div>
+      <!-- Gamut Selector (T066) -->
+      <div class="gamut-section">
+        <app-gamut-selector
+          [selectedGamut]="gamut()"
+          [supportedGamuts]="supportedGamuts()"
+          (gamutChange)="onGamutChange($event)"
+        ></app-gamut-selector>
       </div>
     </div>
   </div>
@@ -55,7 +67,7 @@
           ></div>
         </div>
         <!-- Color Input Controls -->
-        <div class="color-controls-section">
+        <div class="color-controls-section min-w-120 py-3">
           <!-- HEX Input -->
           <div *ngIf="format() === 'hex'" class="hex-controls">
             <input
@@ -70,112 +82,20 @@
           </div>
 
           <!-- RGB Sliders -->
-          <div *ngIf="format() === 'rgb'" class="rgb-controls">
-            <app-gamut-aware-slider
-              label="Red"
-              [value]="rgbValues[0]"
-              [min]="0"
-              [max]="255"
-              [step]="1"
-              [gradient]="rGradient"
-              [validPositions]="[]"
-              [formatValue]="formatR"
-              testId="rgb-slider-r"
-              (valueInput)="rgbValues[0] = $event; onRgbInput()"
-              (valueChange)="rgbValues[0] = $event"
-              (valueCommit)="onRgbChange()"
-            ></app-gamut-aware-slider>
-
-            <app-gamut-aware-slider
-              label="Green"
-              [value]="rgbValues[1]"
-              [min]="0"
-              [max]="255"
-              [step]="1"
-              [gradient]="gGradient"
-              [validPositions]="[]"
-              [formatValue]="formatG"
-              testId="rgb-slider-g"
-              (valueInput)="rgbValues[1] = $event; onRgbInput()"
-              (valueChange)="rgbValues[1] = $event"
-              (valueCommit)="onRgbChange()"
-            ></app-gamut-aware-slider>
-
-            <app-gamut-aware-slider
-              label="Blue"
-              [value]="rgbValues[2]"
-              [min]="0"
-              [max]="255"
-              [step]="1"
-              [gradient]="bGradient"
-              [validPositions]="[]"
-              [formatValue]="formatB"
-              testId="rgb-slider-b"
-              (valueInput)="rgbValues[2] = $event; onRgbInput()"
-              (valueChange)="rgbValues[2] = $event"
-              (valueCommit)="onRgbChange()"
-            ></app-gamut-aware-slider>
-
-            <div class="rgb-display" data-testid="rgb-display">
-              rgb({{ Math.round(rgbValues[0]) }},
-              {{ Math.round(rgbValues[1]) }}, {{ Math.round(rgbValues[2]) }})
-            </div>
-          </div>
+          <app-rgb-sliders
+            *ngIf="format() === 'rgb'"
+            [color]="currentFormatValue()"
+            [gamut]="gamutDisplayName()"
+            (colorChange)="onRgbColorChange($event)"
+          ></app-rgb-sliders>
 
           <!-- HSL Sliders -->
-          <div *ngIf="format() === 'hsl'" class="hsl-controls">
-            <div class="slider-group">
-              <label>Hue</label>
-              <input
-                type="range"
-                min="0"
-                max="360"
-                [(ngModel)]="hslValues[0]"
-                (change)="onHslChange()"
-                (input)="onHslInput()"
-                data-testid="hsl-slider-h"
-                class="slider"
-              />
-              <span class="value-display">{{ Math.round(hslValues[0]) }}°</span>
-            </div>
-
-            <div class="slider-group">
-              <label>Saturation</label>
-              <input
-                type="range"
-                min="0"
-                max="100"
-                step="0.1"
-                [(ngModel)]="hslValues[1]"
-                (change)="onHslChange()"
-                (input)="onHslInput()"
-                data-testid="hsl-slider-s"
-                class="slider"
-              />
-              <span class="value-display">{{ Math.round(hslValues[1]) }}%</span>
-            </div>
-
-            <div class="slider-group">
-              <label>Lightness</label>
-              <input
-                type="range"
-                min="0"
-                max="100"
-                step="0.1"
-                [(ngModel)]="hslValues[2]"
-                (change)="onHslChange()"
-                (input)="onHslInput()"
-                data-testid="hsl-slider-l"
-                class="slider"
-              />
-              <span class="value-display">{{ Math.round(hslValues[2]) }}%</span>
-            </div>
-
-            <div class="hsl-display" data-testid="hsl-display">
-              hsl({{ Math.round(hslValues[0]) }},
-              {{ Math.round(hslValues[1]) }}%, {{ Math.round(hslValues[2]) }}%)
-            </div>
-          </div>
+          <app-hsl-sliders
+            *ngIf="format() === 'hsl'"
+            [color]="currentFormatValue()"
+            [gamut]="gamutDisplayName()"
+            (colorChange)="onHslColorChange($event)"
+          ></app-hsl-sliders>
 
           <!-- LCH Sliders -->
           <app-lch-sliders
@@ -200,15 +120,6 @@
             [gamut]="gamutDisplayName()"
             (colorChange)="onLabColorChange($event)"
           ></app-lab-sliders>
-
-          <!-- Gamut Selector (T066) -->
-          <div class="gamut-section">
-            <app-gamut-selector
-              [selectedGamut]="gamut()"
-              [supportedGamuts]="supportedGamuts()"
-              (gamutChange)="onGamutChange($event)"
-            ></app-gamut-selector>
-          </div>
 
           <!-- Gamut Warning Display (T068) -->
           <div

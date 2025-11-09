@@ -1,60 +1,55 @@
-<div data-testid="rgb-sliders">
-  <div>
-    <label for="rgb-r">Red</label>
-    <input
-      id="rgb-r"
-      type="range"
-      min="0"
-      max="255"
-      step="1"
-      [(ngModel)]="rgbValues[0]"
-      (change)="onRgbChange()"
-      (input)="onRgbInput()"
-      data-testid="rgb-slider-r"
-    />
-    <span data-testid="rgb-value-r">
-      {{ Math.round(rgbValues[0]) }}
-    </span>
-  </div>
+<div class="rgb-sliders flex flex-col space-y-4">
+  <!-- Red Slider -->
+  <app-gamut-aware-slider
+    label="Red"
+    [value]="r"
+    [min]="0"
+    [max]="255"
+    [step]="1"
+    [colorGenerator]="rColorGenerator()"
+    [validPositions]="validRPositions"
+    [formatValue]="formatR"
+    [currentGamut]="gamut()"
+    [debugGradient]="showDebugGradients ? rGradient : ''"
+    testId="rgb-r-slider"
+    (valueInput)="onRInput($event)"
+    (valueCommit)="onRChange()"
+    (valueChange)="r = $event"
+  ></app-gamut-aware-slider>
 
-  <div>
-    <label for="rgb-g">Green</label>
-    <input
-      id="rgb-g"
-      type="range"
-      min="0"
-      max="255"
-      step="1"
-      [(ngModel)]="rgbValues[1]"
-      (change)="onRgbChange()"
-      (input)="onRgbInput()"
-      data-testid="rgb-slider-g"
-    />
-    <span data-testid="rgb-value-g">
-      {{ Math.round(rgbValues[1]) }}
-    </span>
-  </div>
+  <!-- Green Slider -->
+  <app-gamut-aware-slider
+    label="Green"
+    [value]="g"
+    [min]="0"
+    [max]="255"
+    [step]="1"
+    [colorGenerator]="gColorGenerator()"
+    [validPositions]="validGPositions"
+    [formatValue]="formatG"
+    [currentGamut]="gamut()"
+    [debugGradient]="showDebugGradients ? gGradient : ''"
+    testId="rgb-g-slider"
+    (valueInput)="onGInput($event)"
+    (valueCommit)="onGChange()"
+    (valueChange)="g = $event"
+  ></app-gamut-aware-slider>
 
-  <div>
-    <label for="rgb-b">Blue</label>
-    <input
-      id="rgb-b"
-      type="range"
-      min="0"
-      max="255"
-      step="1"
-      [(ngModel)]="rgbValues[2]"
-      (change)="onRgbChange()"
-      (input)="onRgbInput()"
-      data-testid="rgb-slider-b"
-    />
-    <span data-testid="rgb-value-b">
-      {{ Math.round(rgbValues[2]) }}
-    </span>
-  </div>
-
-  <div data-testid="rgb-display">
-    rgb({{ Math.round(rgbValues[0]) }}, {{ Math.round(rgbValues[1]) }},
-    {{ Math.round(rgbValues[2]) }})
-  </div>
+  <!-- Blue Slider -->
+  <app-gamut-aware-slider
+    label="Blue"
+    [value]="b"
+    [min]="0"
+    [max]="255"
+    [step]="1"
+    [colorGenerator]="bColorGenerator()"
+    [validPositions]="validBPositions"
+    [formatValue]="formatB"
+    [currentGamut]="gamut()"
+    [debugGradient]="showDebugGradients ? bGradient : ''"
+    testId="rgb-b-slider"
+    (valueInput)="onBInput($event)"
+    (valueCommit)="onBChange()"
+    (valueChange)="b = $event"
+  ></app-gamut-aware-slider>
 </div>

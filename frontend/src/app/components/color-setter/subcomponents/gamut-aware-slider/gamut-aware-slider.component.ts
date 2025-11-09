@@ -92,12 +92,12 @@ export class GamutAwareSliderComponent implements AfterViewInit, OnDestroy {
 
       // Repaint if context exists, otherwise it will paint when canvas initializes
       if (this.ctx) {
-        // Use setTimeout to ensure the paint happens after any pending DOM updates
-        setTimeout(() => {
+        // Use requestAnimationFrame for smooth, properly timed repaints
+        requestAnimationFrame(() => {
           if (this.ctx) {
             this.paintCanvas();
           }
-        }, 0);
+        });
       }
     });
 
