@@ -59,13 +59,29 @@ export class ColorService {
         case 'hex':
           // Convert to sRGB and then to HEX (always use full 6-digit format, never shortened)
           const rgbColor = color.to('srgb');
+          console.log(
+            `[COLOR DEBUG] Converting to HEX - original space: ${
+              color.space?.name
+            }, coords: [${color.coords.join(', ')}]`
+          );
+          console.log(
+            `[COLOR DEBUG] After sRGB conversion - coords: [${rgbColor.coords.join(
+              ', '
+            )}]`
+          );
+
           const [rVal, gVal, bVal] = rgbColor.coords.map((c) =>
             Math.round(Math.max(0, Math.min(255, c * 255)))
           );
+          console.log(
+            `[COLOR DEBUG] RGB values after clamping: [${rVal}, ${gVal}, ${bVal}]`
+          );
+
           const rHex = rVal.toString(16).padStart(2, '0');
           const gHex = gVal.toString(16).padStart(2, '0');
           const bHex = bVal.toString(16).padStart(2, '0');
           result = `#${rHex}${gHex}${bHex}`.toUpperCase();
+          console.log(`[COLOR DEBUG] Final HEX result: ${result}`);
           break;
 
         case 'rgb':

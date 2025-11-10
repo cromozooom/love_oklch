@@ -339,7 +339,6 @@ export class OklchSlidersComponent implements OnInit, OnDestroy {
    * Handle lightness slider change (final value)
    */
   onLChange() {
-    // Snap to nearest valid position
     this.l = this.snapToValidPosition(this.l, this.validLPositions);
     this.generateGradients();
     this.emitColorChange();
@@ -358,7 +357,6 @@ export class OklchSlidersComponent implements OnInit, OnDestroy {
    * Handle chroma slider change (final value)
    */
   onCChange() {
-    // Snap to nearest valid position
     this.c = this.snapToValidPosition(this.c, this.validCPositions);
     this.generateGradients();
     this.emitColorChange();
@@ -377,7 +375,6 @@ export class OklchSlidersComponent implements OnInit, OnDestroy {
    * Handle hue slider change (final value)
    */
   onHChange() {
-    // Snap to nearest valid position
     this.h = this.snapToValidPosition(this.h, this.validHPositions);
     this.generateGradients();
     this.emitColorChange();

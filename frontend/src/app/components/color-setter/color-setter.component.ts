@@ -309,7 +309,22 @@ export class ColorSetterComponent implements OnInit, AfterViewInit {
     const activeGamut = this.currentGamut() || this.gamut();
     const allFormats = this.colorService.toAllFormats(state.internalValue);
 
-    const gamutCheck = this.gamutService.check(allFormats.hex, activeGamut);
+    // Convert GamutProfile to display name that GamutService expects
+    const gamutDisplayName = GAMUT_PROFILES[activeGamut].displayName;
+    const gamutCheck = this.gamutService.check(
+      allFormats.hex,
+      gamutDisplayName
+    );
+
+    // Debug logging to trace gamut detection
+    console.log('[GAMUT DEBUG]', {
+      activeGamut,
+      gamutDisplayName,
+      hexColor: allFormats.hex,
+      isInGamut: gamutCheck.isInGamut,
+      distance: gamutCheck.distance,
+      clipped: gamutCheck.clipped,
+    });
 
     return {
       inGamut: gamutCheck.isInGamut,
@@ -523,7 +538,7 @@ export class ColorSetterComponent implements OnInit, AfterViewInit {
    */
   onColorInputChange(): void {
     // Step 1 & 2: Remove spaces before and after if they are made by mistake
-    const input = this.colorInputValue().trim();
+    let input = this.colorInputValue().trim();
 
     if (!input) {
       this.colorInputError.set(''); // Clear error for empty input
@@ -534,27 +549,36 @@ export class ColorSetterComponent implements OnInit, AfterViewInit {
       // Clear any previous error
       this.colorInputError.set('');
 
+      // Step 2.5: Check if it's a HEX value without # prefix and add it
+      const detectedFormat = this.detectFormatFromInput(input);
+      if (detectedFormat === 'hex' && !input.startsWith('#')) {
+        input = '#' + input;
+        console.log(
+          `Added # prefix to HEX value: ${this.colorInputValue().trim()} -> ${input}`
+        );
+      }
+
       // Step 3: Try to convert with colorjs.io
       const parsed = this.colorService.parse(input);
 
-      // Step 4: Check the type and detect format from original input
-      let detectedFormat = this.detectFormatFromInput(input);
+      // Step 4: Use the detected format from original input
+      let finalFormat = detectedFormat;
 
       // Special case: if no format detected, it might be a named color
       // Named colors should be treated as HEX since they convert to HEX values
-      if (!detectedFormat) {
+      if (!finalFormat) {
         // If colorjs.io successfully parsed it but we couldn't detect format,
         // it's likely a named color (like "red", "blue", "crimson", etc.)
         // Convert to HEX and treat as HEX input
-        detectedFormat = 'hex';
+        finalFormat = 'hex';
         console.log(`Named color detected: "${input}" -> treating as HEX`);
       }
 
       // Step 5: Switch to the detected format editor and set the value
-      this.format.set(detectedFormat);
+      this.format.set(finalFormat);
 
       // Update color state
-      this.updateColorState(parsed, detectedFormat);
+      this.updateColorState(parsed, finalFormat);
 
       // Clear the input field and any errors after successful parsing
       this.colorInputValue.set('');

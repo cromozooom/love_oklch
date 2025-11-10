@@ -1,5 +1,15 @@
 import { test, expect } from '@playwright/test';
-import { login, TEST_USERS } from '../../fixtures/auth';
+import {
+  SELECTORS,
+  setupColorSetterTest,
+  switchColorFormat,
+  setColorViaInput,
+  setRgbSliders,
+  createProject,
+  logTestStep,
+  logTestSection,
+  TEST_USERS,
+} from '../../utils';
 
 /**
  * E2E Tests for Color Setter Component - User Story 1: Basic Color Selection
@@ -14,132 +24,153 @@ import { login, TEST_USERS } from '../../fixtures/auth';
 
 test.describe('Color Setter Component - US1: Basic Color Selection', () => {
   test.beforeEach(async ({ page }) => {
-    // Step 1: Login as PRO user (has full access to features)
-    await login(page, TEST_USERS.PRO_USER.email, TEST_USERS.PRO_USER.password);
-
-    // Step 2: Wait for projects page to load
-    await page.waitForSelector('button:has-text("New Project")', {
-      timeout: 10000,
-    });
-    await page.waitForLoadState('networkidle');
-
-    // Step 3: Create a new project to access color setter
-    await page.click('button:has-text("New Project")');
-    await page.waitForSelector('form', { timeout: 10000 });
-    await page.waitForLoadState('networkidle');
-
-    // Fill minimal form to create project
-    const projectName = `Test ${Date.now()}`;
-    await page.fill('#name', projectName);
-    await page.selectOption('select#colorGamut', 'sRGB');
-    await page.selectOption('select#colorSpace', 'OKLCH');
-    await page.fill('input#colorCount', '5');
-
-    // Submit form to create project
-    await page.click('button[type="submit"]:has-text("Create")');
-
-    // Wait for project editor/color setter to load
-    await page.waitForSelector('app-color-setter', { timeout: 10000 });
-    await page.waitForLoadState('networkidle');
-
-    // Wait a bit more for Angular change detection
-    await page.waitForTimeout(500);
-
-    // The color setter will have initialized by now
-    // Tests can proceed with manipulating the color
+    // Use utility to setup the complete test environment
+    await setupColorSetterTest(page);
   });
   test.describe('HEX Color Input', () => {
     test('T013: Should accept valid HEX color (#00FF00 green) and update preview', async ({
       page,
     }) => {
-      // Given: User sees color setter component initialized
-      const hexInput = page.locator('[data-testid="hex-input"]');
-      const colorPreview = page.locator('[data-testid="color-preview"]');
+      logTestStep('Testing HEX color input with green (#00FF00)', true);
 
-      // When: User enters green HEX color
-      await hexInput.clear();
-      await hexInput.fill('#00FF00');
-      await hexInput.blur(); // Trigger change detection
-      await page.waitForLoadState('networkidle');
-      await page.waitForTimeout(300); // Wait for color update
+      // Given: Switch to HEX format first
+      logTestSection('Setting up HEX format');
+      await switchColorFormat(page, 'hex');
+
+      // When: User enters green HEX color using utility
+      logTestSection('Entering green HEX color');
+      await setColorViaInput(page, '#00FF00');
+
+      // Verify the display value shows the entered color
+      const displayValue = page.locator(SELECTORS.colorSetter.displayValue);
+      const displayedText = await displayValue.textContent();
+      logTestStep(`Display value shows: "${displayedText}"`);
 
       // Then: Color preview should show green
+      logTestSection('Verifying color preview');
+      const colorPreview = page.locator(SELECTORS.colorSetter.colorPreview);
+
+      // Debug: Check if element exists and is visible
+      await expect(colorPreview).toBeVisible({ timeout: 10000 });
+      logTestStep(
+        `Color preview element found: ${SELECTORS.colorSetter.colorPreview}`
+      );
+
       const previewColor = await colorPreview.evaluate((el: HTMLElement) => {
         return window.getComputedStyle(el).backgroundColor;
       });
 
-      // Verify RGB components of green: (0, 255, 0)
-      expect(previewColor).toMatch(/rgb\(\s*0,\s*255,\s*0\s*\)/);
+      // Debug: Log the actual color value
+      logTestStep(`Actual preview color: "${previewColor}"`);
+      logTestStep(`Expected: rgb(0, 255, 0) or similar green variant`);
 
-      // And: HEX input should display the entered value
-      // Note: hex should always be full 6-digit format (not shortened)
-      const displayedValue = await hexInput.inputValue();
-      expect(displayedValue).toMatch(/^#[0-9A-F]{6}$/i); // Full 6-digit hex
+      // Verify RGB components of green: (0, 255, 0)
+      // More flexible regex to handle different spacing
+      const greenColorRegex = /rgb\(\s*0\s*,\s*255\s*,\s*0\s*\)/;
+      expect(previewColor).toMatch(greenColorRegex);
+      logTestStep('✓ Color preview shows correct green color');
+
+      // And: Display value should show the entered color
+      const displayText = (await displayValue.textContent())?.trim();
+      logTestStep(`Display value: "${displayText}"`);
+      logTestStep(`Expected: #00FF00 or similar 6-digit hex`);
+
+      expect(displayText).toMatch(/^#[0-9A-F]{6}$/i); // Full 6-digit hex
+
+      // More specific check for green
+      expect(displayText?.toUpperCase()).toBe('#00FF00');
+      logTestStep('✓ Display shows correct HEX format');
     });
 
     test('T013: Should accept HEX without # prefix', async ({ page }) => {
-      const hexInput = page.locator('[data-testid="hex-input"]');
-      const colorPreview = page.locator('[data-testid="color-preview"]');
+      logTestStep('Testing HEX input without # prefix');
 
-      // Given: Component starts with red #FF0000
-      // When: User enters HEX with # prefix (testing full functionality)
-      // Note: Testing with prefix to ensure the color actually changes
-      // The component should support both with and without #
-      await hexInput.clear();
-      await hexInput.fill('#00FF00'); // Green with #
-      await hexInput.blur();
-      await page.waitForLoadState('networkidle');
-      await page.waitForTimeout(300);
+      // Given: Switch to HEX format
+      await switchColorFormat(page, 'hex');
+
+      // When: User enters HEX without # prefix
+      logTestSection('Entering HEX color without # prefix');
+      await setColorViaInput(page, '00FF00');
 
       // Then: Component should display #00FF00
-      const displayedValue = await hexInput.inputValue();
-      expect(displayedValue).toMatch(/^#00FF00$/i);
+      const displayValue = page.locator(SELECTORS.colorSetter.displayValue);
+      const displayedText = (await displayValue.textContent())?.trim();
+      expect(displayedText?.toUpperCase()).toBe('#00FF00');
+      logTestStep('✓ Display shows full HEX format with # prefix');
 
       // And: Preview should show green
+      const colorPreview = page.locator(SELECTORS.colorSetter.colorPreview);
       const previewColor = await colorPreview.evaluate((el: HTMLElement) => {
         return window.getComputedStyle(el).backgroundColor;
       });
       expect(previewColor).toMatch(/rgb\(\s*0,\s*255,\s*0\s*\)/);
+      logTestStep('✓ Color preview shows correct green');
     });
 
     test('T013: Should silently clamp invalid HEX to nearest valid value', async ({
       page,
     }) => {
-      const hexInput = page.locator('[data-testid="hex-input"]');
-      const colorPreview = page.locator('[data-testid="color-preview"]');
+      logTestStep('Testing invalid HEX input handling');
 
-      // When: User enters invalid HEX (shorter than expected)
-      await hexInput.clear();
-      await hexInput.fill('#GGG'); // Invalid hex digits
-      await hexInput.blur();
+      // Given: Switch to HEX format
+      await switchColorFormat(page, 'hex');
 
-      // Then: Component should either:
-      // - Revert to previous valid value, OR
-      // - Clamp to nearest valid color
-      // (This depends on implementation - test verifies graceful handling)
-      const currentValue = await hexInput.inputValue();
-      expect(currentValue).toBeDefined(); // Should not be empty
+      // When: User enters invalid HEX (invalid characters)
+      logTestSection('Entering invalid HEX color');
+
+      // Click display value to enter edit mode
+      const displayValue = page.locator(SELECTORS.colorSetter.displayValue);
+      await displayValue.click();
+
+      // Wait for input field to appear and enter invalid HEX
+      const colorInput = page.locator(SELECTORS.colorSetter.colorInput);
+      await colorInput.waitFor({ state: 'visible', timeout: 5000 });
+      await colorInput.clear();
+      await colorInput.fill('#GGG'); // Invalid hex digits
+      await colorInput.blur();
+      await page.waitForTimeout(200);
+
+      // Then: Component should show an error or stay in edit mode
+      // Check if still in edit mode (input visible) or if error is shown
+      const isInputVisible = await colorInput.isVisible();
+      if (isInputVisible) {
+        // Still in edit mode, check for error indication
+        const hasErrorClass = await colorInput.getAttribute('class');
+        expect(hasErrorClass).toContain('border-red-500'); // Error styling
+        logTestStep('✓ Input shows error styling for invalid HEX');
+      } else {
+        // Exited edit mode, should maintain previous valid value
+        const displayedText = (await displayValue.textContent())?.trim();
+        expect(displayedText).toBeDefined();
+        expect(displayedText).not.toBe('');
+        logTestStep('✓ Display maintains valid value after invalid input');
+      }
 
       // And: Color preview should still show a valid color
+      const colorPreview = page.locator(SELECTORS.colorSetter.colorPreview);
       const previewColor = await colorPreview.evaluate((el: HTMLElement) => {
         return window.getComputedStyle(el).backgroundColor;
       });
       expect(previewColor).toMatch(/rgb\(/);
+      logTestStep('✓ Color preview shows valid RGB color');
     });
 
     test('T013: Should update displayValue for HEX format immediately', async ({
       page,
     }) => {
-      const hexInput = page.locator('[data-testid="hex-input"]');
-      const displayValue = page.locator('[data-testid="display-value"]');
+      logTestStep('Testing HEX display value update');
+
+      // Given: Switch to HEX format
+      await switchColorFormat(page, 'hex');
 
       // When: User enters a color
-      await hexInput.clear();
-      await hexInput.fill('#FF6B35');
-      await hexInput.blur();
+      logTestSection('Entering HEX color');
+      await setColorViaInput(page, '#FF6B35');
 
       // Then: Display value should update to show the color
+      const displayValue = page.locator(SELECTORS.colorSetter.displayValue);
       await expect(displayValue).toContainText(/[A-F0-9]{6}/i);
+      logTestStep('✓ Display value shows HEX format');
     });
   });
 
@@ -147,38 +178,24 @@ test.describe('Color Setter Component - US1: Basic Color Selection', () => {
     test('T014: Should support RGB slider adjustment for rgb(128,64,192)', async ({
       page,
     }) => {
-      const rSlider = page.locator('[data-testid="rgb-slider-r"]');
-      const gSlider = page.locator('[data-testid="rgb-slider-g"]');
-      const bSlider = page.locator('[data-testid="rgb-slider-b"]');
-      const colorPreview = page.locator('[data-testid="color-preview"]');
+      logTestStep('Testing RGB slider interaction', true);
 
-      // When: User switches to RGB format
-      await page.locator('[data-testid="format-selector-rgb"]').click();
-      await page.waitForLoadState('networkidle');
-      await page.waitForTimeout(300);
+      // Given: Create project (user already logged in via fixture)
+      logTestSection('Setting up test context');
+      await createProject(page);
 
-      // And: User adjusts RGB sliders to create purple-ish color (128, 64, 192)
-      // Note: Range sliders need evaluate() to set values
-      await rSlider.evaluate((el: any) => {
-        el.value = '128';
-        el.dispatchEvent(new Event('input', { bubbles: true }));
-        el.dispatchEvent(new Event('change', { bubbles: true }));
-      });
-      await gSlider.evaluate((el: any) => {
-        el.value = '64';
-        el.dispatchEvent(new Event('input', { bubbles: true }));
-        el.dispatchEvent(new Event('change', { bubbles: true }));
-      });
-      await bSlider.evaluate((el: any) => {
-        el.value = '192';
-        el.dispatchEvent(new Event('input', { bubbles: true }));
-        el.dispatchEvent(new Event('change', { bubbles: true }));
-      });
+      // Switch to RGB format to make RGB sliders visible
+      logTestSection('Switching to RGB format');
+      await switchColorFormat(page, 'rgb');
 
-      await page.waitForLoadState('networkidle');
-      await page.waitForTimeout(300);
+      // When: User adjusts RGB sliders to create purple-ish color (128, 64, 192)
+      logTestSection('Setting RGB slider values');
+      await setRgbSliders(page, 128, 64, 192);
+
+      const colorPreview = page.locator(SELECTORS.colorSetter.colorPreview);
 
       // Then: Color preview should display the adjusted color
+      logTestSection('Verifying color preview');
       const previewColor = await colorPreview.evaluate((el: HTMLElement) => {
         return window.getComputedStyle(el).backgroundColor;
       });
@@ -187,42 +204,48 @@ test.describe('Color Setter Component - US1: Basic Color Selection', () => {
       expect(previewColor).toMatch(
         /rgb\(\s*1[0-2]\d,\s*[0-9]{1,3},\s*1[0-9]{2}\s*\)/
       );
+      logTestStep('✅ RGB sliders successfully set color to purple');
     });
 
     test('T014: Should update RGB values when slider moves', async ({
       page,
     }) => {
-      const rgbFormatBtn = page.locator('[data-testid="format-selector-rgb"]');
-      const rSlider = page.locator('[data-testid="rgb-slider-r"]');
-      const rLabel = page.locator('[data-testid="rgb-value-r"]');
+      logTestStep('Testing RGB slider value updates', true);
 
-      // When: User switches to RGB format
-      await rgbFormatBtn.click();
-      await page.waitForLoadState('networkidle');
-      await page.waitForTimeout(300);
+      // Given: Create project (user already logged in via fixture)
+      logTestSection('Setting up test context');
+      await createProject(page);
+
+      // Switch to RGB format
+      logTestSection('Setting up RGB format');
+      await switchColorFormat(page, 'rgb');
+
+      const rSliderInput = page.locator('[data-testid="rgb-r-slider-input"]');
+      const rValueInput = page.locator(
+        SELECTORS.colorSetter.rgbSliders.redValue
+      );
 
       // Wait for RGB sliders to appear
-      await rSlider.waitFor({ state: 'visible', timeout: 5000 });
+      await rSliderInput.waitFor({ state: 'visible', timeout: 5000 });
 
-      // And: User moves red slider to 200 using evaluate
-      await rSlider.evaluate((el: any) => {
-        el.value = '200';
-        el.dispatchEvent(new Event('input', { bubbles: true }));
-        el.dispatchEvent(new Event('change', { bubbles: true }));
-      });
-      await page.waitForLoadState('networkidle');
+      // And: User moves red slider to 200
+      logTestSection('Setting red slider value to 200');
+      await rSliderInput.fill('200');
+      await rSliderInput.blur();
       await page.waitForTimeout(300);
 
-      // Then: Red value should display 200
-      const value = await rLabel.textContent();
-      expect(value).toContain('200');
+      // Then: Red value should display 200 (may include decimal places)
+      const value = await rValueInput.inputValue();
+      expect(parseFloat(value)).toBe(200);
     });
 
     test('T014: Should maintain 60fps performance during rapid slider changes', async ({
       page,
     }) => {
-      const rgbFormatBtn = page.locator('[data-testid="format-selector-rgb"]');
-      const rSlider = page.locator('[data-testid="rgb-slider-r"]');
+      const rgbFormatBtn = page.locator(
+        SELECTORS.colorSetter.formatSelector.rgb
+      );
+      const rSlider = page.locator(SELECTORS.colorSetter.rgbSliders.red);
 
       // When: User switches to RGB format
       await rgbFormatBtn.click();
@@ -258,129 +281,129 @@ test.describe('Color Setter Component - US1: Basic Color Selection', () => {
     test('T015: Should preserve color when switching from HSL back to HEX', async ({
       page,
     }) => {
-      const hexInput = page.locator('[data-testid="hex-input"]');
-      const hslFormatBtn = page.locator('[data-testid="format-selector-hsl"]');
-      const hexFormatBtn = page.locator('[data-testid="format-selector-hex"]');
-      const hueSlider = page.locator('[data-testid="hsl-slider-h"]');
+      logTestStep(
+        'Testing color preservation between HSL and HEX formats',
+        true
+      );
 
-      // Given: User starts with red HEX color
-      const originalHex = '#FF0000';
-      await hexInput.clear();
-      await hexInput.fill(originalHex);
-      await hexInput.blur();
-      await page.waitForLoadState('networkidle');
-      await page.waitForTimeout(300);
+      // Given: Create project (user already logged in via fixture)
+      logTestSection('Setting up test context');
+      await createProject(page);
+
+      // Start with HEX format and set red color
+      logTestSection('Setting initial red color in HEX format');
+      await switchColorFormat(page, 'hex');
+      await setColorViaInput(page, '#FF0000');
 
       // When: User switches to HSL format
-      await hslFormatBtn.click();
-      await page.waitForLoadState('networkidle');
-      await page.waitForTimeout(300);
+      logTestSection('Switching to HSL format');
+      await switchColorFormat(page, 'hsl');
 
-      // Wait for HSL sliders to appear
-      await hueSlider.waitFor({ state: 'visible', timeout: 5000 });
+      // Wait for HSL sliders to appear and verify hue value
+      const hueNumberInput = page.locator(
+        SELECTORS.colorSetter.hslSliders.hueNumberInput
+      );
+      await hueNumberInput.waitFor({ state: 'visible', timeout: 5000 });
 
-      // Then: Verify HSL values are displayed (Hue=0, Saturation=100, Lightness=50)
-      await expect(hueSlider).toHaveValue('0');
+      // Then: Verify HSL values are displayed (Red: Hue=0, Saturation=100, Lightness=50)
+      const hueValue = await hueNumberInput.inputValue();
+      expect(parseFloat(hueValue)).toBe(0); // Red has hue = 0
+      logTestStep('✓ Hue value is correct for red (0 degrees)');
 
       // When: User switches back to HEX
-      await hexFormatBtn.click();
-      await page.waitForLoadState('networkidle');
-      await page.waitForTimeout(300);
+      logTestSection('Switching back to HEX format');
+      await switchColorFormat(page, 'hex');
 
-      // Wait for hex input to be visible
-      await hexInput.waitFor({ state: 'visible', timeout: 5000 });
+      // Then: HEX should show the same red color (may vary slightly due to rounding)
+      const displayValue = page.locator(SELECTORS.colorSetter.displayValue);
+      await displayValue.waitFor({ state: 'visible', timeout: 5000 });
 
-      // Then: HEX should show the same color (may vary slightly due to rounding)
-      const hexValue = await hexInput.inputValue();
-      // Red should be preserved - should be full 6-digit format #FF0000
-      expect(hexValue).toMatch(/^#FF[0-9A-F]{4}$/i);
+      const hexValue = await displayValue.textContent();
+      logTestStep(`Final HEX value: ${hexValue}`);
+
+      // Red should be preserved - should be close to #FF0000
+      expect(hexValue?.trim().toUpperCase()).toMatch(/^#FF[0-9A-F]{4}$/i);
+      logTestStep('✓ Color preserved when switching between HSL and HEX');
     });
 
     test('T015: Should handle HSL format switching from RGB', async ({
       page,
     }) => {
-      const rgbFormatBtn = page.locator('[data-testid="format-selector-rgb"]');
-      const hslFormatBtn = page.locator('[data-testid="format-selector-hsl"]');
-      const rSlider = page.locator('[data-testid="rgb-slider-r"]');
-      const hSlider = page.locator('[data-testid="hsl-slider-h"]');
+      logTestStep('Testing format switching from RGB to HSL', true);
 
-      // When: User switches to RGB
-      await rgbFormatBtn.click();
-      await page.waitForLoadState('networkidle');
-      await page.waitForTimeout(300);
+      // Given: Create project (user already logged in via fixture)
+      logTestSection('Setting up test context');
+      await createProject(page);
 
-      // Wait for RGB sliders to appear
-      await rSlider.waitFor({ state: 'visible', timeout: 5000 });
+      // When: User sets RGB values (255, 128, 0) - orange color
+      logTestSection('Setting RGB color values');
+      await setRgbSliders(page, 255, 128, 0);
 
-      // And: User sets RGB values using evaluate for range inputs
-      await rSlider.evaluate((el: any) => {
-        el.value = '255';
-        el.dispatchEvent(new Event('input', { bubbles: true }));
-        el.dispatchEvent(new Event('change', { bubbles: true }));
-      });
-      await page.locator('[data-testid="rgb-slider-g"]').evaluate((el: any) => {
-        el.value = '128';
-        el.dispatchEvent(new Event('input', { bubbles: true }));
-        el.dispatchEvent(new Event('change', { bubbles: true }));
-      });
-      await page.locator('[data-testid="rgb-slider-b"]').evaluate((el: any) => {
-        el.value = '0';
-        el.dispatchEvent(new Event('input', { bubbles: true }));
-        el.dispatchEvent(new Event('change', { bubbles: true }));
-      });
-      await page.waitForLoadState('networkidle');
-      await page.waitForTimeout(300);
-
-      // And: Switches to HSL
-      await hslFormatBtn.click();
-      await page.waitForLoadState('networkidle');
-      await page.waitForTimeout(300);
+      // And: Switches to HSL format
+      logTestSection('Switching to HSL format');
+      await switchColorFormat(page, 'hsl');
 
       // Wait for HSL sliders to appear
-      await hSlider.waitFor({ state: 'visible', timeout: 5000 });
+      const hueNumberInput = page.locator(
+        SELECTORS.colorSetter.hslSliders.hueNumberInput
+      );
+      const saturationNumberInput = page.locator(
+        SELECTORS.colorSetter.hslSliders.saturationNumberInput
+      );
+      const lightnessNumberInput = page.locator(
+        SELECTORS.colorSetter.hslSliders.lightnessNumberInput
+      );
 
-      // Then: HSL values should represent the same color
-      const sSlider = page.locator('[data-testid="hsl-slider-s"]');
-      const lSlider = page.locator('[data-testid="hsl-slider-l"]');
+      await hueNumberInput.waitFor({ state: 'visible', timeout: 5000 });
 
-      const hValue = await hSlider.inputValue();
-      const sValue = await sSlider.inputValue();
-      const lValue = await lSlider.inputValue();
+      // Then: HSL values should represent the same orange color
+      logTestSection('Verifying HSL values');
+      const hValue = await hueNumberInput.inputValue();
+      const sValue = await saturationNumberInput.inputValue();
+      const lValue = await lightnessNumberInput.inputValue();
+
+      logTestStep(`HSL values: H=${hValue}, S=${sValue}, L=${lValue}`);
 
       // RGB(255, 128, 0) should convert to approximately HSL(30, 100, 50)
       expect(parseFloat(hValue)).toBeGreaterThan(25);
       expect(parseFloat(hValue)).toBeLessThan(35);
       expect(parseFloat(sValue)).toBeGreaterThan(90);
       expect(parseFloat(lValue)).toBeGreaterThan(45);
+      logTestStep('✓ HSL values correctly represent the RGB color');
     });
 
-    test('T015: Should display colorChange event on format switch', async ({
+    test('T015: Should display correct format after switching', async ({
       page,
     }) => {
-      const rgbFormatBtn = page.locator('[data-testid="format-selector-rgb"]');
-      const hexFormatBtn = page.locator('[data-testid="format-selector-hex"]');
-      const rSlider = page.locator('[data-testid="rgb-slider-r"]');
+      logTestStep('Testing format switching display', true);
+
+      // Given: Create project (user already logged in via fixture)
+      logTestSection('Setting up test context');
+      await createProject(page);
 
       // When: User switches to RGB format
-      await rgbFormatBtn.click();
-      await page.waitForLoadState('networkidle');
-      await page.waitForTimeout(300);
+      logTestSection('Switching to RGB format');
+      await switchColorFormat(page, 'rgb');
 
       // Wait for RGB sliders to appear
-      await rSlider.waitFor({ state: 'visible', timeout: 5000 });
+      const rgbSlider = page.locator('[data-testid="rgb-r-slider"]');
+      await rgbSlider.waitFor({ state: 'visible', timeout: 5000 });
+      logTestStep('✓ RGB sliders are visible');
 
-      // And: Switches back to HEX
-      await hexFormatBtn.click();
-      await page.waitForLoadState('networkidle');
-      await page.waitForTimeout(300);
+      // And: Switches back to HEX format
+      logTestSection('Switching back to HEX format');
+      await switchColorFormat(page, 'hex');
 
-      // Wait for hex input to be visible
-      const hexInput = page.locator('[data-testid="hex-input"]');
-      await hexInput.waitFor({ state: 'visible', timeout: 5000 });
+      // Then: HEX input should be visible and display value should show HEX format
+      const displayValue = page.locator(SELECTORS.colorSetter.displayValue);
+      await displayValue.waitFor({ state: 'visible', timeout: 5000 });
 
-      // Then: Format selector should show HEX as active
-      const hexBtn = page.locator('[data-testid="format-selector-hex"]');
-      await expect(hexBtn).toHaveAttribute('data-active', 'true');
+      const displayText = await displayValue.textContent();
+      logTestStep(`Display value: ${displayText}`);
+
+      // Should show HEX format (starts with #)
+      expect(displayText?.trim()).toMatch(/^#[0-9A-F]{6}$/i);
+      logTestStep('✓ Display shows correct HEX format after switching');
     });
   });
 
@@ -388,68 +411,111 @@ test.describe('Color Setter Component - US1: Basic Color Selection', () => {
     test('T016: Should update color preview in real-time as user types', async ({
       page,
     }) => {
-      const hexInput = page.locator('[data-testid="hex-input"]');
-      const colorPreview = page.locator('[data-testid="color-preview"]');
+      logTestStep('Testing real-time color preview updates', true);
 
-      // When: User clears current value and enters green
-      await hexInput.clear();
-      await hexInput.fill('#00FF00');
-      await hexInput.blur();
-      await page.waitForLoadState('networkidle');
-      await page.waitForTimeout(300);
+      // Given: Create project (user already logged in via fixture)
+      logTestSection('Setting up test context');
+      await createProject(page);
+
+      // Switch to HEX format first
+      logTestSection('Setting up HEX format');
+      await switchColorFormat(page, 'hex');
+
+      // When: User enters green color
+      logTestSection('Setting green color');
+      await setColorViaInput(page, '#00FF00');
 
       // Then: Preview should show green
+      logTestSection('Verifying color preview');
+      const colorPreview = page.locator(SELECTORS.colorSetter.colorPreview);
       const previewColor = await colorPreview.evaluate((el: HTMLElement) => {
         return window.getComputedStyle(el).backgroundColor;
       });
 
+      logTestStep(`Preview color: ${previewColor}`);
       expect(previewColor).toMatch(/rgb\(\s*0,\s*255,\s*0\s*\)/);
+      logTestStep('✓ Color preview shows green as expected');
     });
 
     test('T017: Should update sliders when preview color changes', async ({
       page,
     }) => {
-      const hexInput = page.locator('[data-testid="hex-input"]');
-      const hslFormatBtn = page.locator('[data-testid="format-selector-hsl"]');
-      const hSlider = page.locator('[data-testid="hsl-slider-h"]');
+      logTestStep('Testing slider updates when color changes', true);
 
-      // When: User enters a new color in HEX
-      await hexInput.clear();
-      await hexInput.fill('#FF00FF'); // Magenta
-      await hexInput.blur();
-      await page.waitForLoadState('networkidle');
-      await page.waitForTimeout(300);
+      // Given: Create project (user already logged in via fixture)
+      logTestSection('Setting up test context');
+      await createProject(page);
 
-      // And: Switches to HSL
-      await hslFormatBtn.click();
-      await page.waitForLoadState('networkidle');
-      await page.waitForTimeout(300);
+      // Start with HEX format and set magenta color
+      logTestSection('Setting magenta color in HEX format');
+      await switchColorFormat(page, 'hex');
+      await setColorViaInput(page, '#FF00FF'); // Magenta
+
+      // When: User switches to HSL format
+      logTestSection('Switching to HSL format');
+      await switchColorFormat(page, 'hsl');
 
       // Wait for HSL sliders to appear
-      await hSlider.waitFor({ state: 'visible', timeout: 5000 });
+      const hueNumberInput = page.locator(
+        SELECTORS.colorSetter.hslSliders.hueNumberInput
+      );
+      await hueNumberInput.waitFor({ state: 'visible', timeout: 5000 });
 
       // Then: Sliders should be updated to magenta values
-      const hValue = await hSlider.inputValue();
+      logTestSection('Verifying HSL hue value for magenta');
+      const hValue = await hueNumberInput.inputValue();
 
-      // Magenta should be around hue 300
+      logTestStep(`HSL Hue value: ${hValue}`);
+
+      // Magenta (#FF00FF) should be around hue 300 degrees
       expect(parseFloat(hValue)).toBeGreaterThan(290);
       expect(parseFloat(hValue)).toBeLessThan(310);
+      logTestStep('✓ HSL sliders correctly updated to magenta values');
     });
 
     test('T018: Should handle invalid format gracefully', async ({ page }) => {
-      const hexInput = page.locator('[data-testid="hex-input"]');
+      logTestStep('Testing invalid color input handling', true);
+
+      // Given: Create project (user already logged in via fixture)
+      logTestSection('Setting up test context');
+      await createProject(page);
+
+      // Start with HEX format
+      logTestSection('Setting up HEX format');
+      await switchColorFormat(page, 'hex');
 
       // When: User enters invalid HEX value
-      await hexInput.clear();
-      await hexInput.fill('#GGGGGG'); // Invalid hex
-      await hexInput.blur();
-      await page.waitForLoadState('networkidle');
-      await page.waitForTimeout(300);
+      logTestSection('Entering invalid HEX color #GGGGGG');
+      await setColorViaInput(page, '#GGGGGG'); // Invalid hex
 
-      // Then: Component should show error or revert to previous color
-      // The component should either show error state or keep the previous color
-      const inputValue = await hexInput.inputValue();
-      expect(inputValue).toBeDefined();
+      // Then: Component should provide smart error handling (PLANNED FEATURE)
+      logTestSection('Verifying smart error handling');
+
+      // FUTURE FEATURE: Auto-correct invalid hex to closest valid color
+      // This test is designed to FAIL until this feature is implemented
+      const displayValue = page.locator(SELECTORS.colorSetter.displayValue);
+
+      // Wait a moment for any auto-correction to happen
+      await page.waitForTimeout(1000);
+
+      // Check if display value is visible (it won't be during error state)
+      const isDisplayVisible = await displayValue.isVisible();
+
+      if (isDisplayVisible) {
+        const correctedValue = await displayValue.textContent();
+        logTestStep(`Auto-corrected value: ${correctedValue}`);
+
+        // PLANNED: Should auto-correct #GGGGGG to something like #666666
+        expect(correctedValue?.trim().toUpperCase()).toBe('#666666');
+        logTestStep('✓ Invalid hex auto-corrected to valid color');
+      } else {
+        // Currently the component shows an error and keeps input field visible
+        // PLANNED: Should auto-correct and hide input field
+        logTestStep(
+          '❌ Auto-correction not implemented yet - test designed to fail'
+        );
+        expect(isDisplayVisible).toBe(true); // This will fail as intended
+      }
     });
   });
 });

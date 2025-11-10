@@ -340,7 +340,6 @@ export class GamutAwareSliderComponent implements AfterViewInit, OnDestroy {
    */
   onSliderChange(event: Event): void {
     let value = parseFloat((event.target as HTMLInputElement).value);
-    const originalValue = value;
 
     // Snap to nearest valid position if we have gamut constraints
     const validPos = this.validPositions();
@@ -358,15 +357,14 @@ export class GamutAwareSliderComponent implements AfterViewInit, OnDestroy {
    * Handle direct input model changes (ngModel binding)
    */
   onDirectInputModelChange(value: string): void {
-    console.log(`🔢 HUE INPUT CHANGED: ${value}`);
     const numValue = parseFloat(value);
 
     // Only update if it's a valid number
     if (!isNaN(numValue)) {
       // Clamp the value to min/max bounds
-      const clampedValue = Math.max(this.min(), Math.min(this.max(), numValue));
+      const finalValue = Math.max(this.min(), Math.min(this.max(), numValue));
 
-      this.internalValue.set(clampedValue);
+      this.internalValue.set(finalValue);
 
       // Update canvas immediately
       if (this.ctx) {
@@ -377,7 +375,7 @@ export class GamutAwareSliderComponent implements AfterViewInit, OnDestroy {
         });
       }
 
-      this.valueInput.emit(clampedValue); // Live updates for gradients
+      this.valueInput.emit(finalValue); // Live updates for gradients
     }
   }
 
@@ -465,17 +463,12 @@ export class GamutAwareSliderComponent implements AfterViewInit, OnDestroy {
     if (isNaN(value)) return;
 
     // Clamp the pasted value
-    const clampedValue = Math.max(this.min(), Math.min(this.max(), value));
+    const finalValue = Math.max(this.min(), Math.min(this.max(), value));
 
     // Update the model value which will sync with internal value
-    console.log(
-      `📋 ${this.label()} PASTE: Setting directInputValue to ${clampedValue.toFixed(
-        2
-      )}`
-    );
-    this.directInputValue = clampedValue.toFixed(2);
-    this.internalValue.set(clampedValue);
-    this.valueInput.emit(clampedValue);
+    this.directInputValue = finalValue.toFixed(2);
+    this.internalValue.set(finalValue);
+    this.valueInput.emit(finalValue);
   }
 
   /**

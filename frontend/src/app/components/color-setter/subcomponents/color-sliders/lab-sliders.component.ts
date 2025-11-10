@@ -336,7 +336,6 @@ export class LabSlidersComponent implements OnInit, OnDestroy {
    * Handle lightness slider change (final value)
    */
   onLChange() {
-    // Snap to nearest valid position
     this.l = this.snapToValidPosition(this.l, this.validLPositions);
     this.generateGradients();
     this.emitColorChange();
@@ -355,7 +354,6 @@ export class LabSlidersComponent implements OnInit, OnDestroy {
    * Handle A slider change (final value)
    */
   onAChange() {
-    // Snap to nearest valid position
     this.a = this.snapToValidPosition(this.a, this.validAPositions);
     this.generateGradients();
     this.emitColorChange();
@@ -374,7 +372,6 @@ export class LabSlidersComponent implements OnInit, OnDestroy {
    * Handle B slider change (final value)
    */
   onBChange() {
-    // Snap to nearest valid position
     this.b = this.snapToValidPosition(this.b, this.validBPositions);
     this.generateGradients();
     this.emitColorChange();

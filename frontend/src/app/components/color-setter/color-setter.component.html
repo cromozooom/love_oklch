@@ -155,7 +155,6 @@
               [gamut]="gamutDisplayName()"
               (colorChange)="onLabColorChange($event)"
             ></app-lab-sliders>
-
             <!-- Gamut Warning Display (T068) -->
             <div
               *ngIf="!gamutStatus().inGamut"
