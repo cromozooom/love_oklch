@@ -75,7 +75,7 @@
       <section class="flex flex-col">
         <button
           *ngFor="let fmt of availableFormats"
-          [attr.data-active]="format() === fmt ? 'true' : null"
+          [attr.data-active-format]="format() === fmt ? 'true' : null"
           [ngClass]="
             format() === fmt
               ? ' xbg-indigo-50 text-indigo-900 border-r border-r-white'

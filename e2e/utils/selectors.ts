@@ -50,6 +50,9 @@ export const SELECTORS = {
       byFormat: (format: string) => `[data-testid="format-selector-${format}"]`,
     },
 
+    // Active format button (currently selected format)
+    activeFormatButton: '[data-active-format="true"]',
+
     // Gamut selector
     gamutSelector: {
       srgb: '[data-testid="gamut-option-srgb"]',

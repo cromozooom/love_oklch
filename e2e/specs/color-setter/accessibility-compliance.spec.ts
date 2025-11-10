@@ -4,6 +4,7 @@ import {
   setupColorSetterTest,
   switchColorFormat,
   setColorViaInput,
+  setHslSliders,
   logTestStep,
   logTestSection,
   TEST_USERS,
@@ -245,41 +246,40 @@ test.describe('User Story 2: Accessibility Compliance Checking', () => {
       expect(updatedValue).not.toEqual(initialValue);
     });
 
-    test.skip('should update contrast when switching HSL lightness', async () => {
-      const hexInput = page.locator(SELECTORS.colorSetter.colorInput);
-
-      // Set to yellow (#FFFF00) which has good contrast initially
-      await setHexColor(page, '#FFFF00'); // Yellow
+    test('should update contrast when switching HSL lightness', async () => {
+      logTestStep('Setting initial yellow color (#FFFF00)');
+      await setColorViaInput(page, '#FFFF00'); // Yellow
 
       // Switch to HSL format
+      logTestStep('Switching to HSL format');
       await switchColorFormat(page, 'hsl');
 
-      // Wait for HSL sliders to be visible
-      const lightnessSlider = page.locator(
-        SELECTORS.colorSetter.hslSliders.lightnessInput
-      );
-      await lightnessSlider.waitFor({ state: 'visible', timeout: 5000 });
-
-      // Get initial contrast value (should be around 1.07:1 for yellow on white)
-      let currentContrast = page.locator(
+      // Wait for HSL sliders to be visible and get initial contrast
+      logTestStep('Getting initial contrast value');
+      const currentContrast = page.locator(
         SELECTORS.colorSetter.wcagWhiteContrastValue
       );
-      let value1 = await currentContrast.innerText();
+      await currentContrast.waitFor({ state: 'visible', timeout: 5000 });
+
+      const value1 = await currentContrast.innerText();
       const initialValue = parseFloat(value1);
+      logTestStep(`Initial contrast: ${initialValue}`);
 
       // Significantly increase lightness to make it even brighter/whiter
       // This should decrease contrast with white background
-      await lightnessSlider.evaluate((el: any) => {
-        el.value = '90'; // Very bright/light yellow
-        el.dispatchEvent(new Event('input', { bubbles: true }));
-        el.dispatchEvent(new Event('change', { bubbles: true }));
-      });
+      // Yellow is H=60, S=100, L=50 by default, we'll increase L to 90
+      logTestStep('Updating HSL lightness to 90%');
+      await setHslSliders(page, 60, 100, 90);
+
+      // Wait for contrast calculation to update
       await page.waitForLoadState('networkidle');
       await page.waitForTimeout(500); // Extra wait for contrast calculation
 
       // Check that contrast changed
-      let value2 = await currentContrast.innerText();
+      logTestStep('Verifying contrast has changed');
+      const value2 = await currentContrast.innerText();
       const newValue = parseFloat(value2);
+      logTestStep(`New contrast: ${newValue}`);
 
       // The contrast should have changed (could be higher or lower depending on the color)
       expect(newValue).not.toEqual(initialValue);
