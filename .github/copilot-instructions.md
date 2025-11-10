@@ -4,7 +4,7 @@ Auto-generated from all feature plans. Last updated: 2025-11-06
 
 ## Active Technologies
 
-- TypeScript 5.x with Angular 18.x + colorjs.io (color space conversions), Angular CDK (UI primitives) (005-color-setter-component)
+- TypeScript 5.x (Node.js 20.x for backend, Angular 18.x for frontend) (004-feature-access-config)
 
 ## Project Structure
 
@@ -20,11 +20,11 @@ npm test; npm run lint
 
 ## Code Style
 
-TypeScript 5.x with Angular 18.x: Follow standard conventions
+TypeScript 5.x (Node.js 20.x for backend, Angular 18.x for frontend): Follow standard conventions
 
 ## Recent Changes
 
-- 005-color-setter-component: Added TypeScript 5.x with Angular 18.x + colorjs.io (color space conversions), Angular CDK (UI primitives)
+- 004-feature-access-config: Added TypeScript 5.x (Node.js 20.x for backend, Angular 18.x for frontend)
 
 <!-- MANUAL ADDITIONS START -->
 <!-- MANUAL ADDITIONS END -->

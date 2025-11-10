@@ -1,0 +1,377 @@
+openapi: 3.0.3
+info:
+  title: Feature Configuration Management API
+  description: Admin API for managing feature access configuration (optional UI support)
+  version: 1.0.0
+
+paths:
+  /api/admin/feature-config:
+    get:
+      summary: Get current feature access configuration
+      description: Returns the complete feature configuration for all subscription tiers
+      tags:
+        - Admin Configuration
+      security:
+        - BearerAuth: []
+      responses:
+        "200":
+          description: Configuration retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FeatureAccessConfig"
+        "401":
+          description: Authentication required
+        "403":
+          description: Admin access required
+
+    put:
+      summary: Update feature access configuration
+      description: |
+        Updates feature configuration for one or more tiers. Uses optimistic locking 
+        to prevent concurrent edit conflicts. If configuration changed since client 
+        loaded it, returns 409 Conflict.
+      tags:
+        - Admin Configuration
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - roles
+                - lastUpdated
+              properties:
+                roles:
+                  type: object
+                  additionalProperties:
+                    $ref: "#/components/schemas/TierConfig"
+                lastUpdated:
+                  type: string
+                  format: date-time
+                  description: Timestamp when client loaded configuration (for optimistic locking)
+            examples:
+              updateFreeTier:
+                summary: Increase free tier undo limit
+                value:
+                  roles:
+                    non_subscribed_user:
+                      display_name: "Free Tier"
+                      priority: 3
+                      plan_slug: "free"
+                      features:
+                        redo_undo_limit:
+                          display_name: "Undo/Redo Operations Limit"
+                          type: "number"
+                          value: 10
+                          unit: "operations"
+                        project_limit:
+                          display_name: "Maximum Projects Allowed"
+                          type: "number"
+                          value: 1
+                          unit: "projects"
+                        advertisements_visible:
+                          display_name: "Advertisements Visibility"
+                          type: "boolean"
+                          value: true
+                  lastUpdated: "2025-11-06T10:30:00Z"
+      responses:
+        "200":
+          description: Configuration updated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Configuration updated successfully"
+                  updatedAt:
+                    type: string
+                    format: date-time
+                  changedFields:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/ConfigChange"
+        "400":
+          description: Validation error - invalid configuration
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ValidationError"
+              examples:
+                invalidZeroLimit:
+                  summary: Zero limit rejected
+                  value:
+                    message: "Validation failed"
+                    errors:
+                      - field: "roles.non_subscribed_user.features.project_limit.value"
+                        message: "Invalid limit: use -1 for unlimited or positive numbers only"
+                        value: 0
+        "401":
+          description: Authentication required
+        "403":
+          description: Admin access required
+        "409":
+          description: Conflict - configuration changed by another admin
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Configuration changed by another admin. Please refresh and try again."
+                  currentConfig:
+                    $ref: "#/components/schemas/FeatureAccessConfig"
+                  lastUpdatedBy:
+                    type: string
+                    example: "admin2@solopx.com"
+                  lastUpdatedAt:
+                    type: string
+                    format: date-time
+
+  /api/admin/feature-config/reload:
+    post:
+      summary: Reload configuration from YAML file
+      description: |
+        Triggers reload of feature-access.yaml file and synchronizes to database.
+        Useful after manual YAML file edits. Returns updated configuration.
+      tags:
+        - Admin Configuration
+      security:
+        - BearerAuth: []
+      responses:
+        "200":
+          description: Configuration reloaded successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Configuration reloaded from YAML"
+                  changesApplied:
+                    type: integer
+                    description: Number of database records updated
+                    example: 3
+                  updatedAt:
+                    type: string
+                    format: date-time
+        "400":
+          description: YAML file validation error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ValidationError"
+        "401":
+          description: Authentication required
+        "403":
+          description: Admin access required
+        "500":
+          description: YAML file read error or database sync failed
+
+  /api/admin/feature-config/audit-log:
+    get:
+      summary: Get configuration change audit log
+      description: Returns history of all configuration changes with admin details
+      tags:
+        - Admin Configuration
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 50
+            maximum: 200
+          description: Maximum number of audit entries to return
+        - name: offset
+          in: query
+          schema:
+            type: integer
+            default: 0
+          description: Pagination offset
+      responses:
+        "200":
+          description: Audit log retrieved
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  total:
+                    type: integer
+                    example: 127
+                  entries:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/AuditLogEntry"
+        "401":
+          description: Authentication required
+        "403":
+          description: Admin access required
+
+components:
+  schemas:
+    FeatureAccessConfig:
+      type: object
+      required:
+        - description
+        - roles
+        - lastUpdated
+      properties:
+        description:
+          type: string
+          example: "Defines feature limits and access levels based on user subscription status."
+        roles:
+          type: object
+          additionalProperties:
+            $ref: "#/components/schemas/TierConfig"
+        lastUpdated:
+          type: string
+          format: date-time
+          description: Timestamp of last configuration change (for optimistic locking)
+
+    TierConfig:
+      type: object
+      required:
+        - display_name
+        - priority
+        - plan_slug
+        - features
+      properties:
+        display_name:
+          type: string
+          example: "Free Tier"
+        priority:
+          type: integer
+          description: Display order (1 = highest priority)
+          example: 3
+        plan_slug:
+          type: string
+          description: Maps to Plan.slug in database
+          example: "free"
+        features:
+          type: object
+          required:
+            - redo_undo_limit
+            - project_limit
+            - advertisements_visible
+          properties:
+            redo_undo_limit:
+              $ref: "#/components/schemas/FeatureDefinition"
+            project_limit:
+              $ref: "#/components/schemas/FeatureDefinition"
+            advertisements_visible:
+              $ref: "#/components/schemas/FeatureDefinition"
+
+    FeatureDefinition:
+      type: object
+      required:
+        - display_name
+        - type
+        - value
+      properties:
+        display_name:
+          type: string
+          example: "Undo/Redo Operations Limit"
+        type:
+          type: string
+          enum: [number, boolean, string]
+          example: "number"
+        value:
+          oneOf:
+            - type: integer
+              description: For numeric features (-1 = unlimited, 0 is invalid, positive = limit)
+            - type: boolean
+              description: For boolean features
+          example: 5
+        unit:
+          type: string
+          description: Unit label for numeric features
+          example: "operations"
+
+    ConfigChange:
+      type: object
+      properties:
+        tierKey:
+          type: string
+          example: "non_subscribed_user"
+        featureKey:
+          type: string
+          example: "redo_undo_limit"
+        previousValue:
+          oneOf:
+            - type: integer
+            - type: boolean
+          example: 5
+        newValue:
+          oneOf:
+            - type: integer
+            - type: boolean
+          example: 10
+
+    AuditLogEntry:
+      type: object
+      properties:
+        auditId:
+          type: string
+          format: uuid
+        adminUserId:
+          type: string
+          format: uuid
+        adminEmail:
+          type: string
+          example: "admin@solopx.com"
+        timestamp:
+          type: string
+          format: date-time
+        changes:
+          type: array
+          items:
+            $ref: "#/components/schemas/ConfigChange"
+        fullConfigSnapshot:
+          $ref: "#/components/schemas/FeatureAccessConfig"
+          description: Complete configuration state after this change (for disaster recovery)
+
+    ValidationError:
+      type: object
+      required:
+        - message
+        - errors
+      properties:
+        message:
+          type: string
+          example: "Validation failed"
+        errors:
+          type: array
+          items:
+            type: object
+            properties:
+              field:
+                type: string
+                description: Configuration field path that failed validation
+                example: "roles.non_subscribed_user.features.project_limit.value"
+              message:
+                type: string
+                description: Validation error message
+                example: "Invalid limit: use -1 for unlimited or positive numbers only"
+              value:
+                description: The invalid value that was provided
+
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: JWT token from authentication with admin role
+
+tags:
+  - name: Admin Configuration
+    description: Admin-only endpoints for managing feature access configuration

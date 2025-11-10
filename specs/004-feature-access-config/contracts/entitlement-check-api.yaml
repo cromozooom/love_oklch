@@ -1,0 +1,203 @@
+openapi: 3.0.3
+info:
+  title: Feature Entitlement Check API
+  description: API for checking user feature access limits based on subscription tier
+  version: 1.0.0
+
+paths:
+  /api/entitlements/check:
+    post:
+      summary: Check if user can perform feature-limited action
+      description: |
+        Verifies if user has permission to perform an action based on their subscription 
+        tier's feature limits. Returns current limit, usage, and whether action is allowed.
+      tags:
+        - Entitlements
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - featureKey
+              properties:
+                featureKey:
+                  type: string
+                  enum: [redo_undo_limit, project_limit, advertisements_visible]
+                  description: The feature to check access for
+                  example: project_limit
+                userId:
+                  type: string
+                  format: uuid
+                  description: User ID (optional - defaults to authenticated user)
+            examples:
+              checkProjectLimit:
+                summary: Check if user can create another project
+                value:
+                  featureKey: project_limit
+              checkUndoLimit:
+                summary: Check if user can perform another undo
+                value:
+                  featureKey: redo_undo_limit
+      responses:
+        "200":
+          description: Entitlement check successful
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EntitlementCheckResult"
+              examples:
+                allowedUnlimited:
+                  summary: Pro user - unlimited access
+                  value:
+                    allowed: true
+                    limit: -1
+                    currentUsage: 42
+                    message: "Unlimited projects available"
+                allowedWithinLimit:
+                  summary: Basic user within limit
+                  value:
+                    allowed: true
+                    limit: 10
+                    currentUsage: 7
+                    message: "7 of 10 projects used"
+                deniedLimitReached:
+                  summary: Free user at limit
+                  value:
+                    allowed: false
+                    limit: 1
+                    currentUsage: 1
+                    reason: "Project limit reached (1/1). Upgrade to create more projects."
+                deniedGrandfathered:
+                  summary: User exceeds reduced limit (grandfathered)
+                  value:
+                    allowed: false
+                    limit: 3
+                    currentUsage: 5
+                    reason: "You have 5 projects but limit is 3. Delete 2 projects to create new ones."
+        "401":
+          description: Authentication required
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "404":
+          description: Feature not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /api/entitlements/{featureKey}/limit:
+    get:
+      summary: Get user's current limit for a feature
+      description: Returns the limit value for a specific feature based on user's subscription tier
+      tags:
+        - Entitlements
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: featureKey
+          in: path
+          required: true
+          schema:
+            type: string
+            enum: [redo_undo_limit, project_limit, advertisements_visible]
+          description: The feature to get limit for
+      responses:
+        "200":
+          description: Feature limit retrieved
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  featureKey:
+                    type: string
+                    example: project_limit
+                  limit:
+                    oneOf:
+                      - type: integer
+                        description: Numeric limit (-1 for unlimited)
+                      - type: boolean
+                        description: Boolean feature value
+                    example: 10
+                  displayValue:
+                    type: string
+                    description: Human-readable limit value
+                    example: "10 projects"
+                  tierName:
+                    type: string
+                    description: User's subscription tier name
+                    example: "Basic Subscription"
+        "401":
+          description: Authentication required
+        "404":
+          description: Feature not found
+
+components:
+  schemas:
+    EntitlementCheckResult:
+      type: object
+      required:
+        - allowed
+        - limit
+      properties:
+        allowed:
+          type: boolean
+          description: Whether the user can perform the action
+        limit:
+          oneOf:
+            - type: integer
+              description: Numeric limit value (-1 means unlimited)
+            - type: boolean
+              description: Boolean feature value
+          example: 10
+        currentUsage:
+          type: integer
+          description: Current usage count (for numeric limits only)
+          example: 7
+        message:
+          type: string
+          description: Human-readable message about entitlement status
+          example: "7 of 10 projects used"
+        reason:
+          type: string
+          description: Explanation if action not allowed
+          example: "Project limit reached (1/1). Upgrade to create more projects."
+
+    Error:
+      type: object
+      required:
+        - message
+        - statusCode
+      properties:
+        message:
+          type: string
+          description: Error message
+        statusCode:
+          type: integer
+          description: HTTP status code
+        details:
+          type: object
+          description: Additional error details
+
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: JWT token from authentication
+
+tags:
+  - name: Entitlements
+    description: Check user feature access limits based on subscription tier
