@@ -1,0 +1,42 @@
+// Ensure the canvas container properly contains the indicator
+.color-canvas-container {
+  position: relative;
+  overflow: visible; // Allow indicator to extend slightly outside for better UX
+}
+
+// Color canvas styling
+.xcolor-canvas {
+  display: block;
+  user-select: none;
+}
+
+// Color indicator (similar to gamut-aware-slider thumb)
+.color-indicator {
+  display: block;
+  box-sizing: border-box;
+  background: linear-gradient(#8f8f8f, #8f8f8f),
+    repeating-conic-gradient(from 45deg, #f0f0f0 0% 25%, white 0% 50%) 50% / 3px
+      3px;
+  border: 3px solid white;
+  border-radius: 1px;
+  // Apply translate first, then rotate - this ensures centering works correctly
+  transform: translate(-50%, -50%) rotate(45deg);
+  transition: transform 0.1s ease;
+  z-index: 10; // Ensure it's above the canvas
+  pointer-events: auto; // Enable interaction for dragging
+  cursor: grab; // Show grab cursor
+
+  &:hover {
+    transform: translate(-50%, -50%) rotate(45deg) scale(1.1);
+  }
+
+  &:active {
+    cursor: grabbing;
+    transform: translate(-50%, -50%) rotate(45deg) scale(0.95);
+  }
+
+  // Disable transition while dragging for smooth movement
+  &.dragging {
+    transition: none;
+  }
+}

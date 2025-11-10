@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { login, TEST_USERS } from '../../fixtures/auth';
 
 /**
  * E2E Test: Project Modification Tracking
@@ -20,11 +21,8 @@ test.describe('Project Modification Tracking', () => {
       }
     });
 
-    // Login as default user (Pro plan with unlimited projects)
-    await page.goto('http://localhost:4200/login');
-    await page.fill('input[type="email"]', 'default@solopx.com');
-    await page.fill('input[type="password"]', 'password123');
-    await page.click('button[type="submit"]');
+    // Login as PRO user (has unlimited projects)
+    await login(page, TEST_USERS.PRO_USER.email, TEST_USERS.PRO_USER.password);
 
     // Wait for successful login and navigation to projects list
     await page.waitForURL('**/projects', { timeout: 10000 });

@@ -118,3 +118,10 @@
 .retry-button:hover {
   background-color: #2563eb;
 }
+
+// Editor sidebar
+.editor-sidebar {
+  flex: 0 0 300px;
+  border-left: 1px solid #e5e7eb;
+  overflow-y: auto;
+}

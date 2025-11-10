@@ -31,48 +31,48 @@ export class AdminAuthGuard implements CanActivate, CanActivateChild {
   }
 
   private checkAdminAccess(url: string): Observable<boolean> {
-    console.log('AdminAuthGuard: Checking admin access for URL:', url);
+    // console.log('AdminAuthGuard: Checking admin access for URL:', url);
 
     // First, check if we have stored credentials that suggest we should wait
     const hasStoredToken = !!localStorage.getItem('auth_token');
     const hasStoredUser = !!localStorage.getItem('auth_user');
 
-    console.log('AdminAuthGuard: Has stored token:', hasStoredToken);
-    console.log('AdminAuthGuard: Has stored user:', hasStoredUser);
+    // console.log('AdminAuthGuard: Has stored token:', hasStoredToken);
+    // console.log('AdminAuthGuard: Has stored user:', hasStoredUser);
 
     if (hasStoredToken && hasStoredUser) {
       // We have stored credentials, wait a moment for AuthService to initialize
-      console.log(
-        'AdminAuthGuard: Found stored credentials, waiting for auth initialization...'
-      );
+      // console.log(
+      //   'AdminAuthGuard: Found stored credentials, waiting for auth initialization...'
+      // );
 
       return timer(500).pipe(
         // Wait 500ms for auth to initialize
         switchMap(() => this.authService.authState$),
         take(1),
         map((authState) => {
-          console.log('AdminAuthGuard: Auth state after wait:', authState);
+          // console.log('AdminAuthGuard: Auth state after wait:', authState);
           return this.evaluateAuthState(authState, url);
         }),
         catchError((error) => {
-          console.log('AdminAuthGuard: Error after wait:', error);
+          // console.log('AdminAuthGuard: Error after wait:', error);
           return this.fallbackAuthCheck(url);
         })
       );
     } else {
       // No stored credentials, check current state immediately
-      console.log(
-        'AdminAuthGuard: No stored credentials, checking current state...'
-      );
+      // console.log(
+      //   'AdminAuthGuard: No stored credentials, checking current state...'
+      // );
 
       return this.authService.authState$.pipe(
         take(1),
         map((authState) => {
-          console.log('AdminAuthGuard: Current auth state:', authState);
+          // console.log('AdminAuthGuard: Current auth state:', authState);
           return this.evaluateAuthState(authState, url);
         }),
         catchError((error) => {
-          console.log('AdminAuthGuard: Error checking current state:', error);
+          // console.log('AdminAuthGuard: Error checking current state:', error);
           this.redirectToLogin(url);
           return of(false);
         })

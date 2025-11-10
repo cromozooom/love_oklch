@@ -1,0 +1,55 @@
+<div class="slider-group">
+  <div class="flex justify-between items-center mb-2">
+    <label class="text-sm font-medium text-gray-700 dark:text-gray-300">
+      {{ label() }}
+    </label>
+    <!-- Editable input with clamping and 2 decimal precision -->
+    <input
+      type="number"
+      class="text-sm text-gray-600 dark:text-gray-400 font-mono bg-transparent border border-gray-300 dark:border-gray-600 rounded px-2 py-1 w-20 text-right hover:border-blue-400 focus:border-blue-500 focus:outline-none transition-colors"
+      [(ngModel)]="directInputValue"
+      [min]="min()"
+      [max]="max()"
+      [step]="step()"
+      [attr.aria-label]="label() + ' value input'"
+      title="Enter value range"
+      [attr.data-testid]="testId() + '-number-input'"
+      (blur)="onDirectInput($event)"
+      (keydown.enter)="onDirectInput($event)"
+      (keydown)="onDirectInputKeydown($event)"
+      (ngModelChange)="onDirectInputModelChange($event)"
+      (paste)="onDirectInputPaste($event)"
+    />
+  </div>
+
+  <!-- Native range input with canvas background -->
+  <div class="range-container" [attr.data-testid]="testId()">
+    <!-- Canvas for gradient and gamut boundaries -->
+    <canvas #gradientCanvas class="gradient-canvas"></canvas>
+
+    <!-- Native range input (extends beyond track for thumb positioning) -->
+    <input
+      type="range"
+      class="range-input"
+      [(ngModel)]="internalValue"
+      [min]="min()"
+      [max]="max()"
+      [step]="step()"
+      [attr.aria-label]="label()"
+      [attr.data-testid]="testId() + '-input'"
+      (input)="onSliderInput($event)"
+      (change)="onSliderChange($event)"
+    />
+  </div>
+
+  <!-- Debug: Show CSS gradient for comparison -->
+  <div
+    *ngIf="debugGradient()"
+    class="debug-gradient mt-2"
+    style="height: 20px; border: 1px solid #ccc"
+    [style.background]="
+      debugGradient() || 'linear-gradient(to right, #ccc 0%, #ccc 100%)'
+    "
+    [title]="'Debug gradient: ' + (debugGradient() || 'No gradient data')"
+  ></div>
+</div>

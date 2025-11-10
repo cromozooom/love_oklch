@@ -7,11 +7,15 @@
   },
   "scripts": {
     "test": "playwright test",
-    "test:ui": "playwright test --ui",
-    "test:ui:seed": "npm run seed && playwright test --ui",
+    "test:ui": "playwright test --ui --workers=1",
+    "test:ui:seed": "npm run seed && playwright test --ui --workers=1",
     "test:debug": "playwright test --debug",
     "test:report": "playwright show-report",
-    "test:headed": "playwright test --headed",
+    "test:headed": "playwright test --headed --workers=1",
+    "test:color-setter": "playwright test specs/color-setter --workers=1",
+    "test:color-setter:ui": "npm run seed && playwright test specs/color-setter --ui --workers=1",
+    "test:nightly": "npm run seed && cross-env NIGHTLY=true playwright test",
+    "test:nightly:report": "npm run test:nightly && playwright show-report",
     "test:project-history": "playwright test project-history.spec.ts",
     "test:manual": "playwright test manual-debug.spec.ts --headed --debug",
     "seed": "cd ../backend && npm run db:seed:e2e",
@@ -23,6 +27,7 @@
   "description": "E2E tests for Love OKLCH project",
   "devDependencies": {
     "@playwright/test": "^1.56.1",
-    "@types/node": "^22.19.0"
+    "@types/node": "^22.19.0",
+    "cross-env": "^10.1.0"
   }
 }
