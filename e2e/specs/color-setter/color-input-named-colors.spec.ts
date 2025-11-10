@@ -1,21 +1,31 @@
 import { test, expect } from '@playwright/test';
+import {
+  SELECTORS,
+  setupColorSetterTest,
+  setColorViaInput,
+  logTestStep,
+  logTestSection,
+} from '../../utils';
 
-test.describe('Color Input - Named Colors Support', () => {
+/**
+ * Test Suite: Color Input Named Colors Support
+ *
+ * Tests that the color input field can handle CSS named colors
+ * and properly convert them to appropriate formats.
+ */
+test.describe('CINCS: Color Input - Named Colors Support', () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto('/');
-    await page.waitForSelector('[data-testid="color-setter-component"]');
+    // Use centralized setup utility
+    await setupColorSetterTest(page);
+
+    // Set initial neutral color
+    await setColorViaInput(page, '#808080'); // Gray as neutral starting point
   });
 
-  test('should handle named colors and convert to HEX format', async ({
+  test('CINCS01: should handle named colors and convert to HEX format', async ({
     page,
   }) => {
-    // Click on display value to enter edit mode
-    await page.click('[data-testid="display-value"]');
-
-    // Wait for input field to appear
-    await page.waitForSelector('[data-testid="color-input"]');
-
-    const colorInput = page.locator('[data-testid="color-input"]');
+    logTestSection('Testing named colors conversion to HEX format');
 
     // Test various named colors
     const namedColors = [
@@ -29,103 +39,128 @@ test.describe('Color Input - Named Colors Support', () => {
     ];
 
     for (const colorTest of namedColors) {
+      logTestStep(`Testing named color: ${colorTest.name}`);
+
+      // Enter edit mode
+      await page.click(SELECTORS.colorSetter.displayValue);
+      const colorInput = page.locator(SELECTORS.colorSetter.colorInput);
+      await expect(colorInput).toBeVisible({ timeout: 5000 });
+
       // Enter named color
       await colorInput.fill(colorTest.name);
       await colorInput.press('Enter');
 
       // Should switch to HEX format
-      await page.waitForTimeout(100); // Small delay for state update
-      const activeFormatButton = page.locator('[data-active="true"]');
+      await page.waitForTimeout(200);
+      const activeFormatButton = page.locator(
+        SELECTORS.colorSetter.activeFormatButton
+      );
       await expect(activeFormatButton).toContainText('HEX');
 
-      // Check that the color preview updated
-      const colorPreview = page.locator('[data-testid="color-preview"]');
-      const backgroundColor = await colorPreview.evaluate(
-        (el) => window.getComputedStyle(el).backgroundColor
+      // Verify the display value shows the correct hex color
+      const displayValue = page.locator(SELECTORS.colorSetter.displayValue);
+      await expect(displayValue).toBeVisible({ timeout: 5000 });
+
+      const displayText = await displayValue.textContent();
+      expect(displayText?.toLowerCase()).toContain(
+        colorTest.expectedHex.toLowerCase()
       );
 
-      // Convert RGB to HEX for comparison
-      const rgbMatch = backgroundColor.match(
-        /rgb\\((\\d+),\\s*(\\d+),\\s*(\\d+)\\)/
-      );
-      if (rgbMatch) {
-        const [, r, g, b] = rgbMatch;
-        const hex =
-          '#' +
-          [r, g, b]
-            .map((x) => parseInt(x).toString(16).padStart(2, '0'))
-            .join('');
-        expect(hex.toLowerCase()).toBe(colorTest.expectedHex.toLowerCase());
-      }
-
-      // Click display value again to test next color
-      await page.click('[data-testid="display-value"]');
-      await page.waitForSelector('[data-testid="color-input"]');
+      // Verify color preview updated
+      const colorPreview = page.locator(SELECTORS.colorSetter.colorPreview);
+      await expect(colorPreview).toBeVisible();
     }
   });
 
-  test('should show error for invalid named colors', async ({ page }) => {
-    // Click on display value to enter edit mode
-    await page.click('[data-testid="display-value"]');
+  test('CINCS02: should show error for invalid named colors', async ({
+    page,
+  }) => {
+    logTestStep('Testing invalid named color error handling');
 
-    // Wait for input field to appear
-    await page.waitForSelector('[data-testid="color-input"]');
-
-    const colorInput = page.locator('[data-testid="color-input"]');
+    // Enter edit mode
+    await page.click(SELECTORS.colorSetter.displayValue);
+    const colorInput = page.locator(SELECTORS.colorSetter.colorInput);
+    await expect(colorInput).toBeVisible({ timeout: 5000 });
 
     // Enter invalid named color
+    logTestStep('Entering invalid named color');
     await colorInput.fill('invalidcolorname');
     await colorInput.press('Enter');
 
     // Should show error message
-    await page.waitForSelector('[data-testid="color-input-error"]');
-    const errorMessage = page.locator('[data-testid="color-input-error"]');
-    await expect(errorMessage).toBeVisible();
+    logTestStep('Verifying error message appears');
+    const errorMessage = page.locator(SELECTORS.colorSetter.colorInputError);
+    await expect(errorMessage).toBeVisible({ timeout: 5000 });
     await expect(errorMessage).toContainText('Cannot parse color');
 
     // Input field should still be visible (not closed due to error)
     await expect(colorInput).toBeVisible();
 
-    // Input border should be red
+    // Input border should be red (error state)
     await expect(colorInput).toHaveClass(/border-red-500/);
   });
 
-  test('should handle mixed case named colors', async ({ page }) => {
-    // Click on display value to enter edit mode
-    await page.click('[data-testid="display-value"]');
+  test('CINCS03: should handle mixed case named colors', async ({ page }) => {
+    logTestStep('Testing mixed case named color handling');
 
-    const colorInput = page.locator('[data-testid="color-input"]');
+    // Enter edit mode
+    await page.click(SELECTORS.colorSetter.displayValue);
+    const colorInput = page.locator(SELECTORS.colorSetter.colorInput);
+    await expect(colorInput).toBeVisible({ timeout: 5000 });
 
     // Test mixed case
+    logTestStep('Entering mixed case "CrImSoN"');
     await colorInput.fill('CrImSoN');
     await colorInput.press('Enter');
 
     // Should still work and switch to HEX
-    await page.waitForTimeout(100);
-    const activeFormatButton = page.locator('[data-active="true"]');
+    await page.waitForTimeout(200);
+    logTestStep('Verifying format switched to HEX');
+    const activeFormatButton = page.locator(
+      SELECTORS.colorSetter.activeFormatButton
+    );
     await expect(activeFormatButton).toContainText('HEX');
 
     // Should exit edit mode
     await expect(colorInput).not.toBeVisible();
-    await expect(page.locator('[data-testid="display-value"]')).toBeVisible();
+    const displayValue = page.locator(SELECTORS.colorSetter.displayValue);
+    await expect(displayValue).toBeVisible();
+
+    // Verify crimson color was applied
+    const displayText = await displayValue.textContent();
+    expect(displayText?.toLowerCase()).toContain('#dc143c');
   });
 
-  test('should handle named colors with extra spaces', async ({ page }) => {
-    // Click on display value to enter edit mode
-    await page.click('[data-testid="display-value"]');
+  test('CINCS04: should handle named colors with extra spaces', async ({
+    page,
+  }) => {
+    logTestStep('Testing named colors with extra whitespace');
 
-    const colorInput = page.locator('[data-testid="color-input"]');
+    // Enter edit mode
+    await page.click(SELECTORS.colorSetter.displayValue);
+    const colorInput = page.locator(SELECTORS.colorSetter.colorInput);
+    await expect(colorInput).toBeVisible({ timeout: 5000 });
 
     // Test with extra spaces
+    logTestStep('Entering "  red  " with extra spaces');
     await colorInput.fill('  red  ');
     await colorInput.press('Enter');
 
-    // Should still work
-    await page.waitForTimeout(100);
-    const activeFormatButton = page.locator('[data-active="true"]');
+    // Should still work and switch to HEX
+    await page.waitForTimeout(200);
+    logTestStep('Verifying format switched to HEX');
+    const activeFormatButton = page.locator(
+      SELECTORS.colorSetter.activeFormatButton
+    );
     await expect(activeFormatButton).toContainText('HEX');
 
     // Should exit edit mode
     await expect(colorInput).not.toBeVisible();
+
+    // Verify red color was applied
+    const displayValue = page.locator(SELECTORS.colorSetter.displayValue);
+    await expect(displayValue).toBeVisible();
+    const displayText = await displayValue.textContent();
+    expect(displayText?.toLowerCase()).toContain('#ff0000');
   });
 });

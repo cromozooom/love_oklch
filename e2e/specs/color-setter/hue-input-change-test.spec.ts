@@ -1,7 +1,7 @@
 import { test, expect } from '@playwright/test';
 import { login, TEST_USERS } from '../../fixtures/auth';
 
-test.describe('HEX Color Picker - Hue Preservation', () => {
+test.describe('HCPHP: HEX Color Picker - Hue Preservation', () => {
   test.beforeEach(async ({ page }) => {
     // Login and setup
     await login(page, TEST_USERS.PRO_USER.email, TEST_USERS.PRO_USER.password);
@@ -29,7 +29,7 @@ test.describe('HEX Color Picker - Hue Preservation', () => {
     await page.waitForTimeout(100);
   });
 
-  test('should preserve hue value during canvas drag operations', async ({
+  test('HCPHP01: should preserve hue value during canvas drag operations', async ({
     page,
   }) => {
     // Find the hue number input and set it to 320

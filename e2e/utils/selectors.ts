@@ -64,6 +64,15 @@ export const SELECTORS = {
     // Gamut warnings
     gamutWarning: '[data-testid="gamut-warning"]',
 
+    // HEX Color Picker
+    hexColorPicker: {
+      canvas: '[data-testid="color-canvas"]',
+      indicator: '[data-testid="color-indicator"]',
+      input: '[data-testid="hex-input"]',
+      hueSlider: '[data-testid="hex-hue-slider"] input',
+      container: '.color-canvas-container',
+    },
+
     // RGB Sliders
     rgbSliders: {
       red: '[data-testid="rgb-r-slider"]',

@@ -1,12 +1,12 @@
 import { test, expect } from '@playwright/test';
 
-test.describe('OKLCH NaN Hue Handling', () => {
+test.describe('ONHH: OKLCH NaN Hue Handling', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/');
     await page.waitForSelector('[data-testid="color-setter-component"]');
   });
 
-  test('should handle grey colors without NaN in OKLCH format', async ({
+  test('ONHH01: should handle grey colors without NaN in OKLCH format', async ({
     page,
   }) => {
     // Switch to OKLCH format
@@ -64,7 +64,7 @@ test.describe('OKLCH NaN Hue Handling', () => {
     }
   });
 
-  test('should handle achromatic colors in OKLCH sliders without NaN', async ({
+  test('ONHH02: should handle achromatic colors in OKLCH sliders without NaN', async ({
     page,
   }) => {
     // Switch to OKLCH format first
@@ -98,7 +98,7 @@ test.describe('OKLCH NaN Hue Handling', () => {
     console.log(`Achromatic OKLCH value: ${displayValue}`);
   });
 
-  test('should maintain valid OKLCH format when switching between grey colors', async ({
+  test('ONHH03: should maintain valid OKLCH format when switching between grey colors', async ({
     page,
   }) => {
     // Switch to OKLCH format

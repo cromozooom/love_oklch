@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { login, TEST_USERS } from './fixtures/auth';
+import { login, TEST_USERS } from '../../fixtures/auth';
 
 /**
  * Test undo/redo functionality with proper command tracking

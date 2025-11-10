@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { login, TEST_USERS } from './fixtures/auth';
+import { login, TEST_USERS } from '../../fixtures/auth';
 
 /**
  * E2E Test: Project Creation Workflow
