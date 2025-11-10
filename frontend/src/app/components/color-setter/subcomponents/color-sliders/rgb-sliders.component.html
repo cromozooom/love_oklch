@@ -1,0 +1,55 @@
+<div class="rgb-sliders w-full flex flex-col space-y-4">
+  <!-- Red Slider -->
+  <app-gamut-aware-slider
+    label="Red"
+    [value]="r"
+    [min]="0"
+    [max]="255"
+    [step]="1"
+    [colorGenerator]="rColorGenerator()"
+    [validPositions]="validRPositions"
+    [formatValue]="formatR"
+    [currentGamut]="gamut()"
+    [debugGradient]="showDebugGradients ? rGradient : ''"
+    testId="rgb-r-slider"
+    (valueInput)="onRInput($event)"
+    (valueCommit)="onRChange()"
+    (valueChange)="r = $event"
+  ></app-gamut-aware-slider>
+
+  <!-- Green Slider -->
+  <app-gamut-aware-slider
+    label="Green"
+    [value]="g"
+    [min]="0"
+    [max]="255"
+    [step]="1"
+    [colorGenerator]="gColorGenerator()"
+    [validPositions]="validGPositions"
+    [formatValue]="formatG"
+    [currentGamut]="gamut()"
+    [debugGradient]="showDebugGradients ? gGradient : ''"
+    testId="rgb-g-slider"
+    (valueInput)="onGInput($event)"
+    (valueCommit)="onGChange()"
+    (valueChange)="g = $event"
+  ></app-gamut-aware-slider>
+
+  <!-- Blue Slider -->
+  <app-gamut-aware-slider
+    label="Blue"
+    [value]="b"
+    [min]="0"
+    [max]="255"
+    [step]="1"
+    [colorGenerator]="bColorGenerator()"
+    [validPositions]="validBPositions"
+    [formatValue]="formatB"
+    [currentGamut]="gamut()"
+    [debugGradient]="showDebugGradients ? bGradient : ''"
+    testId="rgb-b-slider"
+    (valueInput)="onBInput($event)"
+    (valueCommit)="onBChange()"
+    (valueChange)="b = $event"
+  ></app-gamut-aware-slider>
+</div>

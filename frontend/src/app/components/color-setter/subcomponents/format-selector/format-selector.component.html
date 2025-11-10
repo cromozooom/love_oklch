@@ -1,0 +1,13 @@
+<div class="format-selector" data-testid="format-selector">
+  <div class="format-buttons">
+    <button
+      *ngFor="let fmt of availableFormats"
+      [class.active]="currentFormat === fmt"
+      (click)="onFormatClick(fmt)"
+      [attr.data-testid]="'format-selector-' + fmt"
+      type="button"
+    >
+      {{ FORMAT_CONFIGS[fmt].displayName }}
+    </button>
+  </div>
+</div>

@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { login, TEST_USERS } from '../../fixtures/auth';
 
 /**
  * Test undo/redo functionality with proper command tracking
@@ -35,24 +36,9 @@ test.describe('Undo/Redo Functionality', () => {
       console.log(`[Browser] ${text}`);
     });
 
-    // Login as default user (Pro plan with unlimited projects)
-    console.log('🔐 Logging in as default user...');
-    await page.goto('http://localhost:4200/login');
-    await page.fill('input[type="email"]', 'default@solopx.com');
-    await page.fill('input[type="password"]', 'password123');
-    await page.click('button[type="submit"]');
-
-    // Wait for either projects or login page (in case admin doesn't exist)
-    try {
-      await page.waitForURL('**/projects', { timeout: 5000 });
-    } catch {
-      console.log('⚠️ Admin login failed, trying default user...');
-      await page.goto('http://localhost:4200/login');
-      await page.fill('input[type="email"]', 'default@solopx.com');
-      await page.fill('input[type="password"]', 'password123');
-      await page.click('button[type="submit"]');
-      await page.waitForURL('**/projects', { timeout: 10000 });
-    }
+    // Login as PRO user (has unlimited projects)
+    console.log('🔐 Logging in as PRO user...');
+    await login(page, TEST_USERS.PRO_USER.email, TEST_USERS.PRO_USER.password);
 
     console.log('\n🎯 TEST: Undo/Redo Functionality');
     console.log('==================================\n');

@@ -38,6 +38,7 @@ import { ProjectValidators } from '../../validators/project.validators';
 import { UndoRedoService } from '../../services/undo-redo.service';
 import { OptimisticUpdatesService } from '../../services/optimistic-updates.service';
 import { UpdateProjectPropertyCommand } from '../../commands/update-project-property.command';
+import { ColorSetterComponent } from '../../components/color-setter/color-setter.component';
 
 /**
  * Form component for creating and editing projects
@@ -46,7 +47,7 @@ import { UpdateProjectPropertyCommand } from '../../commands/update-project-prop
 @Component({
   selector: 'app-project-form',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, ColorSetterComponent],
   templateUrl: './project-form.component.html',
   styleUrls: ['./project-form.component.scss'],
 })
@@ -364,6 +365,27 @@ export class ProjectFormComponent implements OnInit, OnDestroy {
     return space ? ColorEnumHelpers.getColorSpaceInfo(space) : null;
   }
 
+  /**
+   * Get the gamut value for the color setter component
+   * Maps the form's colorGamut enum to GamutProfile type
+   */
+  getGamutValue(): 'srgb' | 'display-p3' | 'rec2020' | 'unlimited' {
+    const gamut = this.projectForm.get('colorGamut')?.value as ColorGamut;
+
+    switch (gamut) {
+      case ColorGamut.SRGB:
+        return 'srgb';
+      case ColorGamut.DISPLAY_P3:
+        return 'display-p3';
+      case ColorGamut.REC2020:
+        return 'rec2020';
+      case ColorGamut.UNLIMITED:
+        return 'unlimited';
+      default:
+        return 'srgb'; // Default fallback
+    }
+  }
+
   private markAllFieldsAsTouched(): void {
     Object.keys(this.projectForm.controls).forEach((key) => {
       this.projectForm.get(key)?.markAsTouched();
@@ -419,5 +441,35 @@ export class ProjectFormComponent implements OnInit, OnDestroy {
     warnings: Record<string, string>;
   } {
     return ProjectValidators.validateProjectForm(this.projectForm);
+  }
+
+  /**
+   * Handle gamut changes from the color-setter component
+   * Maps GamutProfile values to ColorGamut enum values for the form
+   */
+  onColorSetterGamutChange(
+    gamutProfile: 'srgb' | 'display-p3' | 'rec2020' | 'unlimited'
+  ): void {
+    let formGamutValue: ColorGamut;
+
+    switch (gamutProfile) {
+      case 'srgb':
+        formGamutValue = ColorGamut.SRGB;
+        break;
+      case 'display-p3':
+        formGamutValue = ColorGamut.DISPLAY_P3;
+        break;
+      case 'rec2020':
+        formGamutValue = ColorGamut.REC2020;
+        break;
+      case 'unlimited':
+        formGamutValue = ColorGamut.UNLIMITED;
+        break;
+      default:
+        formGamutValue = ColorGamut.SRGB;
+    }
+
+    // Update the form control
+    this.projectForm.get('colorGamut')?.setValue(formGamutValue);
   }
 }

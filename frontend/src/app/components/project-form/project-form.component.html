@@ -134,6 +134,28 @@
       }
     </div>
 
+    <!-- Color Setter - Live Preview -->
+    <div class="form-field color-setter-field">
+      <label class="field-label">🎨 Color Picker - Live Preview</label>
+      <p class="field-hint">
+        Select colors in the
+        {{ selectedSpaceInfo()?.label || "color space" }} space ({{
+          selectedGamutInfo()?.label || "gamut"
+        }}
+        gamut)
+      </p>
+      <app-color-setter
+        [initialColor]="'#FF0000'"
+        [initialFormat]="'hex'"
+        [currentGamut]="getGamutValue()"
+        [showWCAG]="true"
+        [showColorName]="false"
+        [supportedGamuts]="['srgb', 'display-p3', 'rec2020', 'unlimited']"
+        (gamutChange)="onColorSetterGamutChange($event)"
+      >
+      </app-color-setter>
+    </div>
+
     <!-- DEMO: Color Count Field (for testing history) -->
     <div class="form-field demo-field">
       <label for="colorCount" class="field-label">

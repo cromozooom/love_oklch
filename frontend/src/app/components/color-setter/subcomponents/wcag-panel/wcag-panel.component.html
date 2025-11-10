@@ -1,0 +1,406 @@
+<div
+  *ngIf="analysis() as wcagAnalysis"
+  class="border-t border-gray-300 flex flex-col"
+  data-testid="wcag-panel"
+>
+  <div class="flex">
+    <div class="border-r border-r-gray-300 p-2">
+      <h3 class="text-xs font-bold">WCAG</h3>
+    </div>
+    <div class="grow border-b border-b-gray-300"></div>
+  </div>
+  <div class="flex flex-col">
+    <div
+      class="flex justify-between items-center p-2 text-sm"
+      data-testid="wcag-white-bg"
+    >
+      <div>On White</div>
+      <div class="flex gap-2 items-center">
+        <span>Contrast:</span>
+        <span data-testid="wcag-white-contrast-value">
+          {{ formatRatio(wcagAnalysis.whiteBackground.ratio) }}
+        </span>
+      </div>
+    </div>
+  </div>
+  <div class="flex flex-col pb-1">
+    <div class="bg-gray-50 h-1">
+      <div
+        class="bg-green-400 h-1"
+        [style.width.%]="
+          getContrastBarWidth(wcagAnalysis.whiteBackground.ratio)
+        "
+        [style.backgroundColor]="
+          getContrastBarColor(wcagAnalysis.whiteBackground.ratio)
+        "
+      ></div>
+    </div>
+    <div class="flex justify-between text-[.5rem] pt-2 px-2">
+      <span>1:1</span>
+      <span>4.5:1</span>
+      <span>7:1</span>
+      <span>21:1</span>
+    </div>
+  </div>
+  <!-- White Background -->
+  <div class="flex">
+    <div class="flex gap-2 px-2 pt-2">
+      <!-- Normal AA -->
+      <div data-testid="wcag-normal-aa">
+        <div
+          class="rounded border-3 flex items-center justify-center min-h-[2.2rem] min-w-14"
+          [class]="
+            getComplianceClass(wcagAnalysis.whiteBackground.normalTextAA)
+          "
+          [attr.data-status]="
+            getComplianceStatus(wcagAnalysis.whiteBackground.normalTextAA)
+          "
+        >
+          <div
+            aria-label="Normal AA"
+            [style.color]="color()"
+            data-testid="wcag-normal-aa-threshold"
+          >
+            aa
+            <!-- {{ getStatusLabel(wcagAnalysis.whiteBackground.normalTextAA) }} -->
+          </div>
+        </div>
+        <div
+          class="text-[.8rem] text-gray-300"
+          data-testid="wcag-threshold-value"
+        >
+          4.5:1
+        </div>
+      </div>
+      <!-- Normal AAA -->
+      <div data-testid="wcag-normal-aaa">
+        <div
+          class="rounded border-3 flex items-center justify-center min-h-[2.2rem] min-w-14"
+          [class]="
+            getComplianceClass(wcagAnalysis.whiteBackground.normalTextAAA)
+          "
+          [attr.data-status]="
+            getComplianceStatus(wcagAnalysis.whiteBackground.normalTextAAA)
+          "
+        >
+          <div
+            aria-label="Normal AAA"
+            [style.color]="color()"
+            data-testid="wcag-normal-aaa-threshold"
+          >
+            aaa
+            <!-- {{ getStatusLabel(wcagAnalysis.whiteBackground.normalTextAAA ) }} -->
+          </div>
+        </div>
+        <div
+          class="text-[.8rem] text-gray-300"
+          data-testid="wcag-threshold-value"
+        >
+          7:1
+        </div>
+      </div>
+      <!-- Large AA -->
+      <div data-testid="wcag-white-large-aa">
+        <div
+          class="rounded border-3 flex items-center justify-center min-h-[2.2rem] min-w-14"
+          [class]="getComplianceClass(wcagAnalysis.whiteBackground.largeTextAA)"
+          [attr.data-status]="
+            getComplianceStatus(wcagAnalysis.whiteBackground.largeTextAA)
+          "
+        >
+          <div
+            aria-label="Large AA"
+            [style.color]="color()"
+            data-testid="wcag-white-large-aa-threshold"
+          >
+            AA
+            <!-- {{ getStatusLabel(wcagAnalysis.whiteBackground.largeTextAA) }} -->
+          </div>
+        </div>
+        <div
+          class="text-[.8rem] text-gray-300"
+          data-testid="wcag-threshold-value"
+        >
+          3:1
+        </div>
+      </div>
+      <!-- Large AAA -->
+      <div data-testid="wcag-white-large-aaa">
+        <div
+          class="rounded border-3 flex items-center justify-center min-h-[2.2rem] min-w-14"
+          [class]="
+            getComplianceClass(wcagAnalysis.whiteBackground.largeTextAAA)
+          "
+          [attr.data-status]="
+            getComplianceStatus(wcagAnalysis.whiteBackground.largeTextAAA)
+          "
+        >
+          <div
+            aria-label="Large AAA"
+            [style.color]="color()"
+            data-testid="wcag-white-large-aaa-threshold"
+          >
+            AAA
+            <!-- {{ getStatusLabel(wcagAnalysis.whiteBackground.largeTextAAA  ) }} -->
+          </div>
+        </div>
+        <div
+          class="text-[.8rem] text-gray-300"
+          data-testid="wcag-threshold-value"
+        >
+          4.5:1
+        </div>
+      </div>
+      <!-- Graphical AA -->
+      <div data-testid="wcag-white-graphical-aa">
+        <div
+          class="rounded border-3 flex items-center justify-center min-h-[2.2rem] min-w-14"
+          [class]="getComplianceClass(wcagAnalysis.whiteBackground.graphicalAA)"
+          [attr.data-status]="
+            getComplianceStatus(wcagAnalysis.whiteBackground.graphicalAA)
+          "
+        >
+          <div
+            aria-label="Graphical AA"
+            [style.color]="color()"
+            data-testid="wcag-white-graphical-aa-threshold"
+          >
+            GAA
+            <!-- {{ getStatusLabel(wcagAnalysis.whiteBackground.graphicalAA) }} -->
+          </div>
+        </div>
+        <div
+          class="text-[.8rem] text-gray-300"
+          data-testid="wcag-threshold-value"
+        >
+          3:1
+        </div>
+      </div>
+      <!-- Graphical AAA -->
+      <div data-testid="wcag-white-graphical-aaa">
+        <div
+          class="rounded border-3 flex items-center justify-center min-h-[2.2rem] min-w-14"
+          [class]="
+            getComplianceClass(wcagAnalysis.whiteBackground.graphicalAAA)
+          "
+          [attr.data-status]="
+            getComplianceStatus(wcagAnalysis.whiteBackground.graphicalAAA)
+          "
+        >
+          <div
+            aria-label="Graphical AAA"
+            [style.color]="color()"
+            data-testid="wcag-white-graphical-aaa-threshold"
+          >
+            GAAA
+            <!-- {{ getStatusLabel(wcagAnalysis.whiteBackground.graphicalAAA) }} -->
+          </div>
+        </div>
+        <div
+          class="text-[.8rem] text-gray-300"
+          data-testid="wcag-threshold-value"
+        >
+          4.5:1
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="flex flex-col bg-gray-950 text-gray-50">
+    <div
+      class="flex justify-between items-center p-2 text-sm"
+      data-testid="wcag-black-bg"
+    >
+      <div>On Black</div>
+      <div class="flex gap-2 items-center">
+        <span>Contrast:</span>
+        <span data-testid="wcag-black-contrast-value">
+          {{ formatRatio(wcagAnalysis.blackBackground.ratio) }}
+        </span>
+      </div>
+    </div>
+  </div>
+  <div class="flex flex-col pb-1 bg-gray-950 text-gray-50">
+    <div class="bg-gray-800 h-1">
+      <div
+        class="bg-green-400 h-1"
+        [style.width.%]="
+          getContrastBarWidth(wcagAnalysis.blackBackground.ratio)
+        "
+        [style.backgroundColor]="
+          getContrastBarColor(wcagAnalysis.blackBackground.ratio)
+        "
+      ></div>
+    </div>
+    <div class="flex justify-between text-[.5rem] pt-2 px-2">
+      <span>1:1</span>
+      <span>4.5:1</span>
+      <span>7:1</span>
+      <span>21:1</span>
+    </div>
+  </div>
+  <!-- Black Background -->
+  <div class="flex bg-gray-950 text-gray-50 pb-2">
+    <div class="flex gap-2 px-2 pt-2">
+      <!-- Normal AA -->
+      <div data-testid="wcag-black-normal-aa">
+        <div
+          class="rounded border-3 flex items-center justify-center min-h-[2.2rem] min-w-14"
+          [class]="
+            getComplianceClass(wcagAnalysis.blackBackground.normalTextAA)
+          "
+          [attr.data-status]="
+            getComplianceStatus(wcagAnalysis.blackBackground.normalTextAA)
+          "
+        >
+          <div
+            aria-label="Normal AA"
+            [style.color]="color()"
+            data-testid="wcag-normal-aa-threshold"
+          >
+            aa
+            <!-- {{ getStatusLabel(wcagAnalysis.blackBackground.normalTextAA) }} -->
+          </div>
+        </div>
+        <div
+          class="text-[.8rem] text-gray-300"
+          data-testid="wcag-threshold-value"
+        >
+          4.5:1
+        </div>
+      </div>
+
+      <!-- Normal AAA -->
+      <div data-testid="wcag-black-normal-aaa">
+        <div
+          class="rounded border-3 flex items-center justify-center min-h-[2.2rem] min-w-14"
+          [class]="
+            getComplianceClass(wcagAnalysis.blackBackground.normalTextAAA)
+          "
+          [attr.data-status]="
+            getComplianceStatus(wcagAnalysis.blackBackground.normalTextAAA)
+          "
+        >
+          <div
+            aria-label="Normal AAA"
+            [style.color]="color()"
+            data-testid="wcag-black-normal-aaa-threshold"
+          >
+            aaa
+            <!-- {{ getStatusLabel(wcagAnalysis.blackBackground.normalTextAAA ) }} -->
+          </div>
+        </div>
+        <div
+          class="text-[.8rem] text-gray-300"
+          data-testid="wcag-threshold-value"
+        >
+          7:1
+        </div>
+      </div>
+      <!-- Large AA -->
+      <div data-testid="wcag-black-large-aa">
+        <div
+          class="rounded border-3 flex items-center justify-center min-h-[2.2rem] min-w-14"
+          [class]="getComplianceClass(wcagAnalysis.blackBackground.largeTextAA)"
+          [attr.data-status]="
+            getComplianceStatus(wcagAnalysis.blackBackground.largeTextAA)
+          "
+        >
+          <div
+            aria-label="Large AA"
+            [style.color]="color()"
+            data-testid="wcag-black-large-aa-threshold"
+          >
+            AA
+            <!-- {{ getStatusLabel(wcagAnalysis.blackBackground.largeTextAA) }} -->
+          </div>
+        </div>
+        <div
+          class="text-[.8rem] text-gray-300"
+          data-testid="wcag-threshold-value"
+        >
+          3:1
+        </div>
+      </div>
+      <!-- Large AAA -->
+      <div data-testid="wcag-black-large-aaa">
+        <div
+          class="rounded border-3 flex items-center justify-center min-h-[2.2rem] min-w-14"
+          [class]="
+            getComplianceClass(wcagAnalysis.blackBackground.largeTextAAA)
+          "
+          [attr.data-status]="
+            getComplianceStatus(wcagAnalysis.blackBackground.largeTextAAA)
+          "
+        >
+          <div
+            aria-label="Large AAA"
+            [style.color]="color()"
+            data-testid="wcag-black-large-aaa-threshold"
+          >
+            AAA
+            <!-- {{ getStatusLabel(wcagAnalysis.blackBackground.largeTextAAA  ) }} -->
+          </div>
+        </div>
+        <div
+          class="text-[.8rem] text-gray-300"
+          data-testid="wcag-threshold-value"
+        >
+          4.5:1
+        </div>
+      </div>
+      <!-- Graphical AA -->
+      <div data-testid="wcag-black-graphical-aa">
+        <div
+          class="rounded border-3 flex items-center justify-center min-h-[2.2rem] min-w-14"
+          [class]="getComplianceClass(wcagAnalysis.blackBackground.graphicalAA)"
+          [attr.data-status]="
+            getComplianceStatus(wcagAnalysis.blackBackground.graphicalAA)
+          "
+        >
+          <div
+            aria-label="Graphical AA"
+            [style.color]="color()"
+            data-testid="wcag-black-graphical-aa-threshold"
+          >
+            GAA
+            <!-- {{ getStatusLabel(wcagAnalysis.blackBackground.graphicalAA) }} -->
+          </div>
+        </div>
+        <div
+          class="text-[.8rem] text-gray-300"
+          data-testid="wcag-threshold-value"
+        >
+          3:1
+        </div>
+      </div>
+      <!-- Graphical AAA -->
+      <div data-testid="wcag-black-graphical-aaa">
+        <div
+          class="rounded border-3 flex items-center justify-center min-h-[2.2rem] min-w-14"
+          [class]="
+            getComplianceClass(wcagAnalysis.blackBackground.graphicalAAA)
+          "
+          [attr.data-status]="
+            getComplianceStatus(wcagAnalysis.blackBackground.graphicalAAA)
+          "
+        >
+          <div
+            aria-label="Graphical AAA"
+            [style.color]="color()"
+            data-testid="wcag-black-graphical-aaa-threshold"
+          >
+            GAAA
+            <!-- {{ getStatusLabel(wcagAnalysis.blackBackground.graphicalAAA) }} -->
+          </div>
+        </div>
+        <div
+          class="text-[.8rem] text-gray-300"
+          data-testid="wcag-threshold-value"
+        >
+          4.5:1
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

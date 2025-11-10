@@ -1,0 +1,9 @@
+{
+  "scripts": {
+    "test:hex-picker": "playwright test e2e/specs/color-setter/hex-color-picker.spec.ts",
+    "test:hex-picker-edges": "playwright test e2e/specs/color-setter/hex-color-picker-edge-cases.spec.ts",
+    "test:hex-picker-all": "playwright test e2e/specs/color-setter/hex-color-picker*.spec.ts",
+    "test:hex-picker-headed": "playwright test e2e/specs/color-setter/hex-color-picker.spec.ts --headed",
+    "test:hex-picker-debug": "playwright test e2e/specs/color-setter/hex-color-picker.spec.ts --debug"
+  }
+}

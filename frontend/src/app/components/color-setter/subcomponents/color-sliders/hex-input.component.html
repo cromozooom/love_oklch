@@ -1,0 +1,47 @@
+<div class="hex-color-picker flex flex-col w-full" data-testid="hex-input">
+  <div class="w-full pb-4">
+    <app-gamut-aware-slider
+      [value]="hue"
+      [min]="0"
+      [max]="360"
+      [step]="1"
+      [colorGenerator]="hueColorGenerator"
+      [currentGamut]="'srgb'"
+      label="Hue"
+      testId="hex-hue-slider"
+      (valueInput)="onHueInput($event)"
+      (valueCommit)="onHueChange($event)"
+      (valueChange)="hue = $event"
+    ></app-gamut-aware-slider>
+  </div>
+
+  <div class="flex">
+    <div class="p-4">
+      <div class="color-canvas-container relative w-full">
+        <canvas
+          #colorCanvas
+          class="xcolor-canvas cursor-crosshair border border-gray-300 rounded"
+          width="256"
+          height="256"
+          (click)="onCanvasClick($event)"
+          data-testid="color-canvas"
+        ></canvas>
+
+        <!-- Color indicator dot with mouse drag (PrimeNG pattern) -->
+        <div
+          #colorIndicator
+          class="color-indicator absolute w-6 h-6 select-none"
+          [style.left.px]="indicatorX"
+          [style.top.px]="indicatorY"
+          (mousedown)="onColorMousedown($event)"
+          data-testid="color-indicator"
+        >
+          <!-- <div class="w-full h-full relative">
+            <div
+            ></div>
+          </div> -->
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

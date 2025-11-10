@@ -1,0 +1,55 @@
+<div class="lch-sliders w-full flex flex-col space-y-4">
+  <!-- Lightness Slider -->
+  <app-gamut-aware-slider
+    label="Lightness"
+    [value]="lSignal()"
+    [min]="0"
+    [max]="100"
+    [step]="0.1"
+    [colorGenerator]="lColorGenerator()"
+    [validPositions]="validLPositions"
+    [formatValue]="formatL"
+    [currentGamut]="gamut()"
+    [debugGradient]="showDebugGradients ? lGradient : ''"
+    testId="lch-l-slider"
+    (valueInput)="onLInput($event)"
+    (valueCommit)="onLChange()"
+    (valueChange)="lSignal.set($event)"
+  ></app-gamut-aware-slider>
+
+  <!-- Chroma Slider -->
+  <app-gamut-aware-slider
+    label="Chroma"
+    [value]="cSignal()"
+    [min]="0"
+    [max]="150"
+    [step]="0.1"
+    [colorGenerator]="cColorGenerator()"
+    [validPositions]="validCPositions"
+    [formatValue]="formatC"
+    [currentGamut]="gamut()"
+    [debugGradient]="showDebugGradients ? cGradient : ''"
+    testId="lch-c-slider"
+    (valueInput)="onCInput($event)"
+    (valueCommit)="onCChange()"
+    (valueChange)="cSignal.set($event)"
+  ></app-gamut-aware-slider>
+
+  <!-- Hue Slider -->
+  <app-gamut-aware-slider
+    label="Hue"
+    [value]="hSignal()"
+    [min]="0"
+    [max]="360"
+    [step]="0.1"
+    [colorGenerator]="hColorGenerator()"
+    [validPositions]="validHPositions"
+    [formatValue]="formatH"
+    [currentGamut]="gamut()"
+    [debugGradient]="showDebugGradients ? hGradient : ''"
+    testId="lch-h-slider"
+    (valueInput)="onHInput($event)"
+    (valueCommit)="onHChange()"
+    (valueChange)="hSignal.set($event)"
+  ></app-gamut-aware-slider>
+</div>

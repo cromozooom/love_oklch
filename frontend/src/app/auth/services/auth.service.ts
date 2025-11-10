@@ -65,21 +65,21 @@ export class AuthService {
    * Initialize authentication state from stored tokens
    */
   private initializeAuthState(): void {
-    console.log('🔄 AuthService: Initializing auth state...');
+    // console.log('🔄 AuthService: Initializing auth state...');
 
     const token = this.getStoredToken();
     const user = this.getStoredUser();
 
-    console.log('🔍 Token exists:', !!token);
-    console.log('🔍 User exists:', !!user);
-    console.log('🔍 User data:', user);
+    // console.log('🔍 Token exists:', !!token);
+    // console.log('🔍 User exists:', !!user);
+    // console.log('🔍 User data:', user);
 
     if (token && user) {
-      console.log('🔍 Both token and user found, checking token validity...');
+      // console.log('🔍 Both token and user found, checking token validity...');
 
       // Check if token looks valid before making HTTP request
       if (this.isTokenLikelyValid(token)) {
-        console.log('✅ Token appears valid, setting authenticated state');
+        // console.log('✅ Token appears valid, setting authenticated state');
 
         // Set auth state first
         this.setAuthState({
@@ -91,10 +91,10 @@ export class AuthService {
         // Verify token in the background only if it looks potentially valid
         this.verifyTokenSilently().subscribe({
           next: (isValid) => {
-            console.log('🔍 Token verification result:', isValid);
+            // console.log('🔍 Token verification result:', isValid);
             if (!isValid) {
               // Token is invalid, clear auth state
-              console.log('❌ Token invalid, clearing auth state');
+              // console.log('❌ Token invalid, clearing auth state');
               this.setAuthState({
                 isAuthenticated: false,
                 user: null,
@@ -102,12 +102,12 @@ export class AuthService {
               });
               this.clearStoredData();
             } else {
-              console.log('✅ Token verified successfully');
+              // console.log('✅ Token verified successfully');
             }
           },
           error: (err) => {
             // Token verification failed, clear auth state silently
-            console.log('❌ Token verification failed:', err);
+            // console.log('❌ Token verification failed:', err);
             this.setAuthState({
               isAuthenticated: false,
               user: null,
@@ -118,9 +118,9 @@ export class AuthService {
         });
       } else {
         // Token format is clearly invalid, clear immediately without HTTP call
-        console.log(
-          '❌ Invalid token format detected, clearing stored authentication'
-        );
+        // console.log(
+        //   '❌ Invalid token format detected, clearing stored authentication'
+        // );
         this.clearStoredData();
         this.setAuthState({
           isAuthenticated: false,
@@ -130,9 +130,9 @@ export class AuthService {
       }
     } else {
       // No stored credentials, ensure clean state
-      console.log(
-        '🔄 AuthService: No stored credentials found, setting unauthenticated state'
-      );
+      // console.log(
+      //   '🔄 AuthService: No stored credentials found, setting unauthenticated state'
+      // );
       this.setAuthState({
         isAuthenticated: false,
         user: null,

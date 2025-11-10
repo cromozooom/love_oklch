@@ -33,14 +33,22 @@ export class ColorService {
   }
 
   /**
-   * Convert OKLCH to hex
+   * Convert OKLCH to hex (always full 6-digit format, never shortened)
    */
   oklchToHex(oklch: OKLCHColor): string {
     const color = new Color('oklch', [oklch.l, oklch.c, oklch.h]);
     if (oklch.alpha !== undefined) {
       color.alpha = oklch.alpha;
     }
-    return color.toString({ format: 'hex' });
+    // Convert to RGB and manually create hex string to avoid shortening
+    const rgb = color.to('srgb');
+    const [r, g, b] = rgb.coords.map((c) =>
+      Math.round(Math.max(0, Math.min(255, c * 255)))
+    );
+    const rHex = r.toString(16).padStart(2, '0');
+    const gHex = g.toString(16).padStart(2, '0');
+    const bHex = b.toString(16).padStart(2, '0');
+    return `#${rHex}${gHex}${bHex}`.toUpperCase();
   }
 
   /**

@@ -1,0 +1,188 @@
+<div
+  class="new w-auto flex flex-col border border-gray-300 m-2 rounded"
+  data-testid="color-setter-component"
+>
+  <div>
+    <div class="flex flex-col justify-between border-b border-b-gray-300">
+      <div class="flex items-center gap-2 py-2">
+        <div class="flex items-center pl-2">
+          <div
+            class="w-7 aspect-square rounded"
+            [style.backgroundColor]="colorPreview()"
+            data-testid="color-preview"
+          ></div>
+        </div>
+        <div>
+          <!-- Display value - shown when not in editing mode -->
+          @if (!isEditingColorValue()) {
+          <small
+            class="flex w-48 px-3 py-2 text-sm border border-transparent rounded-md bg-transparent focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            data-testid="display-value"
+            (click)="startEditingColorValue()"
+            title="Click to edit color value"
+          >
+            {{ currentFormatValue() }}
+          </small>
+          }
+
+          <!-- Color input field - shown when in editing mode -->
+          @if (isEditingColorValue()) {
+          <div>
+            <input
+              type="text"
+              class="flex w-48 px-3 py-2 text-sm border border-gray-300 rounded-md bg-transparent focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              [class.border-red-500]="colorInputError()"
+              [ngModel]="colorInputValue()"
+              (ngModelChange)="colorInputValue.set($event)"
+              (blur)="onColorInputBlur()"
+              (keyup.enter)="onColorInputChange()"
+              (keyup.escape)="cancelEditingColorValue()"
+              placeholder="try paste any color"
+              data-testid="color-input"
+              #colorInput
+              (focus)="colorInput.select()"
+            />
+          </div>
+          }
+          <!-- @if(showColorName() && colorName()) {
+          <div class="color-name" data-testid="color-name">
+            <span class="color-name-label">{{ colorName()!.name }}</span>
+            <small class="color-name-confidence">
+              ({{ (colorName()!.confidence * 100).toFixed(0) }}% match)
+            </small>
+          </div>
+          } -->
+        </div>
+        <!-- Gamut Selector (T066) -->
+        <div class="gamut-section mr-2">
+          <app-gamut-selector
+            [selectedGamut]="gamut()"
+            [supportedGamuts]="supportedGamuts()"
+            (gamutChange)="onGamutChange($event)"
+          ></app-gamut-selector>
+        </div>
+      </div>
+      @if (colorInputError()) {
+      <div
+        class="p-2 border-t border-t-gray-300 text-xs text-red-600 dark:text-red-400"
+        data-testid="color-input-error"
+      >
+        {{ colorInputError() }}
+      </div>
+      }
+    </div>
+    <div class="flex">
+      <section class="flex flex-col">
+        <button
+          *ngFor="let fmt of availableFormats"
+          [attr.data-active-format]="format() === fmt ? 'true' : null"
+          [ngClass]="
+            format() === fmt
+              ? ' xbg-indigo-50 text-indigo-900 border-r border-r-white'
+              : 'hover:bg-indigo-100 hover:text-indigo-900 text-indigo-800 border-r border-r-gray-300'
+          "
+          (click)="switchFormat(fmt)"
+          [attr.data-testid]="'format-selector-' + fmt"
+          class="p-2 min-w-28 border-b border-b-gray-300"
+        >
+          {{ getFormatLabel(fmt) }}
+        </button>
+        <div class="border-r border-r-gray-300 grow"></div>
+      </section>
+      <main class="grow flex flex-col w-full">
+        <div class="editor grow flex w-full">
+          <!-- <div class="presets flex flex-col gap-2 p-2 border-r-indigo-500">
+          <div
+            class="w-52 aspect-square rounded"
+            [style.backgroundColor]="colorPreview()"
+          ></div>
+          <div
+            class="w-52 min-h-4 rounded"
+            [style.backgroundColor]="colorPreview()"
+          ></div>
+        </div> -->
+          <!-- Color Input Controls -->
+          <div class="color-controls-section w-full flex py-3">
+            <!-- HEX Input -->
+            <app-hex-input
+              *ngIf="format() === 'hex'"
+              class="flex grow w-full"
+              [hexValue]="currentFormatValue()"
+              (hexChange)="onHexColorChange($event)"
+            ></app-hex-input>
+
+            <!-- RGB Sliders -->
+            <app-rgb-sliders
+              *ngIf="format() === 'rgb'"
+              class="flex grow w-full"
+              [color]="currentFormatValue()"
+              [gamut]="gamutDisplayName()"
+              (colorChange)="onRgbColorChange($event)"
+            ></app-rgb-sliders>
+
+            <!-- HSL Sliders -->
+            <app-hsl-sliders
+              *ngIf="format() === 'hsl'"
+              class="flex grow w-full"
+              [color]="currentFormatValue()"
+              [gamut]="gamutDisplayName()"
+              (colorChange)="onHslColorChange($event)"
+            ></app-hsl-sliders>
+
+            <!-- LCH Sliders -->
+            <app-lch-sliders
+              *ngIf="format() === 'lch'"
+              class="flex grow w-full"
+              [color]="currentFormatValue()"
+              [gamut]="gamutDisplayName()"
+              (colorChange)="onLchColorChange($event)"
+            ></app-lch-sliders>
+
+            <!-- OKLCH Sliders -->
+            <app-oklch-sliders
+              *ngIf="format() === 'oklch'"
+              class="flex grow w-full"
+              [color]="currentFormatValue()"
+              [gamut]="gamutDisplayName()"
+              (colorChange)="onOklchColorChange($event)"
+            ></app-oklch-sliders>
+
+            <!-- LAB Sliders -->
+            <app-lab-sliders
+              *ngIf="format() === 'lab'"
+              class="flex grow w-full"
+              [color]="currentFormatValue()"
+              [gamut]="gamutDisplayName()"
+              (colorChange)="onLabColorChange($event)"
+            ></app-lab-sliders>
+            <!-- Gamut Warning Display (T068) -->
+            <div
+              *ngIf="!gamutStatus().inGamut"
+              class="gamut-warning"
+              data-testid="gamut-warning"
+            >
+              <div class="warning-icon">⚠️</div>
+              <div class="warning-content">
+                <strong>Out of Gamut</strong>
+                <p>{{ gamutStatus().warning }}</p>
+                <small *ngIf="gamutStatus().distance">
+                  Distance from gamut boundary:
+                  {{ gamutStatus().distance?.toFixed(2) }}
+                </small>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="acesibility">
+          <!-- WCAG Accessibility Panel -->
+          <div *ngIf="showWCAG()" class="wcag-section">
+            <app-wcag-panel
+              [analysis]="wcagAnalysis()"
+              [color]="colorPreview()"
+            ></app-wcag-panel>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+</div>
