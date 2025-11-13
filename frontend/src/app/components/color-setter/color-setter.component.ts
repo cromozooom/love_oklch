@@ -156,6 +156,7 @@ export class ColorSetterComponent implements OnInit, AfterViewInit {
    * Show WCAG accessibility panel (User Story 2)
    * Default: false
    */
+  hideAccessibilityDetails = signal<boolean>(true);
   showWCAG = input<boolean>(false);
 
   /**
@@ -404,6 +405,12 @@ export class ColorSetterComponent implements OnInit, AfterViewInit {
   });
 
   // ============================================================================
+  // CSS CUSTOM PROPERTIES
+  // ============================================================================
+
+  // CSS custom property will be set via effect in constructor
+
+  // ============================================================================
   // DEBOUNCED CHANGE SUBJECT
   // ============================================================================
 
@@ -501,6 +508,13 @@ export class ColorSetterComponent implements OnInit, AfterViewInit {
   // ============================================================================
   // EVENT HANDLERS
   // ============================================================================
+
+  /**
+   * Toggle the accessibility details visibility
+   */
+  toggleAccessibilityDetails(): void {
+    this.hideAccessibilityDetails.set(!this.hideAccessibilityDetails());
+  }
 
   onHexChange(): void {
     try {

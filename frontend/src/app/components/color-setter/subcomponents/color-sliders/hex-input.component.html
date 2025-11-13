@@ -20,7 +20,7 @@
       <div class="color-canvas-container relative w-full">
         <canvas
           #colorCanvas
-          class="xcolor-canvas cursor-crosshair border border-gray-300 rounded"
+          class="xcolor-canvas cursor-crosshair border border-gray-300 dark:border-gray-500"
           width="256"
           height="256"
           (click)="onCanvasClick($event)"
@@ -30,7 +30,7 @@
         <!-- Color indicator dot with mouse drag (PrimeNG pattern) -->
         <div
           #colorIndicator
-          class="color-indicator absolute w-6 h-6 select-none"
+          class="color-indicator absolute select-none"
           [style.left.px]="indicatorX"
           [style.top.px]="indicatorY"
           (mousedown)="onColorMousedown($event)"

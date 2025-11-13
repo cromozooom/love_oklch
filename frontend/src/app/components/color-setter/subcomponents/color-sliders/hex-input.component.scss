@@ -1,3 +1,7 @@
+:host {
+  --thumbSize: 10px;
+  --borderSize: 1px;
+}
 // Ensure the canvas container properly contains the indicator
 .color-canvas-container {
   position: relative;
@@ -12,27 +16,29 @@
 
 // Color indicator (similar to gamut-aware-slider thumb)
 .color-indicator {
+  width: var(--thumbSize);
+  height: var(--thumbSize);
   display: block;
   box-sizing: border-box;
-  background: linear-gradient(#8f8f8f, #8f8f8f),
+  background: linear-gradient(var(--color), var(--color)),
     repeating-conic-gradient(from 45deg, #f0f0f0 0% 25%, white 0% 50%) 50% / 3px
       3px;
-  border: 3px solid white;
-  border-radius: 1px;
+  // border: 3px solid white;
+  outline: 1px solid black;
+  outline-offset: 2px;
   // Apply translate first, then rotate - this ensures centering works correctly
   transform: translate(-50%, -50%) rotate(45deg);
-  transition: transform 0.1s ease;
   z-index: 10; // Ensure it's above the canvas
   pointer-events: auto; // Enable interaction for dragging
   cursor: grab; // Show grab cursor
 
   &:hover {
-    transform: translate(-50%, -50%) rotate(45deg) scale(1.1);
+    transform: translate(-50%, -50%) rotate(45deg);
   }
 
   &:active {
     cursor: grabbing;
-    transform: translate(-50%, -50%) rotate(45deg) scale(0.95);
+    transform: translate(-50%, -50%) rotate(45deg);
   }
 
   // Disable transition while dragging for smooth movement

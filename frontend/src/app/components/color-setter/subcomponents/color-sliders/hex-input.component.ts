@@ -512,7 +512,10 @@ export class HexInputComponent implements AfterViewInit, OnDestroy {
    * Convert HSB to HEX (following PrimeNG's approach)
    */
   private hsbToHex(h: number, s: number, b: number): string {
-    const hNorm = h;
+    // Normalize hue to 0-359 range (360° should be treated as 0°)
+    let hNorm = h % 360;
+    if (hNorm < 0) hNorm += 360;
+
     const sNorm = (s * 255) / 100;
     const bNorm = (b * 255) / 100;
 
@@ -524,8 +527,6 @@ export class HexInputComponent implements AfterViewInit, OnDestroy {
       const t1 = bNorm;
       const t2 = ((255 - sNorm) * bNorm) / 255;
       const t3 = ((t1 - t2) * (hNorm % 60)) / 60;
-
-      if (hNorm === 360) h = 0;
 
       if (hNorm < 60) {
         r = t1;
@@ -547,14 +548,11 @@ export class HexInputComponent implements AfterViewInit, OnDestroy {
         b_rgb = t1;
         g = t2;
         r = t2 + t3;
-      } else if (hNorm < 360) {
+      } else {
+        // hNorm < 360 (covers 300-359 range)
         r = t1;
         g = t2;
         b_rgb = t1 - t3;
-      } else {
-        r = 0;
-        g = 0;
-        b_rgb = 0;
       }
     }
 

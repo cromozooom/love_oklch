@@ -17,6 +17,8 @@ import {
   SpxLayoutContainerComponent,
 } from '@solopx/spx-ui-kit';
 import { AuthService } from '../../auth/services/auth.service';
+import { ThemeService } from '../../services/theme.service';
+import { ThemeSwitcherComponent } from '../theme-switcher/theme-switcher.component';
 
 @Component({
   selector: 'app-dashboard',
@@ -29,6 +31,7 @@ import { AuthService } from '../../auth/services/auth.service';
     RouterModule,
     SpxLayoutContainerComponent,
     BreadcrumbComponent,
+    ThemeSwitcherComponent,
   ],
 })
 export class DashboardComponent implements OnInit {
@@ -36,6 +39,7 @@ export class DashboardComponent implements OnInit {
   private layoutStore = inject(LayoutStateStore);
   private router = inject(Router);
   private authService = inject(AuthService);
+  private themeService = inject(ThemeService);
 
   // Access layout state
   readonly layoutState = this.layoutStore.state;
@@ -59,6 +63,11 @@ export class DashboardComponent implements OnInit {
 
     // Initial breadcrumb update
     this.updateBreadcrumbs(this.router.url);
+
+    // Sync authentication state with theme service
+    this.authService.authState$.subscribe((authState: any) => {
+      this.themeService.setAuthenticated(authState.isAuthenticated);
+    });
   }
 
   private updateBreadcrumbs(url: string): void {

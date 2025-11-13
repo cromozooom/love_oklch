@@ -1,0 +1,13 @@
+/* Test if Tailwind dark mode is working correctly */
+
+/* This should be generated when darkMode: "class" is set */
+.dark .test-dark-mode {
+  background-color: red !important;
+}
+
+/* This should NOT be generated with media queries */
+@media (prefers-color-scheme: dark) {
+  .test-media-dark {
+    background-color: blue !important;
+  }
+}
