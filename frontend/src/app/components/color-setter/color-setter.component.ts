@@ -156,6 +156,7 @@ export class ColorSetterComponent implements OnInit, AfterViewInit {
    * Show WCAG accessibility panel (User Story 2)
    * Default: false
    */
+  hideAccessibilityDetails = signal<boolean>(false);
   showWCAG = input<boolean>(false);
 
   /**
@@ -357,6 +358,29 @@ export class ColorSetterComponent implements OnInit, AfterViewInit {
     }
   });
 
+  /**
+   * Computed signal that determines the most readable text color (white or black)
+   * for the current background color using WCAG contrast analysis
+   */
+  inkColor = computed(() => {
+    const currentColor = this.colorPreview();
+    try {
+      // Use WCAG service to analyze contrast with white and black
+      const wcagAnalysis = this.wcagService.analyze(currentColor);
+
+      // Choose white or black based on which provides better contrast for normal text AA
+      // If both pass or both fail, choose the one with higher contrast ratio
+      const whiteContrast = wcagAnalysis.whiteBackground.ratio;
+      const blackContrast = wcagAnalysis.blackBackground.ratio;
+
+      // Return white if it has better contrast, otherwise black
+      return whiteContrast > blackContrast ? '#FFFFFF' : '#000000';
+    } catch {
+      // Fallback to black on error
+      return '#000000';
+    }
+  });
+
   currentFormatValue = computed(() => {
     const fmt = this.format();
     try {
@@ -402,6 +426,12 @@ export class ColorSetterComponent implements OnInit, AfterViewInit {
       return '#FF0000';
     }
   });
+
+  // ============================================================================
+  // CSS CUSTOM PROPERTIES
+  // ============================================================================
+
+  // CSS custom property will be set via effect in constructor
 
   // ============================================================================
   // DEBOUNCED CHANGE SUBJECT
@@ -501,6 +531,13 @@ export class ColorSetterComponent implements OnInit, AfterViewInit {
   // ============================================================================
   // EVENT HANDLERS
   // ============================================================================
+
+  /**
+   * Toggle the accessibility details visibility
+   */
+  toggleAccessibilityDetails(): void {
+    this.hideAccessibilityDetails.set(!this.hideAccessibilityDetails());
+  }
 
   onHexChange(): void {
     try {

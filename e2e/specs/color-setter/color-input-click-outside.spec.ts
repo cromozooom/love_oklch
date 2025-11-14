@@ -22,7 +22,7 @@ test.describe('Color Input - Click Outside to Cancel', () => {
     await setColorViaInput(page, '#FF0000');
   });
 
-  test('should cancel editing mode when clicking outside with empty input', async ({
+  test('CICO01 -  should cancel editing mode when clicking outside with empty input', async ({
     page,
   }) => {
     logTestStep('Entering edit mode by clicking display value');
@@ -51,7 +51,7 @@ test.describe('Color Input - Click Outside to Cancel', () => {
     ).not.toBeVisible();
   });
 
-  test('should cancel editing mode when clicking outside with invalid input', async ({
+  test('CICO02 - should cancel editing mode when clicking outside with invalid input', async ({
     page,
   }) => {
     logTestStep('Entering edit mode');
@@ -82,7 +82,7 @@ test.describe('Color Input - Click Outside to Cancel', () => {
     ).not.toBeVisible();
   });
 
-  test('should parse and update color when clicking outside with valid input', async ({
+  test('CICO03 - should parse and update color when clicking outside with valid input', async ({
     page,
   }) => {
     logTestStep('Storing initial color value');
@@ -126,7 +126,7 @@ test.describe('Color Input - Click Outside to Cancel', () => {
     await expect(activeFormatButton).toContainText('HEX');
   });
 
-  test('should work with Escape key as alternative to clicking outside', async ({
+  test('CICO04 - should work with Escape key as alternative to clicking outside', async ({
     page,
   }) => {
     logTestStep('Entering edit mode');
@@ -157,7 +157,7 @@ test.describe('Color Input - Click Outside to Cancel', () => {
     ).not.toBeVisible();
   });
 
-  test('should maintain Enter key functionality for immediate parsing', async ({
+  test('CICO05 - should maintain Enter key functionality for immediate parsing', async ({
     page,
   }) => {
     logTestStep('Entering edit mode');
@@ -187,7 +187,7 @@ test.describe('Color Input - Click Outside to Cancel', () => {
     await expect(colorInput).toHaveClass(/border-red-500/);
   });
 
-  test('should clear input and errors when starting fresh edit session', async ({
+  test('CICO06 - should clear input and errors when starting fresh edit session', async ({
     page,
   }) => {
     logTestStep('Entering edit mode');

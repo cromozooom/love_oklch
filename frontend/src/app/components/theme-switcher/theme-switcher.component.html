@@ -1,0 +1,56 @@
+<div *ngIf="isVisible()" class="theme-switcher flex gap-2 items-center">
+  <span class="text-sm font-medium text-gray-700 dark:text-gray-300"
+    >Theme:</span
+  >
+
+  <button
+    (click)="setTheme('light')"
+    [class.bg-blue-500]="currentMode() === 'light'"
+    [class.text-white]="currentMode() === 'light'"
+    [class.bg-gray-200]="currentMode() !== 'light'"
+    [class.text-gray-700]="currentMode() !== 'light'"
+    [class.dark:bg-gray-700]="currentMode() !== 'light'"
+    [class.dark:text-gray-300]="currentMode() !== 'light'"
+    class="px-3 py-1 rounded-md text-sm font-medium transition-colors hover:bg-blue-400 hover:text-white"
+    title="Switch to light theme"
+  >
+    ☀️ Light
+  </button>
+
+  <button
+    (click)="setTheme('dark')"
+    [class.bg-blue-500]="currentMode() === 'dark'"
+    [class.text-white]="currentMode() === 'dark'"
+    [class.bg-gray-200]="currentMode() !== 'dark'"
+    [class.text-gray-700]="currentMode() !== 'dark'"
+    [class.dark:bg-gray-700]="currentMode() !== 'dark'"
+    [class.dark:text-gray-300]="currentMode() !== 'dark'"
+    class="px-3 py-1 rounded-md text-sm font-medium transition-colors hover:bg-blue-400 hover:text-white"
+    title="Switch to dark theme"
+  >
+    🌙 Dark
+  </button>
+
+  <button
+    (click)="setTheme('system')"
+    [disabled]="!isSystemSupported()"
+    [class.bg-blue-500]="currentMode() === 'system' && isSystemSupported()"
+    [class.text-white]="currentMode() === 'system' && isSystemSupported()"
+    [class.bg-gray-200]="currentMode() !== 'system' && isSystemSupported()"
+    [class.text-gray-700]="currentMode() !== 'system' && isSystemSupported()"
+    [class.dark:bg-gray-700]="currentMode() !== 'system' && isSystemSupported()"
+    [class.dark:text-gray-300]="
+      currentMode() !== 'system' && isSystemSupported()
+    "
+    [class.opacity-50]="!isSystemSupported()"
+    [class.cursor-not-allowed]="!isSystemSupported()"
+    class="px-3 py-1 rounded-md text-sm font-medium transition-colors hover:bg-blue-400 hover:text-white disabled:hover:bg-gray-200 disabled:hover:text-gray-700"
+    [title]="
+      isSystemSupported()
+        ? 'Follow system theme preference'
+        : 'System theme detection not supported in this browser'
+    "
+  >
+    🖥️ System
+  </button>
+</div>

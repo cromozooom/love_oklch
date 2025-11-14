@@ -4,8 +4,10 @@
   <div class="gamut-options flex gap-2 items-center">
     <div
       *ngFor="let gamutDef of availableGamuts()"
-      class="flex items-center gap-2 border border-gray-300 rounded px-2 py-1 cursor-pointer"
-      [class.selected]="isSelected(gamutDef.profile)"
+      class="flex items-center gap-2 border border-gray-300 dark:border-gray-500 rounded px-2 py-1 cursor-pointer"
+      [class]="
+        isSelected(gamutDef.profile) ? 'selected bg-blue-500 text-white' : ''
+      "
       (click)="onGamutChange(gamutDef.profile)"
       [attr.data-testid]="'gamut-option-' + gamutDef.profile"
     >
@@ -16,7 +18,7 @@
         [value]="gamutDef.profile"
         [checked]="isSelected(gamutDef.profile)"
         (change)="onGamutChange(gamutDef.profile)"
-        class=""
+        class="hidden"
       />
       <label
         [for]="'gamut-' + gamutDef.profile"

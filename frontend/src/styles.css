@@ -2,6 +2,9 @@
 @import "tailwindcss";
 @plugin "@tailwindcss/forms";
 
+/* Configure dark mode for class-based toggling in Tailwind CSS v4 */
+@custom-variant dark (&:where(.dark, .dark *));
+
 html,
 body {
   width: 100%;

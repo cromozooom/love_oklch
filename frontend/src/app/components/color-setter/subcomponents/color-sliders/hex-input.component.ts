@@ -73,7 +73,7 @@ export class HexInputComponent implements AfterViewInit, OnDestroy {
       if (!this.isInternalUpdate && !this.colorDragging) {
         const currentHex = this.hexValue();
         console.log(
-          `🔄 EXTERNAL HEX CHANGE: ${currentHex} -> parsing to HSB and updating hue`
+          `🔄 EXTERNAL HEX CHANGE: ${currentHex} -> parsing to HSB and updating hue (isInternalUpdate: ${this.isInternalUpdate}, colorDragging: ${this.colorDragging})`
         );
         this.internalHexValue.set(currentHex);
         this.parseHexToHSB(currentHex);
@@ -83,7 +83,7 @@ export class HexInputComponent implements AfterViewInit, OnDestroy {
           ? 'internal update'
           : 'canvas dragging';
         console.log(
-          `🚫 SKIPPING parseHexToHSB due to ${reason} - preserving hue at ${this.hue}`
+          `🚫 SKIPPING parseHexToHSB due to ${reason} - preserving hue at ${this.hue} (isInternalUpdate: ${this.isInternalUpdate}, colorDragging: ${this.colorDragging})`
         );
       }
     });
@@ -163,7 +163,17 @@ export class HexInputComponent implements AfterViewInit, OnDestroy {
    * Handle canvas click
    */
   onCanvasClick(event: MouseEvent): void {
+    // Temporarily set dragging state to prevent effect from running
+    // This ensures canvas clicks preserve hue just like dragging does
+    this.colorDragging = true;
+
     this.updateColorFromCanvas(event);
+
+    // Reset dragging state after the update
+    // Use setTimeout to ensure all synchronous effects complete first
+    setTimeout(() => {
+      this.colorDragging = false;
+    }, 0);
   }
 
   /**
@@ -426,10 +436,14 @@ export class HexInputComponent implements AfterViewInit, OnDestroy {
   private updateIndicatorPosition(): void {
     const canvas = this.canvasRef?.nativeElement;
     if (canvas) {
-      // Calculate indicator center position to cover full canvas area
-      // This allows reaching pure white at the edges
-      this.indicatorX = (this.saturation / 100) * (canvas.width - 1);
-      this.indicatorY = ((100 - this.brightness) / 100) * (canvas.height - 1);
+      // Calculate indicator position within canvas coordinates (0-255)
+      const canvasX = (this.saturation / 100) * (canvas.width - 1);
+      const canvasY = ((100 - this.brightness) / 100) * (canvas.height - 1);
+
+      // Since removing borders, canvas should be directly positioned within container
+      // The indicator is absolutely positioned within the same container
+      this.indicatorX = canvasX;
+      this.indicatorY = canvasY;
     }
   }
 
@@ -512,7 +526,10 @@ export class HexInputComponent implements AfterViewInit, OnDestroy {
    * Convert HSB to HEX (following PrimeNG's approach)
    */
   private hsbToHex(h: number, s: number, b: number): string {
-    const hNorm = h;
+    // Normalize hue to 0-359 range (360° should be treated as 0°)
+    let hNorm = h % 360;
+    if (hNorm < 0) hNorm += 360;
+
     const sNorm = (s * 255) / 100;
     const bNorm = (b * 255) / 100;
 
@@ -524,8 +541,6 @@ export class HexInputComponent implements AfterViewInit, OnDestroy {
       const t1 = bNorm;
       const t2 = ((255 - sNorm) * bNorm) / 255;
       const t3 = ((t1 - t2) * (hNorm % 60)) / 60;
-
-      if (hNorm === 360) h = 0;
 
       if (hNorm < 60) {
         r = t1;
@@ -547,14 +562,11 @@ export class HexInputComponent implements AfterViewInit, OnDestroy {
         b_rgb = t1;
         g = t2;
         r = t2 + t3;
-      } else if (hNorm < 360) {
+      } else {
+        // hNorm < 360 (covers 300-359 range)
         r = t1;
         g = t2;
         b_rgb = t1 - t3;
-      } else {
-        r = 0;
-        g = 0;
-        b_rgb = 0;
       }
     }
 
