@@ -21,10 +21,14 @@
   display: block;
   box-sizing: border-box;
   background: linear-gradient(var(--color), var(--color)),
-    repeating-conic-gradient(from 45deg, #f0f0f0 0% 25%, white 0% 50%) 50% / 3px
-      3px;
+    repeating-conic-gradient(
+        from 45deg,
+        var(--ink-color) 0% 25%,
+        var(--ink-color) 0% 50%
+      )
+      50% / var(--thumbSize) var(--thumbSize);
   // border: 3px solid white;
-  outline: 1px solid black;
+  outline: var(--borderSize) solid var(--ink-color);
   outline-offset: 2px;
   // Apply translate first, then rotate - this ensures centering works correctly
   transform: translate(-50%, -50%) rotate(45deg);

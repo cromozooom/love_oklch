@@ -70,6 +70,7 @@ export const SELECTORS = {
       indicator: '[data-testid="color-indicator"]',
       input: '[data-testid="hex-input"]',
       hueSlider: '[data-testid="hex-hue-slider"] input',
+      hueNumberInput: '[data-testid="hex-hue-slider-number-input"]',
       container: '.color-canvas-container',
     },
 

@@ -17,29 +17,31 @@
 
   <div class="flex">
     <div class="p-4">
-      <div class="color-canvas-container relative w-full">
-        <canvas
-          #colorCanvas
-          class="xcolor-canvas cursor-crosshair border border-gray-300 dark:border-gray-500"
-          width="256"
-          height="256"
-          (click)="onCanvasClick($event)"
-          data-testid="color-canvas"
-        ></canvas>
+      <div class="border border-gray-300 dark:border-gray-500">
+        <div class="color-canvas-container relative" width="256" height="256">
+          <canvas
+            #colorCanvas
+            class="xcolor-canvas cursor-crosshair"
+            width="256"
+            height="256"
+            (click)="onCanvasClick($event)"
+            data-testid="color-canvas"
+          ></canvas>
 
-        <!-- Color indicator dot with mouse drag (PrimeNG pattern) -->
-        <div
-          #colorIndicator
-          class="color-indicator absolute select-none"
-          [style.left.px]="indicatorX"
-          [style.top.px]="indicatorY"
-          (mousedown)="onColorMousedown($event)"
-          data-testid="color-indicator"
-        >
-          <!-- <div class="w-full h-full relative">
-            <div
-            ></div>
-          </div> -->
+          <!-- Color indicator dot with mouse drag (PrimeNG pattern) -->
+          <div
+            #colorIndicator
+            class="color-indicator absolute select-none"
+            [style.left.px]="indicatorX"
+            [style.top.px]="indicatorY"
+            (mousedown)="onColorMousedown($event)"
+            data-testid="color-indicator"
+          >
+            <!-- <div class="w-full h-full relative">
+              <div
+              ></div>
+            </div> -->
+          </div>
         </div>
       </div>
     </div>

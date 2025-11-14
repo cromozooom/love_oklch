@@ -1,7 +1,8 @@
 <div
-  class="new w-auto flex flex-col border border-gray-300 m-2 rounded"
+  class="new w-auto flex flex-col border border-gray-300 dark:border-gray-600 m-2 rounded"
   data-testid="color-setter-component"
   [style.--color]="colorPreview()"
+  [style.--ink-color]="inkColor()"
 >
   <div>
     <div
@@ -10,11 +11,16 @@
       <div class="flex items-center justify-between">
         <div class="flex items-center gap-2 py-2">
           <div class="flex items-center pl-2">
+            <!-- Ink color demo -->
             <div
-              class="w-7 aspect-square rounded border border-gray-300 dark:border-gray-500"
+              class="ml-2 w-7 h-7 rounded border border-gray-300 dark:border-gray-700 flex items-center justify-center text-xs font-semibold"
               [style.backgroundColor]="'var(--color)'"
+              [style.color]="'var(--ink-color)'"
+              title="Text with optimal contrast (--ink-color on --color)"
               data-testid="color-preview"
-            ></div>
+            >
+              Aa
+            </div>
           </div>
           <div>
             <!-- Display value - shown when not in editing mode -->
@@ -58,7 +64,11 @@
             } -->
           </div>
         </div>
-        <button class="px-2" (click)="toggleAccessibilityDetails()">
+        <button
+          type="button"
+          class="px-2"
+          (click)="toggleAccessibilityDetails()"
+        >
           {{
             hideAccessibilityDetails()
               ? "Show Accessibility Details"

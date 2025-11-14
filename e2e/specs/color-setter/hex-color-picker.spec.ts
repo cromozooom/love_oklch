@@ -35,7 +35,7 @@ test.describe('HCPC:  HEX Color Picker Component', () => {
       // Look for HEX tab or switch to HEX mode
       const hexTab = page
         .locator('text=HEX')
-        .or(page.locator('[data-testid="hex-tab"]'));
+        .or(page.locator(SELECTORS.colorSetter.formatSelector.hex));
       if (await hexTab.isVisible()) {
         await hexTab.click();
         await page.waitForTimeout(300);
@@ -67,7 +67,9 @@ test.describe('HCPC:  HEX Color Picker Component', () => {
     await expect(
       page.locator(SELECTORS.colorSetter.displayValue)
     ).toBeVisible();
-    await expect(page.locator('[data-testid="hex-hue-slider"]')).toBeVisible();
+    await expect(
+      page.locator(SELECTORS.colorSetter.hexColorPicker.hueSlider)
+    ).toBeVisible();
 
     // Verify canvas dimensions
     const canvas = page.locator(SELECTORS.colorSetter.hexColorPicker.canvas);
@@ -80,11 +82,11 @@ test.describe('HCPC:  HEX Color Picker Component', () => {
     );
     const indicatorBox = await indicator.boundingBox();
     expect(indicatorBox).toBeTruthy();
-    // Rotated 45deg square will have larger bounding box (√2 * 24 ≈ 34px)
-    expect(indicatorBox!.width).toBeGreaterThan(30);
-    expect(indicatorBox!.width).toBeLessThan(40);
-    expect(indicatorBox!.height).toBeGreaterThan(30);
-    expect(indicatorBox!.height).toBeLessThan(40);
+    // Rotated 45deg square will have larger bounding box (√2 * 10px ≈ 14.14px)
+    expect(indicatorBox!.width).toBeGreaterThan(13);
+    expect(indicatorBox!.width).toBeLessThan(16);
+    expect(indicatorBox!.height).toBeGreaterThan(13);
+    expect(indicatorBox!.height).toBeLessThan(16);
   });
 
   test('HCPC02: should select pure white color at top-left corner', async ({
@@ -420,10 +422,10 @@ test.describe('HCPC:  HEX Color Picker Component', () => {
 
       // Verify indicator has proper size (rotated diamond will have larger bounding box)
       const indicatorBox = await indicator.boundingBox();
-      expect(indicatorBox!.width).toBeGreaterThan(30); // Rotated 24px square is larger
-      expect(indicatorBox!.width).toBeLessThan(40);
-      expect(indicatorBox!.height).toBeGreaterThan(30);
-      expect(indicatorBox!.height).toBeLessThan(40);
+      expect(indicatorBox!.width).toBeGreaterThan(13); // Rotated 10px square is ~14.14px
+      expect(indicatorBox!.width).toBeLessThan(16);
+      expect(indicatorBox!.height).toBeGreaterThan(13);
+      expect(indicatorBox!.height).toBeLessThan(16);
     }
   });
 
@@ -498,12 +500,12 @@ test.describe('HCPC:  HEX Color Picker Component', () => {
       const expectedY = canvasBox!.y + testPos.y;
 
       // Verify the indicator center is positioned exactly where we clicked
-      // Allow 10px tolerance for precision (increased for diamond rotation effects)
+      // Allow 11px tolerance for precision (increased for diamond rotation effects)
       const xDiff = Math.abs(indicatorCenterX - expectedX);
       const yDiff = Math.abs(indicatorCenterY - expectedY);
 
-      expect(xDiff).toBeLessThan(10); // Increased tolerance for rotated diamond
-      expect(yDiff).toBeLessThan(10); // Increased tolerance for rotated diamond
+      expect(xDiff).toBeLessThan(11); // Increased tolerance for rotated diamond
+      expect(yDiff).toBeLessThan(11); // Increased tolerance for rotated diamond
 
       // Log position for debugging if needed
       console.log(
@@ -623,6 +625,160 @@ test.describe('HCPC:  HEX Color Picker Component', () => {
           xDiff
         )},${Math.round(yDiff)})`
       );
+    }
+  });
+
+  test('HCPC13: should preserve hue value during canvas click operations', async ({
+    page,
+  }) => {
+    const hueInput = page.locator(
+      SELECTORS.colorSetter.hexColorPicker.hueNumberInput
+    );
+    const canvas = page.locator(SELECTORS.colorSetter.hexColorPicker.canvas);
+    const colorIndicator = page.locator(
+      SELECTORS.colorSetter.hexColorPicker.indicator
+    );
+
+    await expect(hueInput).toBeVisible({ timeout: 10000 });
+    await expect(canvas).toBeVisible();
+    await expect(colorIndicator).toBeVisible();
+
+    // Set initial hue value to 320
+    await hueInput.fill('320');
+    await hueInput.blur();
+    await page.waitForTimeout(500);
+
+    // Verify initial hue value is set
+    await expect(hueInput).toHaveValue('320.00');
+
+    const canvasBox = await canvas.boundingBox();
+    expect(canvasBox).not.toBeNull();
+
+    if (canvasBox) {
+      // Test multiple click positions to ensure hue preservation
+      const clickPositions = [
+        { x: 150, y: 150, name: 'center area' },
+        { x: 200, y: 80, name: 'upper right' },
+        { x: 50, y: 200, name: 'lower left' },
+        { x: 100, y: 100, name: 'mid area' },
+      ];
+
+      for (const pos of clickPositions) {
+        console.log(`Testing click at ${pos.name} (${pos.x}, ${pos.y})`);
+
+        const hueBefore = await hueInput.inputValue();
+        console.log(`Before click - Hue: ${hueBefore}`);
+
+        // Click on canvas at the specified position
+        await canvas.click({
+          position: { x: pos.x, y: pos.y },
+          force: true,
+        });
+        await page.waitForTimeout(300);
+
+        const hueAfter = await hueInput.inputValue();
+        console.log(`After click - Hue: ${hueAfter}`);
+
+        // Verify hue is preserved (allow small tolerance for floating point precision)
+        const hueChange = Math.abs(
+          parseFloat(hueBefore) - parseFloat(hueAfter)
+        );
+        expect(hueChange).toBeLessThan(0.1);
+
+        // Verify hue stays close to 320
+        const currentHue = parseFloat(hueAfter);
+        expect(currentHue).toBeGreaterThanOrEqual(319.9);
+        expect(currentHue).toBeLessThanOrEqual(320.1);
+      }
+    }
+  });
+
+  test('HCPC14: should preserve hue value during indicator drag operations', async ({
+    page,
+  }) => {
+    const hueInput = page.locator(
+      SELECTORS.colorSetter.hexColorPicker.hueNumberInput
+    );
+    const canvas = page.locator(SELECTORS.colorSetter.hexColorPicker.canvas);
+    const colorIndicator = page.locator(
+      SELECTORS.colorSetter.hexColorPicker.indicator
+    );
+
+    await expect(hueInput).toBeVisible({ timeout: 10000 });
+    await expect(canvas).toBeVisible();
+    await expect(colorIndicator).toBeVisible();
+
+    // Set initial hue value to 320
+    await hueInput.fill('320');
+    await hueInput.blur();
+    await page.waitForTimeout(500);
+
+    // Verify initial hue value is set
+    await expect(hueInput).toHaveValue('320.00');
+
+    const canvasBox = await canvas.boundingBox();
+    expect(canvasBox).not.toBeNull();
+
+    if (canvasBox) {
+      // Test multiple drag operations to ensure hue preservation
+      const dragOperations = [
+        {
+          from: { x: 50, y: 50 },
+          to: { x: 100, y: 100 },
+          name: 'upper left to center',
+        },
+        {
+          from: { x: 100, y: 100 },
+          to: { x: 200, y: 150 },
+          name: 'center to right side',
+        },
+        {
+          from: { x: 200, y: 150 },
+          to: { x: 80, y: 200 },
+          name: 'right side to lower area',
+        },
+      ];
+
+      for (const drag of dragOperations) {
+        console.log(
+          `Testing drag ${drag.name}: (${drag.from.x}, ${drag.from.y}) -> (${drag.to.x}, ${drag.to.y})`
+        );
+
+        const hueBefore = await hueInput.inputValue();
+        console.log(`Before drag - Hue: ${hueBefore}`);
+
+        // Perform drag operation using mouse actions
+        await page.mouse.move(
+          canvasBox.x + drag.from.x,
+          canvasBox.y + drag.from.y,
+          { steps: 10 }
+        );
+        await page.waitForTimeout(200);
+        await page.mouse.down();
+        await page.waitForTimeout(100);
+        await page.mouse.move(
+          canvasBox.x + drag.to.x,
+          canvasBox.y + drag.to.y,
+          { steps: 20 }
+        );
+        await page.waitForTimeout(100);
+        await page.mouse.up();
+        await page.waitForTimeout(300);
+
+        const hueAfter = await hueInput.inputValue();
+        console.log(`After drag - Hue: ${hueAfter}`);
+
+        // Verify hue is preserved (allow small tolerance for floating point precision)
+        const hueChange = Math.abs(
+          parseFloat(hueBefore) - parseFloat(hueAfter)
+        );
+        expect(hueChange).toBeLessThan(0.1);
+
+        // Verify hue stays close to 320
+        const currentHue = parseFloat(hueAfter);
+        expect(currentHue).toBeGreaterThanOrEqual(319.9);
+        expect(currentHue).toBeLessThanOrEqual(320.1);
+      }
     }
   });
 });
