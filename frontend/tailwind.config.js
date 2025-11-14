@@ -1,7 +1,8 @@
+import forms from "@tailwindcss/forms";
+
 /** @type {import('tailwindcss').Config} */
-module.exports = {
+export default {
   content: ["./src/**/*.{html,ts}"],
-  darkMode: "class",
   theme: {
     extend: {
       colors: {
@@ -12,5 +13,5 @@ module.exports = {
       },
     },
   },
-  plugins: [require("@tailwindcss/forms")],
+  plugins: [forms],
 };
