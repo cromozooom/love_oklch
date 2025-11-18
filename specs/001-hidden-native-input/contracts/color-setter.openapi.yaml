@@ -1,0 +1,48 @@
+openapi: 3.0.0
+info:
+  title: ColorSetterComponent API
+  version: 1.0.0
+paths:
+  /color-value:
+    get:
+      summary: Get current color value
+      responses:
+        "200":
+          description: Current color value
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  colorValue:
+                    type: string
+                    example: "#FFFFFF"
+    put:
+      summary: Set color value
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                colorValue:
+                  type: string
+                  example: "#FF0000"
+      responses:
+        "200":
+          description: Color value updated
+  /validation-state:
+    get:
+      summary: Get validation state
+      responses:
+        "200":
+          description: Validation state
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  validationState:
+                    type: string
+                    enum: [valid, invalid]
